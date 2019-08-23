@@ -1,0 +1,122 @@
+*** ; All commands:
+*** ; `allowedurls [on|off|<urls>] -- Control web domains allowed to use a browser client on this server.
+*** ; `allowoperators [on|off] -- Control whether this server allows operators.
+*** ; `authoring [on|off] -- Control whether operators and owners may author.
+*** ; `autoannounce [<msg>] -- Control the greeting message sent to users when they logon.
+*** ; `avatardirectory [user|system <pathname>] -- Control the directories in which Type 1 avatars will be kept.
+*** ; `avatardiskcachelimit [<size>] -- Control the size of the on-disk Type 1 avatar image data cache.
+*** ; `avatarformats [<format>...] -- Control the permitted Type 1 avatar image formats.
+*** ; `avatarmaxdimensions [<width> <height>] -- Control the maximum allowed dimensions of a Type 1 avatar image.
+*** ; `avatarmaxsize [<size>] -- Control the maximum allowed size of a Type 1 avatar image.
+*** ; `avatarmemorycachelimit [<size>] -- Control the size of the in-memory Type 1 avatar image data cache.
+*** ; `avatarurl [on|off|<url>] -- Control the URL whence browser clients will fetch avatar images.
+*** ; `ban <user> -- Permanently ban <user> from the server.
+*** ; `banip [<dur>] <ip> -- Ban all logins from an IP address.
+*** ; `banlist [-a][-t][<ip>|<name>] -- Display a list of the currently banned users.
+*** ; `botkill [on|off] -- Control whether cyborgs (user-originated scripts) may kill.
+*** ; `bots [on|off] -- Control whether cyborgs (user-originated scripts) are allowed.
+*** ; `chatlog [<filename>|off] -- Control server chat logging.
+*** ; `comment <who> <comment> -- Add a comment to a ban record.
+*** ; `customprops [on|off] -- Control the use of custom props on this server.
+*** ; `death [<dur>] -- Set the default death penalty.
+*** ; `defaultpaneurl [-d] [<pane> [<url>]] -- Set the default pane URL for pane <pane> to <url> (DEPRECATED).
+*** ; `defaultroomocc [<n>] -- Control the default room occupancy limit.
+*** ; `delete [<roomnum>] -- Delete a room.
+*** ; `displayurl [<pane>] <url> [<user>] -- Display a URL to a user or the room (DEPRECATED).
+*** ; `downlist [<n>] -- Move the current room down in the room list.
+*** ; `dropzone [on|off] -- Control whether the current room is a drop zone (front gate).
+*** ; `duplicate [<roomnum>] -- Duplicate a room.
+*** ; `entrypage [<url>] -- Control the URL to enter this server via the web browser client.
+*** ; `er  -- Go to the room of last (non-operator) page sender.
+*** ; `extend <who> <dur> -- Modify the duration of an existing ban.
+*** ; `fileserver [<url>|off] -- Control the use of an external file server.
+*** ; `flood [<n>|off] -- Control automatic killing of flooders.
+*** ; `flushavatarcache  -- Make sure everything in the avatar cache is saved to disk.
+*** ; `flushprops <days> -- Flush props older than <days> days from the prop file.
+*** ; `forward [[<fromroom>] <toroom>]|off -- Control a room's forward room.
+*** ; `gag <user> -- Gag currently connected user <user>.
+*** ; `glist [-kopw] [<user>] -- List information about all users currently on the server.
+*** ; `guestaccess [on|off] -- Control whether guest users are allowed to logon to this server.
+*** ; `help [<what>] -- Provide information about server commands.
+*** ; `hide [on|off] -- Control hiding yourself from other users.
+*** ; `hidefrom <user> -- Hide from another user.
+*** ; `kill <user> -- Kill a currently connected user.
+*** ; `killfor <dur> <user> -- Kill a currently connected user for a specified duration.
+*** ; `killprop  -- Remove any and all props you are wearing from the server.
+*** ; `list [-kopw] [<user>] -- List information about all users in the current room.
+*** ; `maxocc [<n>] -- Control the maximum server occupancy limit.
+*** ; `memberrooms [on|off] -- Control whether members may create their own rooms.
+*** ; `mute <user> -- Mute another user.
+*** ; `newroom [<name>] -- Create a new room (one allowed per user).
+*** ; `nowhisper [on|off] -- Control whether whispering is allowed.
+*** ; `operatorcount  -- Show the number of operators currently logged on.
+*** ; `operatorkill [on|off] -- Control whether operators may kill.
+*** ; `operatorpassword <password> -- Set the operator password to <password>.
+*** ; `operatorsonly [on|off] -- Control whether the current room is operators-only.
+*** ; `ownerpassword <password> -- Set the owner password to <password>.
+*** ; `page <msg> -- Summon help from an operator with message <msg>.
+*** ; `paint [on|off] -- Control whether painting is allowed on this server.
+*** ; `paneurl [-d] <roomID> [<pane> [<url>]] -- Set pane URL for pane <pane> in room <roomID> to <url> (DEPRECATED)
+*** ; `password <password> -- Set your navigation password to <password>.
+*** ; `passwordsecurity [on|off] -- Control password security.
+*** ; `picdir [<pathname>] -- Control the directory from which files will be transferred.
+*** ; `pin <user> -- Pin <user> so that he or she can't move.
+*** ; `pinprop [on|off] -- Control usage of the pin prop.
+*** ; `playerkill [on|off] -- Control whether members may kill.
+*** ; `poundcheckinterval [<intv>] -- Control the pound-check interval.
+*** ; `poundprotect [on|off] -- Control the operation of the pound protection feature.
+*** ; `propcontrol [on|off|<rank>] -- Control the prop control feature.
+*** ; `propgag <user> -- Propgag a currently connected user.
+*** ; `purgebanlist  -- Purge elapsed ban records.
+*** ; `purgelimit [<age>] -- Control the prop purge limit.
+*** ; `purgeprops [<age>] -- Purge old props from the prop file.
+*** ; `rclose  -- Close this (member-created) room to further visitors
+*** ; `rdelete  -- Delete this (member-created) room
+*** ; `recycle [<n>] -- Control reuse of guest ID numbers.
+*** ; `rejectesp [on|off] -- Control rejection of ESP messages.
+*** ; `rejectprivate [on|off] -- Control rejection of private messages (whispers and ESP).
+*** ; `repage <msg> -- Respond to the last (non-operator) page sender with message <msg>.
+*** ; `reportprefs  -- Show the current preference settings.
+*** ; `respond <msg> -- Reply to the last sender of an ESP message with message <msg>.
+*** ; `revision [-f] -- Show revision number and other server version information.
+*** ; `rguests [on|off] -- Control whether guests are allowed in this (member-created) room.
+*** ; `rhide [on|off] -- Control hiding the current (member-created) room from users.
+*** ; `rkick <user> -- Kick a user out of the current (member-created) room.
+*** ; `rname <title> -- Rename the current (member-created) room to <title>.
+*** ; `roommaxguests [<n>|unlimited] -- Control the maximum guest occupancy limit for the current room.
+*** ; `roommaxocc [<n>|default] -- Control the maximum occupancy limit for the current room.
+*** ; `roomsfile [<filename>] -- Control the rooms file to be loaded when the server starts up.
+*** ; `ropen  -- Open the current (member-created) room to visitors
+*** ; `rowner <user> -- Transfer ownership of the current (member-created) room to <user>.
+*** ; `rpainting [on|off] -- Control painting in the current (member-created) room.
+*** ; `rpassword [<password>] -- Control password protection for the current (member-created) room.
+*** ; `rpicture [<filename>] -- Control this (member-created) room's background image.
+*** ; `rscripts [on|off] -- Control use of scripts in the current (member-created) room.
+*** ; `runhide  -- Cease hiding the current (member-created) room from users.
+*** ; `runkick <user> -- Cancel the kicking out of <user> from this (member-created) room.
+*** ; `savesessionkeys [on|off] -- Control whether session keys are saved in the server log.
+*** ; `securejavaaccess [on|off] -- Control if older Java clients must authenticate on closed servers.
+*** ; `securelogoff [on|off] -- Control whether the authentication server tracks logoffs.
+*** ; `securesite [on|off] -- Control use of an external authorization server.
+*** ; `security [<authhost>[:<authport>] [<retries>] | off] -- Control the configuration of the external authorization server.
+*** ; `servername <name> -- Set the server name to <name>.
+*** ; `setrank <command> [<rank>] -- Control the rank setting for <command>.
+*** ; `showranks  -- Display the rank settings of the various server commands.
+*** ; `shutdown  -- Shut down the server.
+*** ; `sitepage  -- Display the URL of this server's site page.
+*** ; `sortprops  -- Sort the props in the props file for quicker access
+*** ; `spoof [on|off] -- Control whether or not members may spoof.
+*** ; `tock  -- Announce the server's local time.
+*** ; `track <user> -- Track logons from a currently connected user.
+*** ; `trackfor <dur> <name> -- Track logons from a currently connected user.
+*** ; `trackip [<dur>] <ip> -- Track all logins from an IP address.
+*** ; `unban <user> -- Unban a previously banned user (see the `ban command).
+*** ; `ungag <name> -- Ungag a previously gagged user.
+*** ; `unhide  -- Cease hiding from other users.
+*** ; `unhidefrom <user> -- Cease hiding from another user previously hidden from.
+*** ; `unmute <user> -- Cease muting another user previously muted via the `mute command.
+*** ; `unpin <user> -- Release a previously pinned user (see the `pin command).
+*** ; `unpropgag <user> -- Unpropgag a previously propgagged user (see the `propgag command).
+*** ; `untrack <user> -- Cease tracking a previously tracked user (see the `track command).
+*** ; `uplist [<n>] -- Move the current room up in the room list.
+*** ; `url [<url>] -- Control the URL to advertise for clients to access this server.

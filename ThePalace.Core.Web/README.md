@@ -24,7 +24,7 @@ wwwroot-ViewScripts\\*:
 <br />
   Models\\* - Model objects
 <br />
-  Services\\* - Service wrapper calls, Iptscrae Engine, MagicService.js (Cipher), Utiliy functions
+  Services\\* - Service wrapper calls, Iptscrae Engine, MagicService.js (Cipher), Utility functions
 <br />
   Views\\* - Dialog html templates
 </BLOCKQUOTE>

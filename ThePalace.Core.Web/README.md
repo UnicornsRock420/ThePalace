@@ -8,19 +8,20 @@ wwwroot-Scripts\\* - Angular JS 1.x, Bootstrap, jQuery, JIMP, Pako Zlib, Zlib.js
 <br />
 wwwroot-ViewScripts\\*:
 <br />
-<dd></dd><dd></dd>Home/Index.js - Main Controller
+<BLOCKQUOTE>
+  Home/Index.js - Main Controller
 <br />
-<dd></dd><dd></dd>Constants\\* - Palace constants values
+  Constants\\* - Palace constants values
 <br />
-<dd></dd><dd></dd>Controllers\\* - Dialog controllers
+  Controllers\\* - Dialog controllers
 <br />
-<dd></dd><dd></dd>Directives\\* - Angular directives
+  Directives\\* - Angular directives
 <br />
-<dd></dd><dd></dd>Factories\\* - Reusable/wrapper objects
+  Factories\\* - Reusable/wrapper objects
 <br />
-<dd></dd><dd></dd>Models\\* - Model objects
+  Models\\* - Model objects
 <br />
-<dd></dd><dd></dd>Services\\* - Service wrapper calls, Iptscrae Engine, MagicService.js (Cipher), Utiliy functions
+  Services\\* - Service wrapper calls, Iptscrae Engine, MagicService.js (Cipher), Utiliy functions
 <br />
-<dd></dd><dd></dd>Views\\* - Dialog html templates
-<br />
+  Views\\* - Dialog html templates
+</BLOCKQUOTE>

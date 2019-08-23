@@ -252,10 +252,18 @@
                     var assetData;
 
                     try {
-                        var inflate = new $window.Zlib.Inflate(this.asset.data);
-                        assetData = inflate.decompress();
+                        assetData = pako.inflate(this.asset.data);
                     } catch (ex) {
                         assetData = null;
+                    }
+
+                    if (!assetData) {
+                        try {
+                            var inflate = new $window.Zlib.Inflate(this.asset.data);
+                            assetData = inflate.decompress();
+                        } catch (ex) {
+                            assetData = null;
+                        }
                     }
 
                     if (!assetData || assetData.length < (1936 * 2)) {
@@ -298,10 +306,18 @@
                     var assetData;
 
                     try {
-                        var inflate = new $window.Zlib.Inflate(this.asset.data);
-                        assetData = inflate.decompress();
+                        assetData = pako.inflate(this.asset.data);
                     } catch (ex) {
                         assetData = null;
+                    }
+
+                    if (!assetData) {
+                        try {
+                            var inflate = new $window.Zlib.Inflate(this.asset.data);
+                            assetData = inflate.decompress();
+                        } catch (ex) {
+                            assetData = null;
+                        }
                     }
 
                     if (!assetData || assetData.length < (968 * 5)) {
@@ -354,10 +370,18 @@
                     var assetData;
 
                     try {
-                        var inflate = new $window.Zlib.Inflate(this.asset.data);
-                        assetData = inflate.decompress();
+                        assetData = pako.inflate(this.asset.data);
                     } catch (ex) {
                         assetData = null;
+                    }
+
+                    if (!assetData) {
+                        try {
+                            var inflate = new $window.Zlib.Inflate(this.asset.data);
+                            assetData = inflate.decompress();
+                        } catch (ex) {
+                            assetData = null;
+                        }
                     }
 
                     if (!assetData || assetData.length < (968 * 5)) {
@@ -410,10 +434,18 @@
                     var assetData;
 
                     try {
-                        var inflate = new $window.Zlib.Inflate(this.asset.data);
-                        assetData = inflate.decompress();
+                        assetData = pako.inflate(this.asset.data);
                     } catch (ex) {
                         assetData = null;
+                    }
+
+                    if (!assetData) {
+                        try {
+                            var inflate = new $window.Zlib.Inflate(this.asset.data);
+                            assetData = inflate.decompress();
+                        } catch (ex) {
+                            assetData = null;
+                        }
                     }
 
                     var imageDataSize = (this.width * this.height * 4);

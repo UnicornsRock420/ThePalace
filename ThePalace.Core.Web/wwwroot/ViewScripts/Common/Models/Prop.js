@@ -164,8 +164,24 @@
                             this.decode8BitProp();
                         }
 
-                        if (!this.badProp) {
-                            this.ready = true;
+                        if (!this.badProp && this.asset.data) {
+                            var that = this;
+                            Jimp.read(this.asset.data).then(function (data) {
+                                data.getBase64(Jimp.MIME_PNG, function (err, src) {
+                                    if (!err) {
+                                        that.imageObject = new ImageObject({
+                                            sourceUrl: src,
+                                            resolve: function () {
+                                                that.ready = true;
+
+                                                that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
+                                            },
+                                        });
+
+                                        that.imageObject.load();
+                                    }
+                                });
+                            });
                         }
                     }
                 }),

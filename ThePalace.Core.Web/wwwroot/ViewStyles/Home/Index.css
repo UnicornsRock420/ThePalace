@@ -1,0 +1,224 @@
+﻿.modal.fade {
+    opacity: 1;
+}
+
+.modal-backdrop {
+    opacity: 0.8 !important;
+}
+
+div#interface div#userlist,
+div#interface div#roomlist {
+    min-height: 250px;
+    max-height: 800px;
+}
+
+div#interface div#loglist,
+div#interface div#propbag {
+    min-height: 250px;
+    max-height: 1000px;
+}
+
+div#interface div#userlist,
+div#interface div#roomlist,
+div#interface div#loglist,
+div#interface div#propbag {
+    border: 1px solid black;
+    display: inline-block;
+    border-radius: 4px;
+    position: absolute;
+    overflow: hidden;
+    height: auto;
+    width: 350px;
+    z-index: 8;
+}
+
+    div#interface div#loglist ul.list {
+        max-height: 800px;
+        overflow: auto;
+    }
+
+div#interface div#propbag {
+    min-height: 800px;
+    min-width: 500px;
+}
+
+    div#interface div#propbag li.item {
+        background-repeat: no-repeat;
+        border: 1px solid black;
+        background-size: 100%;
+        text-align: center;
+        height: 44px;
+        width: 44px;
+        float: left;
+        padding: 1px;
+        margin: 1px;
+        height: 32px;
+        width: 32px;
+    }
+
+        div#interface div#propbag li.item.selected {
+            border: 1px solid gold;
+            background-size: 70%;
+        }
+
+div#interface div span.header {
+    border-radius: 4px;
+    padding: 5px;
+    padding-top: 2px;
+    width: 100%;
+}
+
+div#interface div.gridStyle {
+    border: 1px solid rgb(212,212,212);
+    height: 300px;
+    width: 400px;
+}
+
+    div#interface div.gridStyle div.ngCell {
+        line-height: 22pt;
+    }
+
+div#interface ul#toolbar {
+}
+
+    div#interface ul#toolbar li {
+        border: 2px solid transparent;
+        display: inline-block;
+        text-align: center;
+        list-style: none;
+        font-size: 18px;
+        height: 32px;
+        width: 32px;
+    }
+
+        div#interface ul#toolbar li:hover {
+            border: 2px solid black;
+            cursor: pointer;
+        }
+
+div#interface ul.menu {
+    border: 1px solid black;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+
+    div#interface ul.menu li {
+        list-style: none;
+        margin-left: 4px;
+        cursor: pointer;
+        padding: 4px;
+        float: left;
+        border: 0;
+    }
+
+        div#interface ul.menu li:first-child {
+            margin-left: 0;
+        }
+
+        div#interface ul.menu li:hover {
+            border: 1px solid black;
+            border-radius: 4px;
+            padding: 3px;
+        }
+
+div#interface div#screen {
+    border: 1px solid black;
+    min-height: 384px;
+    min-width: 512px;
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+input#chat {
+    font-size: 12pt;
+    max-width: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+div#interface div#screen canvas {
+    background-color: transparent;
+    min-height: 384px;
+    min-width: 512px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+div#interface span#statusmsg,
+div#interface span#population {
+    display: inline-block;
+}
+
+div#interface span#statusmsg {
+    text-align: left;
+    float: left;
+    width: 85%;
+}
+
+div#interface span#population {
+    text-align: right;
+    float: right;
+    width: 10%;
+}
+
+div#interface ul#contextmenu {
+    border: 1px solid ActiveBorder;
+    background-color: Window;
+    position: absolute;
+    border-radius: 3px;
+    display: block;
+    padding: 4px;
+    margin: 0;
+    z-index: 1;
+}
+
+    div#interface ul#contextmenu li {
+        background-color: Window;
+        white-space: nowrap;
+        list-style: none;
+        min-width: 125px;
+        padding: 1px;
+        padding-left: 16px;
+        display: block;
+        margin: 0;
+    }
+
+        div#interface ul#contextmenu li ul {
+            background-color: Window;
+            display: block;
+        }
+
+        div#interface ul#contextmenu li.separator {
+            border-bottom: 2px solid ActiveBorder;
+            border-top: 2px solid ActiveBorder;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        div#interface ul#contextmenu li:hover {
+            background-color: ActiveCaption;
+            cursor: pointer;
+        }
+
+        div#interface ul#contextmenu li span {
+            padding: 2px;
+        }
+
+    div#interface ul#contextmenu > li {
+        min-width: 0;
+        padding: 2px;
+        margin: 0;
+    }
+
+        div#interface ul#contextmenu > li > ul {
+            border: 1px solid ActiveBorder;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+        }

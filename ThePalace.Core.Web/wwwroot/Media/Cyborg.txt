@@ -1,0 +1,200 @@
+﻿ON SIGNON
+{
+	"@64,64 !S-It's " USERNAME + SAY
+}
+
+ON ENTER {
+    "@64,64 !E-It's " USERNAME + SAY
+}
+
+ON LEAVE {
+    "@64,64 !L-It's " USERNAME + SAY
+}
+
+ON FOCUS {
+    "Back!" SAY
+}
+
+ON BLUR {
+    "^Away" SAY
+}
+
+ON IDLE {
+    "^Idle" SAY
+}
+
+ON INCHAT 
+{
+    ; this is your FINGER information - replace the stuff in quotes with 
+    ; information about yourself.
+    {
+		"^<insert name>\x0d"
+		"<insert e-mail>\x0d" +
+		WHOCHAT PRIVATEMSG
+	} CHATSTR "finger" == CHATSTR ";finger" == OR WHOCHAT WHOME == NOT AND IF
+}
+
+ON OUTCHAT 
+{
+    ; more expressive prop changes (in response to what YOU say)
+	{
+		{
+            "Halo" DONPROP
+            { DOFFPROP } 120 ALARMEXEC
+        } 30 ALARMEXEC
+	} CHATSTR "who me.$" GREPSTR IF
+
+	{
+		{
+            "Lightbulb" DONPROP
+            { DOFFPROP } 120 ALARMEXEC
+        } 30 ALARMEXEC
+	} CHATSTR "a.* idea" GREPSTR IF
+
+    ; Zap somebody by positioning the mouse and then say "zap"
+	{
+        "!)no Zap!" MOUSEPOS SAYAT
+        255 0 0 PENCOLOR
+        2 PENSIZE 
+        POSX POSY MOUSEPOS LINE 
+        { PAINTUNDO } 10 ALARMEXEC
+        "" CHATSTR =
+	} CHATSTR "zap" == IF
+
+    ; clean the room by saying "clean"
+	{
+	    CLEARLOOSEPROPS
+	    PAINTCLEAR
+	    "" CHATSTR =
+	} CHATSTR "clean" == IF
+
+	{
+        MOUSEPOS SWAP ITOA "," & SWAP ITOA & SAY
+	    "" CHATSTR =
+	} CHATSTR "mp" == IF
+
+	{
+        BEEP
+	    "" CHATSTR =
+	} CHATSTR "beep" == IF
+
+    ; spoof somebody by positioning the mouse on their mouth and then type "msay blah blah"
+	{
+      "$1" GREPSUB MOUSEPOS SAYAT
+	  "" CHATSTR =
+	} CHATSTR "^msay (.*)$" GREPSTR IF
+
+    {
+        "-----MOUSEPOS TEST-----" LOGMSG
+        MOUSEPOS ITOA SWAP ITOA "," & SWAP & LOGMSG
+        "-----EXEC TEST-----" LOGMSG
+        { "test" LOGMSG } EXEC
+        "-----IFELSE TEST-----" LOGMSG
+        { "test1" } { "test2" } TRUE IFELSE LOGMSG
+        { "test1" } { "test2" } "1" "1" == IFELSE LOGMSG
+        "-----GLOBAL TEST-----" LOGMSG
+        1 test1 DUP GLOBAL = 3 test1 = test ITOA LOGMSG
+        "-----+ OPERATOR TEST-----" LOGMSG
+        2 test2 = 2 test2 + test = test ITOA LOGMSG
+        "-----+= OPERATOR TEST-----" LOGMSG
+        2 test3 = 2 test3 += test ITOA LOGMSG
+        "-----++ OPERATOR TEST-----" LOGMSG
+        test ++ test ITOA LOGMSG
+        0 test = { ++ } [ test ] FOREACH test ITOA LOGMSG
+        { GLOBAL } [ test1 ] FOREACH test1 ITOA LOGMSG
+        "-----GET TEST-----" LOGMSG
+        [ "test" ] 0 GET LOGMSG
+        [ "test1" "test2" "test3" ] 1 GET LOGMSG
+        "-----LENGTH & RANDOM TEST-----" LOGMSG
+        [ "test" ] DUP LENGTH RANDOM GET LOGMSG
+        [ "test1" "test2" "test3" "test4" ] DUP LENGTH RANDOM GET LOGMSG
+        "-----NOT TEST-----" LOGMSG
+        0 NOT ITOA LOGMSG
+        "-----AND TEST-----" LOGMSG
+        { "test1" } { "test2" } 1 0 AND IFELSE LOGMSG
+        "-----|= OPERATOR TEST-----" LOGMSG
+        0 test = 1 test |= test ITOA LOGMSG
+        "-----PUT TEST-----" LOGMSG
+        [ 0 ] test = 5 test 0 PUT test 0 GET ITOA LOGMSG
+        "-----Multi-dimensional Array TEST-----" LOGMSG
+        [ [ 1 5 ] ] 0 GET 1 GET ITOA LOGMSG
+        "-----ARRAY TEST-----" LOGMSG
+        1 ARRAY test = 5 test 0 PUT test 0 GET ITOA LOGMSG
+        "-----PICK TEST-----" LOGMSG
+        0 1 2 3 4 5 5 PICK ITOA LOGMSG
+        "-----OVER TEST-----" LOGMSG
+        0 1 2 3 4 5 OVER ITOA LOGMSG
+        "-----Multi-depth Atomlist TEST-----" LOGMSG
+        { { "test1" } { "test2" } } EXEC TRUE IFELSE LOGMSG
+        { "-----ALARMEXEC TEST-----" LOGMSG "test3" LOGMSG } 180 ALARMEXEC
+        "-----UPPERCASE TEST-----" LOGMSG
+        "test" UPPERCASE LOGMSG
+        "-----LOWERCASE TEST-----" LOGMSG
+        "TEST" LOWERCASE LOGMSG
+        "-----SERVERNAME TEST-----" LOGMSG
+        SERVERNAME LOGMSG
+        "-----ROOMNAME TEST-----" LOGMSG
+        ROOMNAME LOGMSG
+        "-----USERID TEST-----" LOGMSG
+        USERID ITOA LOGMSG
+        "-----TOPTYPE TEST-----" LOGMSG
+        0 TOPTYPE ITOA LOGMSG
+        "test" TOPTYPE ITOA LOGMSG
+        0 test = test TOPTYPE ITOA LOGMSG
+        "-----VARTYPE TEST-----" LOGMSG
+        0 test = test VARTYPE ITOA LOGMSG
+        "-----GREPSTR & GREPSUB TEST-----" LOGMSG
+        { "$1" GREPSUB LOGMSG } "Hello" "He([l]+)o" GREPSTR IF
+        "-----SUBSTRING TEST-----" LOGMSG
+        "test" 1 2 SUBSTRING LOGMSG
+        "-----SUBSTR TEST-----" LOGMSG
+        { "YES" LOGMSG } "test" "e" SUBSTR IF
+        "-----STRINDEX TEST-----" LOGMSG
+        "test" "e" STRINDEX ITOA LOGMSG
+        "-----SQUAREROOT TEST-----" LOGMSG
+        9 SQUAREROOT ITOA LOGMSG
+        "-----STRLEN TEST-----" LOGMSG
+        "test" STRLEN ITOA LOGMSG
+        "-----ABS TEST-----" LOGMSG
+        1 test = test -- test -- test ABS ITOA LOGMSG
+        "-----USERNAME TEST-----" LOGMSG
+        USERNAME LOGMSG
+        "-----WHILE (loop) TEST-----" LOGMSG
+        0 j = { "test" LOGMSG j ++ } { 3 j > } WHILE
+        "-----MAX TEST-----" LOGMSG
+        [ -1 -4 5 6 ] MAX ITOA LOGMSG
+        "-----MIN TEST-----" LOGMSG
+        [ -1 -4 5 6 ] MIN ITOA LOGMSG
+        "-----SUM TEST-----" LOGMSG
+        [ -1 -4 5 6 ] SUM ITOA LOGMSG
+        "-----AVG TEST-----" LOGMSG
+        [ 3 5 7 ] AVG ITOA LOGMSG
+        "-----POW TEST-----" LOGMSG
+        3 3 POW ITOA LOGMSG
+        "-----DATETIME TEST-----" LOGMSG
+        DATETIME ITOA LOGMSG
+        { "Test1" LOGMSG } test DEF test EXEC
+        "-----Multi-dimension/depth Atomlist/Array TEST-----" LOGMSG
+        [ { { "test" LOGMSG } } ] 0 GET EXEC EXEC
+        "-----GOTOURL TEST-----" LOGMSG
+        "http://google.com" GOTOURL
+        "-----DIMROOM & FOREACH TEST-----" LOGMSG
+        0 j = { ITOA " DIMROOM" & STRTOATOM j 10 * ALARMEXEC j ++ } [ 100 90 80 70 60 50 40 30 20 30 40 50 60 70 80 90 100 ] FOREACH
+		"-----SETPROPS TEST-----" LOGMSG
+		[ 211592320 -273281920 ] SETPROPS
+        "-----SOUND TEST-----" LOGMSG
+        "SignOn.mp3" SOUND
+		"-----SETCOLOR & SETFACE TEST-----" LOGMSG
+		16 RANDOM SETCOLOR 16 RANDOM SETFACE
+		"-----LINE & PAINTUNDO TEST-----" LOGMSG
+		10 10 20 20 LINE { PAINTUNDO } 20 ALARMEXEC
+		"-----Clean Stack TEST-----" LOGMSG
+		{ POP } { STACKDEPTH } WHILE
+
+        "" CHATSTR =
+    } CHATSTR "testrun" == IF
+
+	{
+		16 RANDOM SETCOLOR
+	} CHATSTR "" <> CHATSTR "^[`']" GREPSTR NOT AND IF
+}

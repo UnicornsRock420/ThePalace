@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>ThePalace.Core.Server.Plugins</AssemblyName>
+    <RootNamespace>ThePalace.Core.Server.Plugins.Test</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ThePalace.Core.Core\ThePalace.Core.Core.csproj" />
+    <ProjectReference Include="..\ThePalace.Core.Server\ThePalace.Core.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
+</Project>

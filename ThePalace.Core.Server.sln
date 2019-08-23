@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThePalace.Core.Server", "ThePalace.Core.Server\ThePalace.Core.Server.csproj", "{926E4175-AD0F-4069-BA78-55A0775F3BD5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThePalace.Core.Core", "ThePalace.Core.Core\ThePalace.Core.Core.csproj", "{72CA5106-C0A6-4FF9-B069-8836915E7423}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThePalace.Core.Web", "ThePalace.Core.Web\ThePalace.Core.Web.csproj", "{6C96C26C-0DB4-424D-A15E-207D39575A22}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThePalace.Core.Database", "ThePalace.Core.Database\ThePalace.Core.Database.csproj", "{46027768-02F6-4757-BFFC-2F6B1D49F26E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThePalace.SqlFunctions", "ThePalace.SqlFunctions\ThePalace.SqlFunctions.csproj", "{E9CFC5A7-1AAD-4DC5-9B31-3B39D3F41AF7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThePalace.Core.Server.Plugins.Test", "ThePalace.Core.Plugins.Test\ThePalace.Core.Server.Plugins.Test.csproj", "{0F54DFC4-25DC-468C-921F-E3F18272B80F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{926E4175-AD0F-4069-BA78-55A0775F3BD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{926E4175-AD0F-4069-BA78-55A0775F3BD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{926E4175-AD0F-4069-BA78-55A0775F3BD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{926E4175-AD0F-4069-BA78-55A0775F3BD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72CA5106-C0A6-4FF9-B069-8836915E7423}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72CA5106-C0A6-4FF9-B069-8836915E7423}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72CA5106-C0A6-4FF9-B069-8836915E7423}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72CA5106-C0A6-4FF9-B069-8836915E7423}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C96C26C-0DB4-424D-A15E-207D39575A22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C96C26C-0DB4-424D-A15E-207D39575A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C96C26C-0DB4-424D-A15E-207D39575A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C96C26C-0DB4-424D-A15E-207D39575A22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46027768-02F6-4757-BFFC-2F6B1D49F26E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46027768-02F6-4757-BFFC-2F6B1D49F26E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46027768-02F6-4757-BFFC-2F6B1D49F26E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46027768-02F6-4757-BFFC-2F6B1D49F26E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9CFC5A7-1AAD-4DC5-9B31-3B39D3F41AF7}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{E9CFC5A7-1AAD-4DC5-9B31-3B39D3F41AF7}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{E9CFC5A7-1AAD-4DC5-9B31-3B39D3F41AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9CFC5A7-1AAD-4DC5-9B31-3B39D3F41AF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F54DFC4-25DC-468C-921F-E3F18272B80F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F54DFC4-25DC-468C-921F-E3F18272B80F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F54DFC4-25DC-468C-921F-E3F18272B80F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F54DFC4-25DC-468C-921F-E3F18272B80F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A806A13C-0A1E-40FC-847A-95497355DF62}
+	EndGlobalSection
+EndGlobal

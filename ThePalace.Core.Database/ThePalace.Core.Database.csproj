@@ -1,0 +1,175 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Build\2. Synonyms\" />
+    <Folder Include="Build\4. Views\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ThePalace.Core.Core\ThePalace.Core.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Build\1. Schema\1.00.Schemas.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.00.Admin.Config.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.01.Admin.GroupRoles.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.02.Admin.Groups.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.03.Admin.GroupUsers.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.04.Admin.Roles.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.05.Admin.Users.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.06.Assets.Assets.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.07.Crons.Crons.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.08.Hotspots.Hotspots.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.09.Hotspots.Pictures.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.10.Hotspots.States.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.11.Hotspots.Vortexes.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.12.Rooms.LooseProps.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.13.Rooms.RoomData.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.14.Rooms.Rooms.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.15.Users.Assets.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.16.Users.UserData.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.16.Users.Users.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.17.Admin.Log.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.18.Rooms.DrawCmds.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.19.Assets.Metadata.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.20.Admin.Auth.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.21.Saves.Rooms.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.22.Templates.Rooms.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.23.Saves.RoomData.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.24.Templates.RoomData.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.25.Saves.LooseProps.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.26.Templates.LooseProps.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.27.Saves.Hotspots.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.28.Templates.Hotspots.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.29.Saves.Pictures.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.30.Templates.Pictures.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.31.Saves.Vortexes.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.32.Templates.Vortexes.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.33.Saves.DrawCmds.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.34.Templates.DrawCmds.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\3. Tables\3.37.Admin.Bans.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\6. Stored Procedures\6.00.Rooms.FlushExtendedRoomDetails.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\6. Stored Procedures\6.01.Users.FlushUserDetails.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\6. Stored Procedures\6.02.Users.FlushUserAssets.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.00.Admin.Config.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.01.Rooms.Rooms.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.02.Rooms.RoomData.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.03.Admin.GroupRoles.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.04.Admin.Groups.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.05.Admin.GroupUsers.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.06.Admin.Roles.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.07.Admin.Users.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Build\7. Data\7.08.Admin.Auth.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

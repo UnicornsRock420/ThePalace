@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@section css {
+    <link type="text/css" rel="stylesheet" href="~/Content/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="~/Content/font-awesome.css">
+    <link type="text/css" rel="stylesheet" href="~/Scripts/tabstrip/ng-tabstrip.css">
+    <link type="text/css" rel="stylesheet" href="~/Scripts/treeview/ng-treeview.css">
+    <link type="text/css" rel="stylesheet" href="~/Content/ui-grid.css">
+    <link type="text/css" rel="stylesheet" href="~/ViewStyles/Home/Index.css">
+}
+
+@section scriptsheader {
+    <script type="text/javascript" src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+}
+
+@section scriptsfooter {
+    <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/angular.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/angular-touch.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/angular-ui/ui-bootstrap-tpls.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/tabstrip/ng-tabstrip.js"></script>
+    <script type="text/javascript" src="~/Scripts/treeview/ng-treeview.js"></script>
+    <script type="text/javascript" src="~/Scripts/angular-ui/ui-grid.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/zlib/gzip.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/zlib/pako.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/expect.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/expect-element.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/midi.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/app.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Constants/CommonFlags.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Constants/PalacePalette.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Models/Asset.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Models/Prop.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Directives/draggableA.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Factories/CanvasNode.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Factories/AudioObject.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Factories/ImageObject.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Factories/Packet.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Factories/WebSockets.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/clientSettingsDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Services/dialogService.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Services/utilService.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Services/iptService.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Services/magicService.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Services/propsService.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Services/mvcEndPoints.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Home/Index.js"></script>
+}
+
+<div id="interface" ng-app="ThePalace" ng-controller="PalaceClient" oncontextmenu="return false;" style="visibility: hidden;">
+    <ul id="toolbar">
+        <li ng-click="Toolbar_OnClick('showUserList')"><span class="fa fa-users" title="Users List"></span></li>
+        <li ng-click="Toolbar_OnClick('showRoomList')"><span class="fa fa-cubes" title="Rooms List"></span></li>
+        <li ng-click="Toolbar_OnClick('showLogList')"><span class="fa fa-book" title="Log"></span></li>
+        <li ng-click="Menu_OnClick($event, 'USERNAME')"><span class="fa fa-cogs" title="Settings"></span></li>
+        <li ng-click="Toolbar_OnClick('showPropbag')"><span class="fa fa-image" title="Prop Bag"></span></li>
+        <li ng-show="model.UserInfo.hasAdmin"><span class="fa fa-magic" title="Admin Options"></span></li>
+    </ul>
+
+    <ul id="contextmenu"
+        ng-show="model.Interface.contextMenu.type"
+        ng-style="{
+            left: model.Interface.contextMenu.positionX,
+            top: model.Interface.contextMenu.positionY}">
+        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId === model.UserInfo.userId" ng-click="Menu_OnClick($event, 'USERNAME')">Change Nickname</li>
+        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId" ng-click="Menu_OnClick($event, 'WHISPER')">Whisper</li>
+        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId" ng-click="Menu_OnClick($event, 'OFFER')">Offer</li>
+        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId && model.UserInfo.hasAdmin" ng-click="Menu_OnClick($event, 'KILLUSER')">Kill</li>
+        <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'PROPDEL')">Delete</li>
+        <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'USERPROP')">Wear</li>
+        <li ng-show="model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTNEW')">New Door</li>
+        <li ng-show="model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTDEL')">Delete</li>
+    </ul>
+
+    <div id="userlist"
+         ng-show="model.Interface.showUserList"
+         ng-dblclick="RoomGoto_OnClick('user')">
+        <span class="header" draggable>User List:</span>
+        <div class="grid" ui-grid="ListOfAllUsers_Options" ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize></div>
+        <button ng-if="model.ConnectionInfo.connected"
+                ng-show="model.ConnectionInfo.connected"
+                ng-click="ListOfAllUsersRefresh_OnClick($event)"
+                ng-disabled="model.Interface.blockUI">
+            Refresh
+        </button>
+        <button ng-if="model.ConnectionInfo.connected"
+                ng-show="model.ConnectionInfo.connected"
+                ng-click="RoomGoto_OnClick('user')">
+            Goto
+        </button>
+        <button ng-click="model.Interface.showUserList = false">Close</button>
+    </div>
+
+    <div id="roomlist"
+         ng-show="model.Interface.showRoomList"
+         ng-dblclick="RoomGoto_OnClick('room')">
+        <span class="header" draggable>Room List:</span>
+        <div class="grid" ui-grid="ListOfAllRooms_Options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize></div>
+        <button ng-if="model.ConnectionInfo.connected"
+                ng-show="model.ConnectionInfo.connected"
+                ng-click="ListOfAllRoomsRefresh_OnClick($event)"
+                ng-disabled="model.Interface.blockUI">
+            Refresh
+        </button>
+        <button ng-if="model.ConnectionInfo.connected"
+                ng-show="model.ConnectionInfo.connected"
+                ng-click="RoomGoto_OnClick('room')">
+            Goto
+        </button>
+        <button ng-click="model.Interface.showRoomList = false">Close</button>
+    </div>
+
+    <div id="loglist"
+         ng-show="model.Interface.showLogList">
+        <span class="header" draggable>Log:</span>
+        <ul class="list">
+            <li class="item" ng-repeat="log in model.Interface.LogList">
+                <span class="label">
+                    <span ng-style="{
+                        'font-weight': log.isWhisper ? 'bold' : 'normal',
+                        'font-style': log.isWhisper ? 'italic' : 'normal'}">{{log.userName}}:&nbsp;{{log.text}}</span>
+                </span>
+            </li>
+        </ul>
+        <button ng-click="model.Interface.LogList = []" ng-show="model.Interface.LogList.length">Clear Log</button>
+        <button ng-click="model.Interface.showLogList = false">Close</button>
+    </div>
+
+    <div id="screen"
+         ng-mousedown="Screen_OnClick($event)"
+         ng-mouseup="Screen_OnMouseUp($event)"
+         ng-mousemove="Screen_OnMouseMove($event)"
+         ng-style="{
+            'width': model.Screen.width,
+            'height': model.Screen.height,
+            'cursor': model.Interface.cursor,
+            'background-image': model.Screen.backgroundUrl}">
+        <canvas id="bgdrawcmd"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="looseprops"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="spot"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="sprite"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="fgdrawcmd"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="dimroom"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="nametags"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+        <canvas id="bubble"
+                ng-style="{
+                    'width': model.RoomInfo.width,
+                    'height': model.RoomInfo.height}"></canvas>
+    </div>
+
+    <div ng-style="{
+        'width': model.Screen.width}">
+        <span id="statusmsg" ng-bind="model.Interface.statusMessage" ng-click="StatusMsg_OnClick($event)"></span>&nbsp;<span id="population" ng-bind="model.Interface.population" ng-click="StatusMsg_OnClick($event)"></span>
+        <br />
+        <input id="chat" type="text" ng-model="model.Interface.chatWindowText" ng-keydown="Chat_OnKeyDown($event)" />
+    </div>
+</div>

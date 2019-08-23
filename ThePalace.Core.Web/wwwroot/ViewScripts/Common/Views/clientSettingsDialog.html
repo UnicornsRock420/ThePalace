@@ -1,0 +1,17 @@
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/Styles/clientSettingsDialog.css" />
+
+<div class="clientsettings">
+    <div class="modalheader"><strong>Client Settings</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="modalbody">
+        <label for="username">Nickname:</label><input id="username" type="text" ng-model="model.ClientSettings.userName" />
+        <hr />
+        <input id="showname" type="checkbox" ng-model="model.ClientSettings.showNames" /><label for="showname">Show name</label>
+        <input id="shownameshadow" type="checkbox" ng-model="model.ClientSettings.showNameShadows" /><label for="shownameshadow">Show shadow</label>
+        <input id="shownamebackground" type="checkbox" ng-model="model.ClientSettings.showNameBackgrounds" /><label for="shownamebackground">Show background</label>
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

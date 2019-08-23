@@ -1,0 +1,11 @@
+﻿<div style="padding:10px;">
+    <div style="text-align:center;font-size:1.4em;"><strong>Error</strong><span style="float:right;cursor:pointer;" ng-click="$dismiss()">&#10006;</span></div>
+    <hr />
+    <div style="padding-top:10px;">
+        <p ng-bind-html="model.errors">
+        </p>
+    </div>
+    <div style="text-align:right;">
+        <button class="btn btn-primary" style="padding:10px;" ng-click="$close()">Ok</button>
+    </div>
+</div>

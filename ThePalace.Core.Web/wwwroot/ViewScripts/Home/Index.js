@@ -1342,26 +1342,12 @@
                         for (var j = 0; j < $scope.model.RoomInfo.LooseProps.length; j++) {
                             var looseprop = $scope.model.RoomInfo.LooseProps[j];
 
-                            if (!looseprop.prop || !looseprop.prop.ready) continue;
+                            if (!looseprop.prop || !looseprop.prop.ready || !looseprop.prop.imageObject) continue;
 
                             var xCoord = looseprop.loc.h;
                             var yCoord = looseprop.loc.v;
 
-                            if ((looseprop.prop.asset.flags & ServerAssetFlags.HighResProp) != 0) {
-                                loosepropsCanvas.drawImage(looseprop.prop.imageObject.image, xCoord, yCoord, looseprop.prop.width, looseprop.prop.height, 0, 0, looseprop.prop.width, looseprop.prop.height);
-                            }
-                            else {
-                                var data = loosepropsCanvas.getImageData(xCoord, yCoord, looseprop.prop.width, looseprop.prop.height);
-
-                                for (var b = 0; b < looseprop.prop.asset.data.data.length; b++) {
-                                    if (looseprop.prop.asset.data.data[b] !== 0) {
-                                        data.data[b] = looseprop.prop.asset.data.data[b];
-                                    }
-                                }
-
-                                loosepropsCanvas.setRawImageData(data);
-                                loosepropsCanvas.putImageData(xCoord, yCoord, 0, 0, looseprop.prop.width, looseprop.prop.height);
-                            }
+                            loosepropsCanvas.drawImage(looseprop.prop.imageObject.image, xCoord, yCoord, looseprop.prop.width, looseprop.prop.height, 0, 0, looseprop.prop.width, looseprop.prop.height);
                         }
                     }
 
@@ -1450,25 +1436,12 @@
                                     for (var k = 0; k < user.propSpec.length; k++) {
                                         var propSpec = user.propSpec[k];
 
-                                        if (!propSpec.prop || !propSpec.prop.ready) continue;
+                                        if (!propSpec.prop || !propSpec.prop.ready || !propSpec.prop.imageObject) continue;
 
                                         var xCoord = user.roomPos.h + propSpec.prop.horizontalOffset - 22;
                                         var yCoord = user.roomPos.v + propSpec.prop.verticalOffset - 22;
 
-                                        if ((propSpec.prop.asset.flags & ServerAssetFlags.HighResProp) !== 0) {
-                                            spriteCanvas.drawImage(propSpec.prop.imageObject.image, xCoord, yCoord, propSpec.prop.width, propSpec.prop.height, 0, 0, propSpec.prop.width, propSpec.prop.height);
-                                        } else {
-                                            var data = spriteCanvas.getImageData(xCoord, yCoord, propSpec.prop.width, propSpec.prop.height);
-
-                                            for (var b = 0; b < propSpec.prop.asset.data.data.length; b++) {
-                                                if (propSpec.prop.asset.data.data[b] !== 0) {
-                                                    data.data[b] = propSpec.prop.asset.data.data[b];
-                                                }
-                                            }
-
-                                            spriteCanvas.setRawImageData(data);
-                                            spriteCanvas.putImageData(xCoord, yCoord, 0, 0, propSpec.prop.width, propSpec.prop.height);
-                                        }
+                                        spriteCanvas.drawImage(propSpec.prop.imageObject.image, xCoord, yCoord, propSpec.prop.width, propSpec.prop.height, 0, 0, propSpec.prop.width, propSpec.prop.height);
                                     }
                                 }
                             }

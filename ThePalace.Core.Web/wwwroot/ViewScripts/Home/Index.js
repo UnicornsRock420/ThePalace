@@ -1686,7 +1686,7 @@
                     }
                     else if (spot) {
                         if ($event.originalEvent.button === 0) {
-                            if ((spot.flags & HotSpotFlags.HF_DontMoveHere) === 0) {
+                            if ((spot.flags & (HotSpotFlags.HF_DontMoveHere | HotSpotFlags.HF_Forbidden)) === 0) {
                                 $scope.setPos({
                                     h: xCoord,
                                     v: yCoord,

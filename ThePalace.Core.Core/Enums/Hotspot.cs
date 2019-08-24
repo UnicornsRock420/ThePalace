@@ -44,7 +44,7 @@ namespace ThePalace.Core.Enums
         HS_Fill = 0x0040,
         HS_Forbidden = 0x0080,
         HS_Mandatory = 0x0100,
-        HS_LandingPad = 0x0200
+        HS_LandingPad = 0x0200,
     };
 
     public enum HotspotTypes : short

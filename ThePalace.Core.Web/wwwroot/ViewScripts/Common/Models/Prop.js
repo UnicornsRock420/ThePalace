@@ -169,6 +169,7 @@
                             Jimp.read(this.asset.data).then(function (data) {
                                 data.getBase64(Jimp.MIME_PNG, function (err, src) {
                                     if (!err) {
+                                        that.imageDataUrl = src;
                                         that.imageObject = new ImageObject({
                                             sourceUrl: src,
                                             resolve: function () {

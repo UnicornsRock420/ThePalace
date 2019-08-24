@@ -49,13 +49,16 @@ app.constant('UserFlags', {
 });
 
 app.constant('HotSpotFlags', {
-    HF_Draggable: 0x01,
-    HF_DontMoveHere: 0x02,
-    HF_Invisible: 0x04,
-    HF_ShowName: 0x08,
-    HF_ShowFrame: 0x10,
-    HF_Shadow: 0x20,
-    HF_Fill: 0x40,
+    HF_Draggable: 0x0001,
+    HF_DontMoveHere: 0x0002,
+    HF_Invisible: 0x0004,
+    HF_ShowName: 0x0008,
+    HF_ShowFrame: 0x0010,
+    HF_Shadow: 0x0020,
+    HF_Fill: 0x0040,
+    HF_Forbidden: 0x0080,
+    HF_Mandatory: 0x0100,
+    HF_LandingPad: 0x0200,
 });
 
 app.constant('HotSpotTypes', {

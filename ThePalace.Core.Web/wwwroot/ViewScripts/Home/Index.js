@@ -194,6 +194,7 @@
                         population: null,
                         spotHover: null,
                         chatWindowText: '',
+                        authoringMode: false,
                     },
                     Application: {
                         soundPlayer: new AudioObject(),
@@ -1283,24 +1284,40 @@
                             $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
 
                             break;
+                        case 'AUTHORINGMODE':
+                            $scope.model.Interface.authoringMode = !$scope.model.Interface.authoringMode;
+                            $scope.model.Interface.contextMenu.type = null;
+
+                            $scope.Screen_OnDraw('spotLayerUpdate');
+
+                            break;
                         case 'ROOMINFO':
                             var copy = $.extend(false, {}, $scope.model.RoomInfo);
 
-                            dialogService.roomInfo(copy).then(function (response) {
-                                if (response) {
-                                    $scope.model.RoomInfo.name = response.name;
+                            if (copy) {
+                                dialogService.roomInfo(copy).then(function (response) {
+                                    if (response) {
+                                        $scope.model.RoomInfo.name = response.name;
 
-                                    $scope.serverSend(
-                                        'MSG_ROOMINFO',
-                                        {
-                                            roomID: $scope.model.RoomInfo.roomId,
-                                        });
-                                }
+                                        $scope.serverSend(
+                                            'MSG_ROOMINFO',
+                                            {
+                                                roomID: response.roomId,
+                                                name: response.name,
+                                                flags: response.flags,
+                                                pictName: response.pictName,
+                                                artistName: response.artistName,
+                                                facesID: response.facesID,
+                                            });
+                                    }
 
-                                return;
-                            }, function (errors) {
-                                return;
-                            });
+                                    return;
+                                }, function (errors) {
+                                    return;
+                                });
+
+                                $scope.model.Interface.contextMenu.type = null;
+                            }
 
                             break;
                         case 'SPOTINFO':
@@ -1349,6 +1366,8 @@
                                 }, function (errors) {
                                     return;
                                 });
+
+                                $scope.model.Interface.contextMenu.type = null;
                             }
 
                             break;
@@ -1479,7 +1498,10 @@
                         for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                             var spot = $scope.model.RoomInfo.SpotList[j];
 
-                            if (((spot.flags & HotSpotFlags.HF_ShowFrame) !== 0 || ((spot.flags & HotSpotFlags.HF_Invisible) === 0 && $scope.model.Screen.spotLayerShow)) && (spot.vortexes && spot.vortexes.length > 0)) {
+                            if ((
+                                $scope.model.Interface.authoringMode || (spot.flags & HotSpotFlags.HF_ShowFrame) !== 0 ||
+                                ((spot.flags & HotSpotFlags.HF_Invisible) === 0 && $scope.model.Screen.spotLayerShow)) &&
+                                (spot.vortexes && spot.vortexes.length > 0)) {
                                 var xCoord = spot.loc.h + spot.vortexes[0].h;
                                 var yCoord = spot.loc.v + spot.vortexes[0].v;
 
@@ -2533,15 +2555,15 @@
                     'MSG_USERLOG': (function (refNum, message) {
                         $scope.model.ServerInfo.totalPeople = message.nbrUsers;
 
-                        //$scope.model.Application.soundPlayer.preload({
-                        //    sourceUrl: '/media/SignOn.mp3',
-                        //    resolve: function (response) {
-                        //        this.play();
-                        //    },
-                        //    reject: function (errors) {
-                        //    },
-                        //});
-                        //$scope.model.Application.soundPlayer.load();
+                        $scope.model.Application.soundPlayer.preload({
+                            sourceUrl: '/media/SignOn.mp3',
+                            resolve: function (response) {
+                                this.play();
+                            },
+                            reject: function (errors) {
+                            },
+                        });
+                        $scope.model.Application.soundPlayer.load();
 
                         if ($scope.model.UserInfo.userId === refNum) {
                             if ($scope.model.Application.cyborg['SIGNON']) {
@@ -2608,6 +2630,10 @@
 
                             $scope.model.RoomInfo.roomId = response.room.roomID;
                             $scope.model.RoomInfo.name = response.room.name;
+                            $scope.model.RoomInfo.flags = response.room.flags;
+                            $scope.model.RoomInfo.facesID = response.room.facesID;
+                            $scope.model.RoomInfo.pictName = response.room.pictName;
+                            $scope.model.RoomInfo.artistName = response.room.artistName;
                             $scope.model.RoomInfo.SpotList = response.hotspots;
                             $scope.model.RoomInfo.PictureList = response.pictures;
                             $scope.model.RoomInfo.LooseProps = [];

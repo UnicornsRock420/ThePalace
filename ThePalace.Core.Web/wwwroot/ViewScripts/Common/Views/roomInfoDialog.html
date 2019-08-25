@@ -9,6 +9,13 @@
         <label for="pictname">Picture Name:</label><input id="pictname" type="text" ng-model="model.pictName" />
         <br />
         <label for="artistName">Artist Name:</label><input id="artistName" type="text" ng-model="model.artistName" />
+        <hr />
+        <input id="Private" name="flags" type="checkbox" ng-model="flags.Private" /><label for="Draggable">Private</label>
+        <input id="NoPainting" name="flags" type="checkbox" ng-model="flags.NoPainting" /><label for="NoPainting">No Painting</label>
+        <input id="NoScripts" name="flags" type="checkbox" ng-model="flags.NoScripts" /><label for="NoScripts">No Scripts</label>
+        <input id="Hidden" name="flags" type="checkbox" ng-model="flags.Hidden" /><label for="Hidden">Hidden</label>
+        <input id="StaffOnly" name="flags" type="checkbox" ng-model="flags.StaffOnly" /><label for="StaffOnly">Staff Only</label>
+        <input id="DropZone" name="flags" type="checkbox" ng-model="flags.DropZone" /><label for="DropZone">Drop Zone</label>
     </div>
     <div class="modalfooter">
         <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>

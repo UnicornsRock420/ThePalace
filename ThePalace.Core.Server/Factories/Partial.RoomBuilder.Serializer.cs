@@ -45,7 +45,7 @@ namespace ThePalace.Server.Factories
         {
             NotifyPropertyChanged();
             //isDirty = true;
-            hasUnsavedAuthorChanges = true;
+            HasUnsavedAuthorChanges = true;
             HasUnsavedChanges = true;
 
             if (inPacket != null)
@@ -141,7 +141,7 @@ namespace ThePalace.Server.Factories
                     picture.transColor = PeekSInt16();
                     picture.reserved = PeekSInt16();
 
-                    if (picture.picNameOfst > 0 && picture.picNameOfst < Count - 32)
+                    if (picture.picNameOfst > 0 && picture.picNameOfst < Count)
                     {
                         picture.name = PeekPString(32, picture.picNameOfst);
 
@@ -187,11 +187,15 @@ namespace ThePalace.Server.Factories
                     hotspot.scriptTextOfst = PeekSInt16();
                     hotspot.alignReserved = PeekSInt16();
 
-                    if (hotspot.nameOfst > 0 && hotspot.nameOfst < Count - 32)
+                    if (hotspot.nameOfst > 0 && hotspot.nameOfst < Count)
+                    {
                         hotspot.name = PeekPString(32, hotspot.nameOfst);
+                    }
 
                     if (hotspot.scriptTextOfst > 0 && hotspot.scriptTextOfst < Count)
+                    {
                         hotspot.script = ReadCString(hotspot.scriptTextOfst);
+                    }
 
                     if (hotspot.nbrPts > 0 && hotspot.ptsOfst > 0 && hotspot.ptsOfst < Count - (Point.SizeOf * hotspot.nbrPts))
                     {

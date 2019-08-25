@@ -46,7 +46,7 @@ namespace ThePalace.Server.Factories
         private bool roomNotFound;
         private Int32 _height;
         private Int32 _width;
-        public bool hasUnsavedAuthorChanges = false;
+        public bool HasUnsavedAuthorChanges = false;
 
         // Collections
         private List<HotspotRec> _hotspots;
@@ -402,7 +402,7 @@ namespace ThePalace.Server.Factories
                 ex.DebugLog();
             }
 
-            hasUnsavedAuthorChanges = false;
+            HasUnsavedAuthorChanges = false;
         }
 
         public void Write(ThePalaceEntities dbContext)
@@ -424,17 +424,31 @@ namespace ThePalace.Server.Factories
                 });
 
                 var sqlParam1 = new SqlParameter("roomID", ID);
-                var sqlParam2 = new SqlParameter("hasUnsavedAuthorChanges", hasUnsavedAuthorChanges);
+                var sqlParam2 = new SqlParameter("hasUnsavedAuthorChanges", HasUnsavedAuthorChanges);
                 dbContext.Database.ExecuteSqlCommand("EXEC Rooms.FlushExtendedRoomDetails @roomID, @hasUnsavedAuthorChanges", sqlParam1, sqlParam2);
 
-                if (hasUnsavedAuthorChanges)
+                if (HasUnsavedAuthorChanges)
                 {
-                    ThePalace.Core.Factories.RoomData.WriteHotspots(dbContext, ID, _hotspots);
-                    ThePalace.Core.Factories.RoomData.WritePictures(dbContext, ID, _pictures);
+                    lock (_hotspots)
+                    {
+                        ThePalace.Core.Factories.RoomData.WriteHotspots(dbContext, ID, _hotspots);
+                    }
+
+                    lock (_pictures)
+                    {
+                        ThePalace.Core.Factories.RoomData.WritePictures(dbContext, ID, _pictures);
+                    }
                 }
 
-                ThePalace.Core.Factories.RoomData.WriteLooseProps(dbContext, ID, _looseProps);
-                ThePalace.Core.Factories.RoomData.WriteDrawCmds(dbContext, ID, _drawCmds);
+                lock (_looseProps)
+                {
+                    ThePalace.Core.Factories.RoomData.WriteLooseProps(dbContext, ID, _looseProps);
+                }
+
+                lock (_drawCmds)
+                {
+                    ThePalace.Core.Factories.RoomData.WriteDrawCmds(dbContext, ID, _drawCmds);
+                }
 
                 if (dbContext.HasUnsavedChanges())
                 {
@@ -449,7 +463,7 @@ namespace ThePalace.Server.Factories
                 AcceptChanges();
             }
 
-            hasUnsavedAuthorChanges = false;
+            HasUnsavedAuthorChanges = false;
         }
     }
 }

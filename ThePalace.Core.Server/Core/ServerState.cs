@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
+using ThePalace.Core.Interfaces;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Factories;
-using ThePalace.Core.Interfaces;
 using ThePalace.Server.Network;
 using ThePalace.Server.Network.Sockets;
 
@@ -66,6 +66,34 @@ namespace ThePalace.Server.Core
             ThreadController.Init();
         }
 
+        public static void FlushRooms(ThePalaceEntities dbContext)
+        {
+            roomsCache.Values
+                .ToList()
+                .ForEach(r =>
+                {
+                    var nbrUsers = SessionManager.GetRoomUserCount(r.ID);
+
+                    if (r.HasUnsavedChanges)
+                    {
+                        if (nbrUsers < 1 && (r.Flags & (int)RoomFlags.RF_Closed) != 0)
+                        {
+                            r.Flags &= ~(int)RoomFlags.RF_Closed;
+                        }
+
+                        r.Write(dbContext);
+                    }
+
+                    if (nbrUsers < 1 && (r.Flags & (int)RoomFlags.RF_DropZone) == 0)
+                    {
+                        lock (roomsCache)
+                        {
+                            roomsCache.Remove(r.ID);
+                        }
+                    }
+                });
+        }
+
         public static void RefreshSettings()
         {
             var _serverName = ConfigManager.GetValue("ServerName", string.Empty, true);
@@ -106,30 +134,7 @@ namespace ThePalace.Server.Core
                     }
                 }
 
-                roomsCache.Values
-                    .ToList()
-                    .ForEach(r =>
-                    {
-                        var nbrUsers = SessionManager.GetRoomUserCount(r.ID);
-
-                        if (r.HasUnsavedChanges)
-                        {
-                            if (nbrUsers < 1 && (r.Flags & (int)RoomFlags.RF_Closed) != 0)
-                            {
-                                r.Flags &= ~(int)RoomFlags.RF_Closed;
-                            }
-
-                            r.Write(dbContext);
-                        }
-
-                        if (nbrUsers < 1 && (r.Flags & (int)RoomFlags.RF_DropZone) == 0)
-                        {
-                            lock (roomsCache)
-                            {
-                                roomsCache.Remove(r.ID);
-                            }
-                        }
-                    });
+                FlushRooms(dbContext);
 
                 if (isShutDown)
                 {
@@ -149,7 +154,7 @@ namespace ThePalace.Server.Core
                 {
                     dbContext.Rooms.AsNoTracking()
                         .Where(r => roomsCache.Keys.Contains(r.RoomId))
-                        .Where(r => r.LastModified > _lastCycleDate)
+                        .Where(r => _lastCycleDate == null || r.LastModified > _lastCycleDate)
                         .ToList()
                         .ForEach(r =>
                         {
@@ -265,8 +270,6 @@ namespace ThePalace.Server.Core
 
             PalaceAsyncSocket.Shutdown();
             PalaceAsyncSocket.Dispose();
-            //ProxyAsyncSocket.Shutdown();
-            //ProxyAsyncSocket.Dispose();
             WebAsyncSocket.Shutdown();
             WebAsyncSocket.Dispose();
             SessionManager.Dispose();

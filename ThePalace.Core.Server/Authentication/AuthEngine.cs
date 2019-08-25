@@ -31,10 +31,10 @@ namespace ThePalace.Server.Authorization
                     authUserID = dbContext.Auth.AsNoTracking()
                         .AsEnumerable()
                         .Where(a =>
-                            (a.AuthType == (byte)AuthTypes.Password && a.Value.Trim() == (inboundPacket.reg.wizPassword ?? string.Empty).Trim()) ||
-                            (a.AuthType == (byte)AuthTypes.IPAddress && a.Value.Trim() == ipAddress) ||
-                            (a.AuthType == (byte)AuthTypes.RegCode && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr.Value == inboundPacket.reg.counter && a.Crc.Value == inboundPacket.reg.crc) ||
-                            (a.AuthType == (byte)AuthTypes.PUID && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr.Value == inboundPacket.reg.puidCtr && a.Crc.Value == inboundPacket.reg.puidCRC))
+                            ((a.AuthType & (byte)AuthTypes.Password) == 0 || ((a.AuthType & (byte)AuthTypes.Password) != 0 && a.Value.Trim() == (inboundPacket.reg.wizPassword ?? string.Empty).Trim())) &&
+                            ((a.AuthType & (byte)AuthTypes.IPAddress) == 0 || ((a.AuthType & (byte)AuthTypes.IPAddress) != 0 && a.Value.Trim() == ipAddress)) &&
+                            ((a.AuthType & (byte)AuthTypes.RegCode) == 0 || ((a.AuthType & (byte)AuthTypes.RegCode) != 0 && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr == sessionState.reg.counter && a.Crc == sessionState.reg.crc)) &&
+                            ((a.AuthType & (byte)AuthTypes.PUID) == 0 || ((a.AuthType & (byte)AuthTypes.PUID) != 0 && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr == sessionState.reg.puidCtr && a.Crc == sessionState.reg.puidCRC)))
                         .Select(a => a.UserId)
                         .FirstOrDefault();
 
@@ -63,10 +63,10 @@ namespace ThePalace.Server.Authorization
                     authUserID = dbContext.Auth.AsNoTracking()
                         .AsEnumerable()
                         .Where(a =>
-                            (a.AuthType == (byte)AuthTypes.Password && a.Value.Trim() == (inboundPacket.password ?? string.Empty).Trim()) ||
-                            (a.AuthType == (byte)AuthTypes.IPAddress && a.Value.Trim() == ipAddress) ||
-                            (a.AuthType == (byte)AuthTypes.RegCode && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr == sessionState.reg.counter && a.Crc == sessionState.reg.crc) ||
-                            (a.AuthType == (byte)AuthTypes.PUID && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr == sessionState.reg.puidCtr && a.Crc == sessionState.reg.puidCRC))
+                            ((a.AuthType & (byte)AuthTypes.Password) == 0 || ((a.AuthType & (byte)AuthTypes.Password) != 0 && a.Value.Trim() == (inboundPacket.password ?? string.Empty).Trim())) &&
+                            ((a.AuthType & (byte)AuthTypes.IPAddress) == 0 || ((a.AuthType & (byte)AuthTypes.IPAddress) != 0 && a.Value.Trim() == ipAddress)) &&
+                            ((a.AuthType & (byte)AuthTypes.RegCode) == 0 || ((a.AuthType & (byte)AuthTypes.RegCode) != 0 && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr == sessionState.reg.counter && a.Crc == sessionState.reg.crc)) &&
+                            ((a.AuthType & (byte)AuthTypes.PUID) == 0 || ((a.AuthType & (byte)AuthTypes.PUID) != 0 && a.Ctr.HasValue && a.Crc.HasValue && a.Ctr == sessionState.reg.puidCtr && a.Crc == sessionState.reg.puidCRC)))
                         .Select(a => a.UserId)
                         .FirstOrDefault();
 
@@ -98,7 +98,7 @@ namespace ThePalace.Server.Authorization
 
                     authUserID = dbContext.Auth.AsNoTracking()
                         .Where(a =>
-                            (a.AuthType == (byte)AuthTypes.Password && a.Value.Trim() == inboundPacket.password.Trim()))
+                            ((a.AuthType & (byte)AuthTypes.Password) != 0 && a.Value.Trim() == inboundPacket.password.Trim()))
                         .Join(
                             dbContext.Users.AsNoTracking(),
                             a => a.UserId,

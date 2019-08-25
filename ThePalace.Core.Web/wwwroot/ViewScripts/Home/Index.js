@@ -636,7 +636,7 @@
                                     for (var k = 0; k < userRef.propSpec.length; k++) {
                                         var propSpec = userRef.propSpec[k];
 
-                                        if (propSpec.id === assetID) {
+                                        if (propSpec.id === assetID && !propSpec.prop) {
                                             propSpec.prop = new Prop($scope, assetID, assetCrc, undefined, assetData);
                                             propSpec.prop.endian = true;
                                             propSpec.prop.asset.name = assetName;
@@ -1063,10 +1063,18 @@
                         }
                     }
 
+                    var newPropSpec = [];
+                    for (var j = 0; j < propSpec.length; j++) {
+                        newPropSpec.push({
+                            crc: propSpec[j].crc,
+                            id: propSpec[j].id,
+                        });
+                    }
+
                     $scope.serverSend(
                         'MSG_USERPROP',
                         {
-                            propSpec: propSpec,
+                            propSpec: newPropSpec,
                         }
                     );
 
@@ -1242,7 +1250,7 @@
                                 });
 
                             break;
-                        case 'USERNAME':
+                        case 'CLIENTSETTINGS':
                             var copy = {
                                 ClientSettings: $.extend(true, {}, $scope.model.ClientSettings),
                             };
@@ -1268,9 +1276,112 @@
                             });
 
                             break;
-                    }
+                        case 'ADMINSETTINGS':
+                            $scope.model.Interface.contextMenu.type = 'admin';
 
-                    $scope.model.Interface.contextMenu.type = null;
+                            $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
+                            $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
+
+                            break;
+                        case 'ROOMINFO':
+                            var copy = $.extend(false, {}, $scope.model.RoomInfo);
+
+                            dialogService.roomInfo(copy).then(function (response) {
+                                if (response) {
+                                    $scope.model.RoomInfo.name = response.name;
+
+                                    $scope.serverSend(
+                                        'MSG_ROOMINFO',
+                                        {
+                                            roomID: $scope.model.RoomInfo.roomId,
+                                        });
+                                }
+
+                                return;
+                            }, function (errors) {
+                                return;
+                            });
+
+                            break;
+                        case 'SPOTINFO':
+                            var roomList = [];
+                            var copy = null;
+
+                            for (var j = 0; j < $scope.model.Interface.RoomList.length; j++) {
+                                roomList.push({
+                                    id: $scope.model.Interface.RoomList[j].primaryID,
+                                    name: $scope.model.Interface.RoomList[j].name,
+                                });
+                            }
+
+                            for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
+                                if ($scope.model.RoomInfo.SpotList[j].id === $scope.model.Interface.contextMenu.targetId) {
+                                    copy = $.extend(false, {}, $scope.model.RoomInfo.SpotList[j]);
+
+                                    break;
+                                }
+                            }
+
+                            if (copy) {
+                                dialogService.spotInfo(roomList, copy).then(function (response) {
+                                    if (response) {
+                                        for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
+                                            if ($scope.model.RoomInfo.SpotList[j].id === $scope.model.Interface.contextMenu.targetId) {
+                                                $scope.model.RoomInfo.SpotList[j] = response;
+
+                                                $scope.serverSend(
+                                                    'MSG_SPOTINFO',
+                                                    {
+                                                        roomID: $scope.model.RoomInfo.roomId,
+                                                        spotID: response.id,
+                                                        script: response.script,
+                                                        name: response.name,
+                                                        dest: response.dest,
+                                                        flags: response.flags,
+                                                    });
+
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    return;
+                                }, function (errors) {
+                                    return;
+                                });
+                            }
+
+                            break;
+                        case 'SPOTNEW':
+                            $scope.serverSend('MSG_SPOTNEW');
+
+                            $scope.model.Interface.contextMenu.type = null;
+
+                            break;
+                        case 'SPOTDEL':
+                            dialogService.yesNo('Are you sure you want to delete spot ID ' + $scope.model.Interface.contextMenu.targetId + '?').then(function (response) {
+                                if (response) {
+                                    $scope.serverSend(
+                                        'MSG_SPOTDEL',
+                                        {
+                                            roomID: $scope.model.RoomInfo.roomId,
+                                            spotID: $scope.model.Interface.contextMenu.targetId,
+                                        });
+                                }
+
+                                return;
+                            }, function (errors) {
+                                return;
+                            });
+
+                            $scope.model.Interface.contextMenu.type = null;
+
+                            break;
+                        default:
+                            $scope.model.Interface.contextMenu.type = null;
+
+                            break;
+                    }
                 });
 
                 $scope.Screen_OnDraw = (function () {
@@ -1318,41 +1429,52 @@
                                 var xCoord = wornprop.loc.h;
                                 var yCoord = wornprop.loc.v;
 
-                                if ((wornprop.prop.asset.flags & ServerAssetFlags.HighResProp) != 0) {
-                                    xCoord += wornprop.prop.horizontalOffset;
-                                    yCoord += wornprop.prop.verticalOffset;
+                                //xCoord += wornprop.prop.horizontalOffset;
+                                //yCoord += wornprop.prop.verticalOffset;
 
-                                    loosepropsCanvas.drawImage(wornprop.prop.imageObject.image, xCoord, yCoord, wornprop.prop.width, wornprop.prop.height, 0, 0, wornprop.prop.width, wornprop.prop.height);
-                                }
-                                else {
-                                    var data = loosepropsCanvas.getImageData(xCoord, yCoord, wornprop.prop.width, wornprop.prop.height);
-
-                                    for (var b = 0; b < wornprop.prop.asset.data.data.length; b++) {
-                                        if (wornprop.prop.asset.data.data[b] !== 0) {
-                                            data.data[b] = wornprop.prop.asset.data.data[b];
-                                        }
-                                    }
-
-                                    loosepropsCanvas.setRawImageData(data);
-                                    loosepropsCanvas.putImageData(xCoord, yCoord, 0, 0, wornprop.prop.width, wornprop.prop.height);
-                                }
+                                loosepropsCanvas.drawImage(wornprop.prop.imageObject.image, xCoord, yCoord, wornprop.prop.width, wornprop.prop.height, 0, 0, wornprop.prop.width, wornprop.prop.height);
                             }
                         }
 
                         for (var j = 0; j < $scope.model.RoomInfo.LooseProps.length; j++) {
                             var looseprop = $scope.model.RoomInfo.LooseProps[j];
 
-                            if (!looseprop.prop || !looseprop.prop.ready || !looseprop.prop.imageObject) continue;
+                            if (!looseprop.propSpec.prop || !looseprop.propSpec.prop.ready || !looseprop.propSpec.prop.imageObject) continue;
 
                             var xCoord = looseprop.loc.h;
                             var yCoord = looseprop.loc.v;
 
-                            loosepropsCanvas.drawImage(looseprop.prop.imageObject.image, xCoord, yCoord, looseprop.prop.width, looseprop.prop.height, 0, 0, looseprop.prop.width, looseprop.prop.height);
+                            loosepropsCanvas.drawImage(looseprop.propSpec.prop.imageObject.image, xCoord, yCoord, looseprop.propSpec.prop.width, looseprop.propSpec.prop.height, 0, 0, looseprop.propSpec.prop.width, looseprop.propSpec.prop.height);
                         }
                     }
 
                     if ($scope.model.Screen.spotLayerUpdate) {
                         spotCanvas.strokeStyleRgba(255, 255, 255, 1);
+                        spotCanvas.fillStyleRgba(255, 255, 255, 0.4);
+
+                        for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
+                            var spot = $scope.model.RoomInfo.SpotList[j];
+
+                            if ($scope.model.RoomInfo.backgroundObject && $scope.model.RoomInfo.backgroundObject.width > 0 && $scope.model.RoomInfo.backgroundObject.height > 0 &&
+                                spot.states && spot.states.length > 0 && spot.state < spot.states.length) {
+                                var state = spot.states[spot.state];
+
+                                for (var k = 0; k < $scope.model.RoomInfo.PictureList.length; k++) {
+                                    if ($scope.model.RoomInfo.PictureList[k].picID === state.pictID) {
+                                        var imageObject = $scope.model.RoomInfo.PictureList[k].imageObject;
+
+                                        if (imageObject && imageObject.height > 0 && imageObject.width > 0) {
+                                            var xCoord = spot.loc.h + state.picLoc.h - $window.parseInt($scope.model.RoomInfo.backgroundObject.width / 2);
+                                            var yCoord = spot.loc.v + state.picLoc.v - $window.parseInt($scope.model.RoomInfo.backgroundObject.height / 2);
+
+                                            spotCanvas.drawImage(imageObject.image, xCoord, yCoord, imageObject.width, imageObject.height, 0, 0, imageObject.width, imageObject.height);
+                                        }
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
 
                         for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                             var spot = $scope.model.RoomInfo.SpotList[j];
@@ -1371,6 +1493,7 @@
                                 }
 
                                 spotCanvas.stroke();
+                                spotCanvas.fill();
                             }
                         }
                     }
@@ -1500,23 +1623,23 @@
                         loosepropIndex = j;
 
                         polygon.push({
-                            v: looseprop.loc.v - (looseprop.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.prop.width / 2),
+                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
                         });
 
                         polygon.push({
-                            v: looseprop.loc.v - (looseprop.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.prop.width / 2),
+                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
                         });
 
                         polygon.push({
-                            v: looseprop.loc.v + (looseprop.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.prop.width / 2),
+                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
                         });
 
                         polygon.push({
-                            v: looseprop.loc.v + (looseprop.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.prop.width / 2),
+                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
                         });
 
                         insideLooseProp = utilService.pointInPolygon(polygon, {
@@ -1742,23 +1865,23 @@
                         looseprop = $scope.model.RoomInfo.LooseProps[j];
 
                         polygon.push({
-                            v: looseprop.loc.v - (looseprop.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.prop.width / 2),
+                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
                         });
 
                         polygon.push({
-                            v: looseprop.loc.v - (looseprop.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.prop.width / 2),
+                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
                         });
 
                         polygon.push({
-                            v: looseprop.loc.v + (looseprop.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.prop.width / 2),
+                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
                         });
 
                         polygon.push({
-                            v: looseprop.loc.v + (looseprop.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.prop.width / 2),
+                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
                         });
 
                         insideLooseProp = utilService.pointInPolygon(polygon, {
@@ -2128,7 +2251,9 @@
 
                                         break;
                                     default:
-                                        $('#chat').focus();
+                                        if (!$('body').hasClass('modal-open')) {
+                                            $('#chat').focus();
+                                        }
 
                                         break;
                                 }
@@ -2262,7 +2387,23 @@
                         if ($scope.model.RoomInfo.roomId === message.roomID) {
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 if ($scope.model.RoomInfo.SpotList[j].id === message.spotID) {
-                                    $scope.model.RoomInfo.SpotList[j].state == message.state;
+                                    $scope.model.RoomInfo.SpotList[j].state = message.state;
+
+                                    $scope.Screen_OnDraw('spotLayerUpdate');
+
+                                    $scope.$apply();
+
+                                    break;
+                                }
+                            }
+                        }
+                    }),
+                    'MSG_SPOTMOVE': (function (refNum, message) {
+                        if ($scope.model.RoomInfo.roomId === message.roomID) {
+                            for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
+                                if ($scope.model.RoomInfo.SpotList[j].id === message.spotID) {
+                                    $scope.model.RoomInfo.SpotList[j].loc.h = message.pos.h;
+                                    $scope.model.RoomInfo.SpotList[j].loc.v = message.pos.v;
 
                                     $scope.Screen_OnDraw('spotLayerUpdate');
 
@@ -2472,15 +2613,15 @@
                             $scope.model.RoomInfo.LooseProps = [];
                             $scope.model.RoomInfo.DrawCmds = [];
 
-                            if (response.looseProps) {
-                                for (var j = response.looseProps.length - 1; j >= 0; j--) {
-                                    $scope.model.RoomInfo.LooseProps.splice(0, 0, response.looseProps[j]);
-                                }
-                            }
-
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 if (($scope.model.RoomInfo.SpotList[j].script || '').trim() !== '') {
                                     $scope.model.RoomInfo.SpotList[j].events = iptService.iptParser($scope.model.RoomInfo.SpotList[j].script, true);
+                                }
+                            }
+
+                            if (response.looseProps) {
+                                for (var j = response.looseProps.length - 1; j >= 0; j--) {
+                                    $scope.model.RoomInfo.LooseProps.splice(0, 0, response.looseProps[j]);
                                 }
                             }
 
@@ -2488,15 +2629,28 @@
                                 decodeDrawCmd(response.drawCmds[j]);
                             }
 
-                            var backgroundUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, $scope.model.ServerInfo.mediaUrl.length) === '/' ? '' : '/') + $scope.model.Screen.backgroundFile;
-                            var backgroundObject = new ImageObject({
-                                sourceUrl: backgroundUrl,
+                            if ($scope.model.RoomInfo.PictureList && $scope.model.RoomInfo.PictureList.length > 0) {
+                                for (var j = 0; j < $scope.model.RoomInfo.PictureList.length; j++) {
+                                    $scope.model.RoomInfo.PictureList[j].imageUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, $scope.model.ServerInfo.mediaUrl.length) === '/' ? '' : '/') + response.pictures[j].name;
+                                    $scope.model.RoomInfo.PictureList[j].imageObject = new ImageObject({
+                                        sourceUrl: $scope.model.RoomInfo.PictureList[j].imageUrl,
+                                        resolve: function (response) {
+                                            $scope.Screen_OnDraw('spotLayerUpdate');
+                                        },
+                                    });
+                                    $scope.model.RoomInfo.PictureList[j].imageObject.load();
+                                }
+                            }
+
+                            $scope.model.RoomInfo.backgroundUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, $scope.model.ServerInfo.mediaUrl.length) === '/' ? '' : '/') + $scope.model.Screen.backgroundFile;
+                            $scope.model.RoomInfo.backgroundObject = new ImageObject({
+                                sourceUrl: $scope.model.RoomInfo.backgroundUrl,
                                 resolve: function (response) {
                                     for (var j = 0; j < $scope.model.RoomInfo.LooseProps.length; j++) {
                                         var looseprop = $scope.model.RoomInfo.LooseProps[j];
 
                                         if ($scope.model.Screen.assetCache[looseprop.propSpec.id]) {
-                                            looseprop.prop = $scope.model.Screen.assetCache[looseprop.propSpec.id];
+                                            looseprop.propSpec.prop = $scope.model.Screen.assetCache[looseprop.propSpec.id];
                                         }
                                         else {
                                             mvcEndPoints.GetAsset(looseprop.propSpec.id).then(function (response) {
@@ -2512,16 +2666,16 @@
                                                 for (var j = 0; j < $scope.model.RoomInfo.LooseProps.length; j++) {
                                                     var looseprop = $scope.model.RoomInfo.LooseProps[j];
 
-                                                    if (looseprop.propSpec.id === assetID) {
-                                                        looseprop.prop = new Prop($scope, assetID, assetCrc, undefined, assetData);
-                                                        looseprop.prop.endian = true;
-                                                        looseprop.prop.asset.name = assetName;
-                                                        looseprop.prop.asset.flags = assetFlags;
+                                                    if (looseprop.propSpec.id === assetID && !looseprop.propSpec.prop) {
+                                                        looseprop.propSpec.prop = new Prop($scope, assetID, assetCrc, undefined, assetData);
+                                                        looseprop.propSpec.prop.endian = true;
+                                                        looseprop.propSpec.prop.asset.name = assetName;
+                                                        looseprop.propSpec.prop.asset.flags = assetFlags;
 
-                                                        looseprop.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
+                                                        looseprop.propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
 
-                                                        if (looseprop.prop.ready && !looseprop.prop.badProp) {
-                                                            $scope.model.Screen.assetCache[assetID] = looseprop.prop;
+                                                        if (looseprop.propSpec.prop.ready && !looseprop.propSpec.prop.badProp) {
+                                                            $scope.model.Screen.assetCache[assetID] = looseprop.propSpec.prop;
 
                                                             $scope.Screen_OnDraw('loosepropLayerUpdate');
 
@@ -2590,7 +2744,7 @@
                                 },
                             });
 
-                            backgroundObject.load();
+                            $scope.model.RoomInfo.backgroundObject.load();
 
                             $scope.setStatusMsg();
                         }, function (errors) {
@@ -2613,7 +2767,7 @@
                         $scope.model.RoomInfo.LooseProps.splice(0, 0, message);
 
                         if ($scope.model.Screen.assetCache[looseprop.propSpec.id]) {
-                            looseprop.prop = $scope.model.Screen.assetCache[looseprop.propSpec.id];
+                            looseprop.propSpec.prop = $scope.model.Screen.assetCache[looseprop.propSpec.id];
                         }
                         else {
                             mvcEndPoints.GetAsset(looseprop.propSpec.id).then(function (response) {
@@ -2629,16 +2783,16 @@
                                 for (var j = 0; j < $scope.model.RoomInfo.LooseProps.length; j++) {
                                     var looseprop = $scope.model.RoomInfo.LooseProps[j];
 
-                                    if (looseprop.propSpec.id === assetID) {
-                                        looseprop.prop = new Prop($scope, assetID, assetCrc, undefined, assetData);
-                                        looseprop.prop.endian = true;
-                                        looseprop.prop.asset.name = assetName;
-                                        looseprop.prop.asset.flags = assetFlags;
+                                    if (looseprop.propSpec.id === assetID && !looseprop.propSpec.prop) {
+                                        looseprop.propSpec.prop = new Prop($scope, assetID, assetCrc, undefined, assetData);
+                                        looseprop.propSpec.prop.endian = true;
+                                        looseprop.propSpec.prop.asset.name = assetName;
+                                        looseprop.propSpec.prop.asset.flags = assetFlags;
 
-                                        looseprop.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
+                                        looseprop.propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
 
-                                        if (looseprop.prop.ready && !looseprop.prop.badProp) {
-                                            $scope.model.Screen.assetCache[assetID] = looseprop.prop;
+                                        if (looseprop.propSpec.prop.ready && !looseprop.propSpec.prop.badProp) {
+                                            $scope.model.Screen.assetCache[assetID] = looseprop.propSpec.prop;
 
                                             $scope.Screen_OnDraw('loosepropLayerUpdate');
 

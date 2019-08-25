@@ -31,11 +31,11 @@ namespace ThePalace.Server.Web.Controllers
             {
                 dbContext.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
 
-                ThePalace.Core.Factories.RoomData.ReadRoom(dbContext, id.Value, out RoomRec roomRec);
-                ThePalace.Core.Factories.RoomData.ReadHotspots(dbContext, id.Value, out List<HotspotRec> hotspotRecs);
-                ThePalace.Core.Factories.RoomData.ReadPictures(dbContext, id.Value, out List<PictureRec> pictureRecs);
-                ThePalace.Core.Factories.RoomData.ReadLooseProps(dbContext, id.Value, out List<LoosePropRec> loosePropRecs);
-                ThePalace.Core.Factories.RoomData.ReadDrawCmds(dbContext, id.Value, out List<DrawCmdRec> drawCmdRecs);
+                Core.Factories.RoomData.ReadRoom(dbContext, id.Value, out RoomRec roomRec);
+                Core.Factories.RoomData.ReadHotspots(dbContext, id.Value, out List<HotspotRec> hotspotRecs);
+                Core.Factories.RoomData.ReadPictures(dbContext, id.Value, out List<PictureRec> pictureRecs);
+                Core.Factories.RoomData.ReadLooseProps(dbContext, id.Value, out List<LoosePropRec> loosePropRecs);
+                Core.Factories.RoomData.ReadDrawCmds(dbContext, id.Value, out List<DrawCmdRec> drawCmdRecs);
 
                 return Json(new
                 {

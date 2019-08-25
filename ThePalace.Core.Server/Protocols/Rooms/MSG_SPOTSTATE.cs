@@ -10,9 +10,9 @@ namespace ThePalace.Server.Protocols
     [Description("sSta")]
     public struct MSG_SPOTSTATE : IReceiveProtocol, ISendProtocol
     {
-        Int16 roomID;
-        Int16 spotID;
-        Int16 state;
+        public Int16 roomID;
+        public Int16 spotID;
+        public Int16 state;
 
         public void Deserialize(Packet packet)
         {

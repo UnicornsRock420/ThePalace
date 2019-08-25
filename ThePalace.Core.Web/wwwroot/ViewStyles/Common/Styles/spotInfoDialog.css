@@ -1,0 +1,29 @@
+﻿div.spotinfodialog {
+    padding: 10px;
+}
+
+    div.spotinfodialog div.modalheader {
+        text-align: center;
+    }
+
+div.spotinfodialog div.modalheader span.close {
+    float: right;
+    cursor: pointer;
+}
+
+div.spotinfodialog div.modalbody {
+    padding-top: 10px;
+}
+
+div.spotinfodialog textarea {
+    resize: both;
+    overflow: auto;
+}
+
+    div.spotinfodialog div.modalfooter {
+        text-align: right;
+    }
+
+        div.spotinfodialog div.modalfooter button {
+            padding: 10px;
+        }

@@ -2,6 +2,9 @@
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Types;
+using ThePalace.Core.Utility;
+using ThePalace.Server.Core;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
 
@@ -13,7 +16,6 @@ namespace ThePalace.Server.Business
         public void Receive(ThePalaceEntities dbContext, object message)
         {
             var sessionState = ((Message)message).sessionState;
-            var protocol = ((Message)message).protocol;
 
             if (!sessionState.successfullyConnected)
             {
@@ -28,20 +30,38 @@ namespace ThePalace.Server.Business
                 return;
             }
 
-            if (sessionState.Authorized)
-            {
-                var inboundPacket = (Protocols.MSG_SPOTSTATE)protocol;
+            var protocol = ((Message)message).protocol;
+            var inboundPacket = (Protocols.MSG_SPOTSTATE)protocol;
 
-                SessionManager.SendToRoomID(sessionState.RoomID, 0, inboundPacket, EventTypes.MSG_SPOTSTATE, 0);
-            }
-            else
+            if (sessionState.RoomID == inboundPacket.roomID)
             {
-                var xtlk = new Protocols.MSG_XTALK
+                var room = dbContext.GetRoom(sessionState.RoomID);
+
+                if (!room.NotFound)
                 {
-                    text = "Sorry, this is an Admin only feature.",
-                };
+                    var spot = (HotspotRec)null;
 
-                sessionState.Send(xtlk, EventTypes.MSG_XTALK, 0);
+                    for (var j = 0; j < room.Hotspots.Count; j++)
+                    {
+                        if (room.Hotspots[j].id == inboundPacket.spotID)
+                        {
+                            spot = room.Hotspots[j];
+
+                            break;
+                        }
+                    }
+
+                    if (spot != null)
+                    {
+                        spot.state = inboundPacket.state;
+                        room.HasUnsavedAuthorChanges = true;
+                        room.HasUnsavedChanges = true;
+
+                        ServerState.FlushRooms(dbContext);
+
+                        SessionManager.SendToRoomID(sessionState.RoomID, 0, inboundPacket, EventTypes.MSG_SPOTSTATE, 0);
+                    }
+                }
             }
         }
     }

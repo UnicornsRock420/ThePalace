@@ -5,6 +5,7 @@ using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
 using ThePalace.Core.Types;
+using ThePalace.Core.Utility;
 using ThePalace.Server.Core;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
@@ -17,7 +18,6 @@ namespace ThePalace.Server.Business
         public void Receive(ThePalaceEntities dbContext, object message)
         {
             var sessionState = ((Message)message).sessionState;
-            var protocol = ((Message)message).protocol;
 
             if (!sessionState.successfullyConnected)
             {
@@ -34,11 +34,12 @@ namespace ThePalace.Server.Business
 
             if (sessionState.Authorized)
             {
-                if (ServerState.roomsCache.ContainsKey(sessionState.RoomID))
+                var room = dbContext.GetRoom(sessionState.RoomID);
+
+                if (!room.NotFound)
                 {
-                    var room = ServerState.roomsCache[sessionState.RoomID];
-                    var hq = (short)(512 / 4);
-                    var vq = (short)(384 / 4);
+                    var hq = (short)(room.Width / 4);
+                    var vq = (short)(room.Height / 4);
 
                     room.Hotspots.Add(new HotspotRec
                     {
@@ -72,11 +73,12 @@ namespace ThePalace.Server.Business
                             },
                         },
                     });
-                    room.hasUnsavedAuthorChanges = true;
+                    room.HasUnsavedAuthorChanges = true;
                     room.HasUnsavedChanges = true;
 
-                    SessionManager.SendToRoomID(sessionState.RoomID, 0, room, EventTypes.MSG_ROOMSETDESC, 0);
+                    ServerState.FlushRooms(dbContext);
 
+                    SessionManager.SendToRoomID(sessionState.RoomID, 0, room, EventTypes.MSG_ROOMSETDESC, 0);
                 }
             }
             else

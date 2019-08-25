@@ -9,8 +9,8 @@ using ThePalace.Server.Network;
 
 namespace ThePalace.Server.Business
 {
-    [Description("coLs")]
-    public struct MSG_SPOTMOVE : IReceiveBusiness
+    [Description("ofNs")]
+    public struct MSG_SPOTINFO : IReceiveBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
         {
@@ -32,7 +32,7 @@ namespace ThePalace.Server.Business
             if (sessionState.Authorized)
             {
                 var protocol = ((Message)message).protocol;
-                var inboundPacket = (Protocols.MSG_SPOTMOVE)protocol;
+                var inboundPacket = (Protocols.MSG_SPOTINFO)protocol;
 
                 if (sessionState.RoomID == inboundPacket.roomID)
                 {
@@ -42,9 +42,12 @@ namespace ThePalace.Server.Business
                     {
                         foreach (var spot in room.Hotspots)
                         {
-                            if (spot.id == inboundPacket.spotID)
+                            if (spot.id == inboundPacket.spot.id)
                             {
-                                spot.loc = inboundPacket.pos;
+                                spot.name = inboundPacket.spot.name;
+                                spot.script = inboundPacket.spot.script;
+                                spot.dest = inboundPacket.spot.dest;
+                                spot.flags = inboundPacket.spot.flags;
 
                                 break;
                             }
@@ -55,7 +58,7 @@ namespace ThePalace.Server.Business
 
                         ServerState.FlushRooms(dbContext);
 
-                        SessionManager.SendToRoomID(sessionState.RoomID, 0, inboundPacket, EventTypes.MSG_SPOTMOVE, 0);
+                        SessionManager.SendToRoomID(sessionState.RoomID, 0, room, EventTypes.MSG_ROOMSETDESC, 0);
                     }
                 }
             }

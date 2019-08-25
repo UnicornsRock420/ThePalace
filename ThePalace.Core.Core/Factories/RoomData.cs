@@ -57,6 +57,7 @@ namespace ThePalace.Core.Factories
 
             roomData = new RoomRec
             {
+                roomID = room.r.RoomId,
                 roomName = room.r.Name,
                 roomFlags = room.r.Flags,
                 roomMaxOccupancy = room.r.MaxOccupancy,
@@ -91,10 +92,12 @@ namespace ThePalace.Core.Factories
                     var result = new HotspotRec
                     {
                         id = h.HotspotId,
+                        name = h.Name,
                         flags = h.Flags,
                         type = (HotspotTypes)h.Type,
                         dest = (Int16)h.Dest,
                         script = h.Script,
+                        state = h.State,
                         loc = new Point
                         {
                             h = h.LocH ?? 0,
@@ -237,8 +240,8 @@ namespace ThePalace.Core.Factories
                 Hotspots
                    .Select(h =>
                    {
-                       var stateID = (Int16)0;
                        var vortexID = (Int16)0;
+                       var stateID = (Int16)0;
                        var result = new Hotspots2
                        {
                            RoomId = roomID,
@@ -250,6 +253,7 @@ namespace ThePalace.Core.Factories
                            LocV = h.loc.v,
                            Type = (Int16)h.type,
                            Script = h.script,
+                           State = h.state,
                        };
 
                        if (h.states != null && h.states.Count > 0)

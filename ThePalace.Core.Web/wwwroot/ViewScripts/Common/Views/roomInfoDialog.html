@@ -1,0 +1,17 @@
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/Styles/roomInfoDialog.css" />
+
+<div class="roominfodialog">
+    <div class="modalheader"><strong>Room Info</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="modalbody">
+        <label for="name">Name:</label><input id="name" type="text" ng-model="model.name" />
+        <br />
+        <label for="pictname">Picture Name:</label><input id="pictname" type="text" ng-model="model.pictName" />
+        <br />
+        <label for="artistName">Artist Name:</label><input id="artistName" type="text" ng-model="model.artistName" />
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

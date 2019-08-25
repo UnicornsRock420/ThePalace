@@ -148,4 +148,55 @@
 
         return deferred.promise;
     });
+
+    this.roomInfo = (function (model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'roomInfoDialogController',
+            templateUrl: '/ViewScripts/Common/Views/roomInfoDialog.html',
+            resolve: {
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
+
+    this.spotInfo = (function (roomList, model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'spotInfoDialogController',
+            templateUrl: '/ViewScripts/Common/Views/spotInfoDialog.html',
+            resolve: {
+                roomList: function () {
+                    return roomList;
+                },
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
 }]);

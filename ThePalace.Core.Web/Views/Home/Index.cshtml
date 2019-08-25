@@ -17,6 +17,7 @@
 }
 
 @section scriptsfooter {
+    <script type="text/javascript" src="~/Scripts/underscore.min.js"></script>
     <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
     <script type="text/javascript" src="~/Scripts/angular.min.js"></script>
     <script type="text/javascript" src="~/Scripts/angular-sanitize.min.js"></script>
@@ -27,6 +28,7 @@
     <script type="text/javascript" src="~/Scripts/angular-ui/ui-grid.min.js"></script>
     <script type="text/javascript" src="~/Scripts/zlib/gzip.min.js"></script>
     <script type="text/javascript" src="~/Scripts/zlib/pako.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jimp.min.js"></script>
     <script type="text/javascript" src="~/Scripts/expect.min.js"></script>
     <script type="text/javascript" src="~/Scripts/expect-element.min.js"></script>
     <script type="text/javascript" src="~/Scripts/midi.js"></script>
@@ -42,6 +44,9 @@
     <script type="text/javascript" src="~/ViewScripts/Common/Factories/Packet.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Factories/WebSockets.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Controllers/clientSettingsDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/roomInfoDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/spotInfoDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/yesNoDialogController.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Services/dialogService.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Services/utilService.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Services/iptService.js"></script>
@@ -56,9 +61,9 @@
         <li ng-click="Toolbar_OnClick('showUserList')"><span class="fa fa-users" title="Users List"></span></li>
         <li ng-click="Toolbar_OnClick('showRoomList')"><span class="fa fa-cubes" title="Rooms List"></span></li>
         <li ng-click="Toolbar_OnClick('showLogList')"><span class="fa fa-book" title="Log"></span></li>
-        <li ng-click="Menu_OnClick($event, 'USERNAME')"><span class="fa fa-cogs" title="Settings"></span></li>
+        <li ng-click="Menu_OnClick($event, 'CLIENTSETTINGS')"><span class="fa fa-cogs" title="Settings"></span></li>
         <li ng-click="Toolbar_OnClick('showPropbag')"><span class="fa fa-image" title="Prop Bag"></span></li>
-        <li ng-show="model.UserInfo.hasAdmin"><span class="fa fa-magic" title="Admin Options"></span></li>
+        <li ng-click="Menu_OnClick($event, 'ADMINSETTINGS')" ng-show="model.UserInfo.hasAdmin"><span class="fa fa-magic" title="Admin Options"></span></li>
     </ul>
 
     <ul id="contextmenu"
@@ -72,8 +77,14 @@
         <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId && model.UserInfo.hasAdmin" ng-click="Menu_OnClick($event, 'KILLUSER')">Kill</li>
         <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'PROPDEL')">Delete</li>
         <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'USERPROP')">Wear</li>
-        <li ng-show="model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTNEW')">New Door</li>
-        <li ng-show="model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTDEL')">Delete</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'ROOMNEW')">New Room</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'ROOMINFO')">Room Info</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'SPOTNEW')">New Door</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'AUTHORINGMODE')">Authoring Mode</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTINFO')">Door Info</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTLAYERS')">Door Layers</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTROTATE')">Rotate Door</li>
+        <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'hotspot'" ng-click="Menu_OnClick($event, 'SPOTDEL')">Delete Door</li>
     </ul>
 
     <div id="userlist"

@@ -1198,6 +1198,8 @@
                                     propNum: $scope.model.Interface.contextMenu.targetId,
                                 });
 
+                            $scope.model.Interface.contextMenu.type = null;
+
                             break;
                         case 'USERPROP':
                             for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
@@ -1216,6 +1218,8 @@
                                 }
                             }
 
+                            $scope.model.Interface.contextMenu.type = null;
+
                             break;
                         case 'WHISPER':
                             if ($scope.model.Interface.whisperTargetId === 0 || $scope.model.Interface.whisperTargetId !== $scope.model.Interface.contextMenu.targetId) {
@@ -1229,6 +1233,8 @@
 
                             $scope.Screen_OnDraw('nametagsLayerUpdate');
 
+                            $scope.model.Interface.contextMenu.type = null;
+
                             break;
                         case 'OFFER':
                             $scope.serverSend(
@@ -1237,6 +1243,7 @@
                                     target: $scope.model.Interface.contextMenu.targetId,
                                     text: "`offer",
                                 });
+                            $scope.model.Interface.contextMenu.type = null;
 
                             break;
                         case 'KILLUSER':
@@ -1249,6 +1256,8 @@
                                 {
                                     target: $scope.model.Interface.contextMenu.targetId,
                                 });
+
+                            $scope.model.Interface.contextMenu.type = null;
 
                             break;
                         case 'CLIENTSETTINGS':
@@ -1275,6 +1284,18 @@
                             }, function (errors) {
                                 return;
                             });
+                            $scope.model.Interface.contextMenu.type = null;
+
+                            break;
+                        case 'NAKED':
+                            $scope.serverSend(
+                                'MSG_USERPROP',
+                                {
+                                    nbrProps: 0,
+                                    propSpec: null,
+                                });
+
+                            $scope.model.Interface.contextMenu.type = null;
 
                             break;
                         case 'ADMINSETTINGS':
@@ -1322,6 +1343,7 @@
                             break;
                         case 'SPOTINFO':
                             var roomList = [];
+                            var pictIDs = [];
                             var copy = null;
 
                             for (var j = 0; j < $scope.model.Interface.RoomList.length; j++) {
@@ -1334,27 +1356,37 @@
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 if ($scope.model.RoomInfo.SpotList[j].id === $scope.model.Interface.contextMenu.targetId) {
                                     copy = $.extend(false, {}, $scope.model.RoomInfo.SpotList[j]);
+                                }
 
-                                    break;
+                                for (var k = 0; k < $scope.model.RoomInfo.SpotList[j].states.length; k++) {
+                                    if (pictIDs.indexOf($scope.model.RoomInfo.SpotList[j].states[k].pictID) === -1) {
+                                        pictIDs.push($scope.model.RoomInfo.SpotList[j].states[k].pictID);
+                                    }
                                 }
                             }
 
                             if (copy) {
-                                dialogService.spotInfo(roomList, copy).then(function (response) {
+                                dialogService.spotInfo($scope.model.UserInfo, roomList, $scope.model.RoomInfo.PictureList, pictIDs, copy).then(function (response) {
                                     if (response) {
                                         for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                             if ($scope.model.RoomInfo.SpotList[j].id === $scope.model.Interface.contextMenu.targetId) {
                                                 $scope.model.RoomInfo.SpotList[j] = response;
+                                                $scope.model.RoomInfo.PictureList = response.pictureList;
 
                                                 $scope.serverSend(
                                                     'MSG_SPOTINFO',
                                                     {
                                                         roomID: $scope.model.RoomInfo.roomId,
                                                         spotID: response.id,
+                                                        type: response.type,
+                                                        state: response.state,
+                                                        states: response.states,
                                                         script: response.script,
                                                         name: response.name,
+                                                        loc: response.loc,
                                                         dest: response.dest,
                                                         flags: response.flags,
+                                                        pictureList: response.pictureList,
                                                     });
 
                                                 break;
@@ -1469,7 +1501,7 @@
 
                     if ($scope.model.Screen.spotLayerUpdate) {
                         spotCanvas.strokeStyleRgba(255, 255, 255, 1);
-                        spotCanvas.fillStyleRgba(255, 255, 255, 0.4);
+                        spotCanvas.fillStyleRgba(255, 255, 255, 0.3);
 
                         for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                             var spot = $scope.model.RoomInfo.SpotList[j];
@@ -1515,7 +1547,11 @@
                                 }
 
                                 spotCanvas.stroke();
-                                spotCanvas.fill();
+
+                                if ($scope.model.Interface.authoringMode || (spot.flags & HotSpotFlags.HF_Fill) !== 0 ||
+                                    ((spot.flags & HotSpotFlags.HF_Invisible) === 0 && $scope.model.Screen.spotLayerShow)) {
+                                    spotCanvas.fill();
+                                }
                             }
                         }
                     }
@@ -1843,7 +1879,7 @@
                             if (spot.events && spot.events['SELECT']) {
                                 $scope.Spot_OnEvent(spot.id, 'SELECT');
                             }
-                            else if (spot.type === HotSpotTypes.HT_Door && spot.dest !== 0) {
+                            else if (spot.type === HotSpotTypes.HS_Door && spot.dest !== 0) {
                                 $scope.roomGoto(spot.dest);
                             }
                         }
@@ -1957,17 +1993,19 @@
 
                         spot = $scope.model.RoomInfo.SpotList[j];
 
-                        for (var k = 0; k < spot.vortexes.length; k++) {
-                            polygon.push({
-                                v: spot.loc.v + spot.vortexes[k].v,
-                                h: spot.loc.h + spot.vortexes[k].h,
+                        if ((spot.flags & HotSpotFlags.HF_Invisible) === 0) {
+                            for (var k = 0; k < spot.vortexes.length; k++) {
+                                polygon.push({
+                                    v: spot.loc.v + spot.vortexes[k].v,
+                                    h: spot.loc.h + spot.vortexes[k].h,
+                                });
+                            }
+
+                            insideSpot = utilService.pointInPolygon(polygon, {
+                                v: yCoord,
+                                h: xCoord,
                             });
                         }
-
-                        insideSpot = utilService.pointInPolygon(polygon, {
-                            v: yCoord,
-                            h: xCoord,
-                        });
                     }
 
                     if (!insideSpot) {
@@ -2438,6 +2476,7 @@
                     }),
                     'MSG_USERSTATUS': (function (refNum, message) {
                         $scope.model.UserInfo.userFlags = message.flags;
+                        $scope.model.UserInfo.sessionHash = message.hash;
 
                         if ((message.flags & (UserFlags.UF_SuperUser | UserFlags.UF_God)) != 0) {
                             $scope.model.UserInfo.hasAdmin = true;

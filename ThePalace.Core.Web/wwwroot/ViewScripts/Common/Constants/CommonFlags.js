@@ -30,6 +30,7 @@ app.constant('RoomFlags', {
     RF_NoGuests: 0x0040,
     RF_WizardsOnly: 0x0080,
     RF_DropZone: 0x0100,
+    RF_NoLooseProps: 0x0200,
 });
 
 app.constant('UserFlags', {
@@ -62,9 +63,12 @@ app.constant('HotSpotFlags', {
 });
 
 app.constant('HotSpotTypes', {
-    HT_NavRegion: 0x00,
-    HT_Door: 0x01,
-    HT_Lock: 0x03,
+    HS_Normal: 0x00,
+    HS_Door: 0x01,
+    HS_ShutableDoor: 0x02,
+    HS_LockableDoor: 0x03,
+    HS_Bolt: 0x04,
+    HS_NavArea: 0x05,
 });
 
 app.constant('DrawCmdTypes', {

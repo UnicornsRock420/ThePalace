@@ -45,6 +45,7 @@ namespace ThePalace.Core.Database
         public virtual DbSet<Rooms> Rooms { get; set; }
         public virtual DbSet<Rooms1> Rooms1 { get; set; }
         public virtual DbSet<Rooms2> Rooms2 { get; set; }
+        public virtual DbSet<Sessions> Sessions { get; set; }
         public virtual DbSet<States> States { get; set; }
         public virtual DbSet<UserData> UserData { get; set; }
         public virtual DbSet<Users> Users { get; set; }
@@ -528,6 +529,15 @@ namespace ThePalace.Core.Database
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(1024);
+            });
+
+            modelBuilder.Entity<Sessions>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId });
+
+                entity.ToTable("Sessions", "Admin");
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
             });
 
             modelBuilder.Entity<States>(entity =>

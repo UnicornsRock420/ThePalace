@@ -4,6 +4,7 @@ using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
 using ThePalace.Core.Types;
+using ThePalace.Core.Utility;
 using ThePalace.Server.Core;
 using ThePalace.Server.Factories;
 using ThePalace.Server.Models;
@@ -33,11 +34,24 @@ namespace ThePalace.Server.Business
                 return;
             }
 
+            var room = dbContext.GetRoom(sessionState.RoomID);
             var inboundPacket = (Protocols.MSG_PROPNEW)protocol;
 
-            if (ServerState.roomsCache.ContainsKey(sessionState.RoomID))
+            if (!room.NotFound)
             {
-                RoomBuilder room = ServerState.roomsCache[sessionState.RoomID];
+                if ((room.Flags & (int)RoomFlags.RF_NoLooseProps) != 0)
+                {
+                    room.LooseProps.Clear();
+
+                    var xtalk = new Protocols.MSG_XTALK
+                    {
+                        text = "Loose props are disabled in this room.",
+                    };
+
+                    SessionManager.Send(sessionState, xtalk, EventTypes.MSG_XTALK, 0);
+
+                    return;
+                }
 
                 room.LooseProps.Add(new LoosePropRec
                 {

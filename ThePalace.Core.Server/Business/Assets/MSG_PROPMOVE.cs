@@ -35,6 +35,20 @@ namespace ThePalace.Server.Business
 
             if (!room.NotFound)
             {
+                if ((room.Flags & (int)RoomFlags.RF_NoLooseProps) != 0)
+                {
+                    room.LooseProps.Clear();
+
+                    var xtalk = new Protocols.MSG_XTALK
+                    {
+                        text = "Loose props are disabled in this room.",
+                    };
+
+                    SessionManager.Send(sessionState, xtalk, EventTypes.MSG_XTALK, 0);
+
+                    return;
+                }
+
                 if (inboundPacket.pos.h < 0 || inboundPacket.pos.v < 0)
                 {
                     return;

@@ -22,7 +22,6 @@
   <ItemGroup>
     <Folder Include="Libraries\Linux\x86\" />
     <Folder Include="Libraries\Win\x86\" />
-    <Folder Include="Models\" />
   </ItemGroup>
 
   <ItemGroup>

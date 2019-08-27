@@ -1,7 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Types;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Core;
 using ThePalace.Server.Models;
@@ -45,9 +48,14 @@ namespace ThePalace.Server.Business
                             if (spot.id == inboundPacket.spot.id)
                             {
                                 spot.name = inboundPacket.spot.name;
+                                spot.type = inboundPacket.spot.type;
+                                spot.state = inboundPacket.spot.state;
+                                spot.states = inboundPacket.spot.states;
                                 spot.script = inboundPacket.spot.script;
                                 spot.dest = inboundPacket.spot.dest;
                                 spot.flags = inboundPacket.spot.flags;
+
+                                room.Pictures = inboundPacket.pictureList;
 
                                 break;
                             }

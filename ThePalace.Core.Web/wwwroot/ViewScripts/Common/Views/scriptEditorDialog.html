@@ -1,0 +1,13 @@
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/scriptEditorDialog.css" />
+
+<div class="scripteditordialog">
+    <div class="modalheader"><strong>Iptscrae Editor</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="modalbody">
+        <textarea id="script" ng-model="model.script"></textarea>
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

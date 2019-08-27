@@ -1,4 +1,4 @@
-﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/Styles/roomInfoDialog.css" />
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/roomInfoDialog.css" />
 
 <div class="roominfodialog">
     <div class="modalheader"><strong>Room Info</strong><span class="close" ng-click="$close()">&#10006;</span></div>
@@ -10,12 +10,19 @@
         <br />
         <label for="artistName">Artist Name:</label><input id="artistName" type="text" ng-model="model.artistName" />
         <hr />
-        <input id="Private" name="flags" type="checkbox" ng-model="flags.Private" /><label for="Draggable">Private</label>
-        <input id="NoPainting" name="flags" type="checkbox" ng-model="flags.NoPainting" /><label for="NoPainting">No Painting</label>
-        <input id="NoScripts" name="flags" type="checkbox" ng-model="flags.NoScripts" /><label for="NoScripts">No Scripts</label>
-        <input id="Hidden" name="flags" type="checkbox" ng-model="flags.Hidden" /><label for="Hidden">Hidden</label>
-        <input id="StaffOnly" name="flags" type="checkbox" ng-model="flags.StaffOnly" /><label for="StaffOnly">Staff Only</label>
-        <input id="DropZone" name="flags" type="checkbox" ng-model="flags.DropZone" /><label for="DropZone">Drop Zone</label>
+        <input id="Private" name="flags" type="checkbox" ng-model="flags.Private" />&nbsp;<label for="Draggable">Private</label>
+        <br />
+        <input id="NoPainting" name="flags" type="checkbox" ng-model="flags.NoPainting" />&nbsp;<label for="NoPainting">No Painting</label>
+        <br />
+        <input id="NoScripts" name="flags" type="checkbox" ng-model="flags.NoScripts" />&nbsp;<label for="NoScripts">No Scripts</label>
+        <br />
+        <input id="Hidden" name="flags" type="checkbox" ng-model="flags.Hidden" />&nbsp;<label for="Hidden">Hidden</label>
+        <br />
+        <input id="StaffOnly" name="flags" type="checkbox" ng-model="flags.StaffOnly" />&nbsp;<label for="StaffOnly">Staff Only</label>
+        <br />
+        <input id="DropZone" name="flags" type="checkbox" ng-model="flags.DropZone" />&nbsp;<label for="DropZone">Drop Zone</label>
+        <br />
+        <input id="NoLooseProps" name="flags" type="checkbox" ng-model="flags.NoLooseProps" />&nbsp;<label for="NoLooseProps">No Loose Props</label>
     </div>
     <div class="modalfooter">
         <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>

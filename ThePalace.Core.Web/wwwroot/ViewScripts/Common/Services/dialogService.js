@@ -173,7 +173,7 @@
         return deferred.promise;
     });
 
-    this.spotInfo = (function (roomList, model) {
+    this.spotInfo = (function (userInfo, roomList, pictureList, pictIDs, model) {
         var deferred = $q.defer();
         var instance = $uibModal.open({
             size: 'lg',
@@ -182,8 +182,74 @@
             controller: 'spotInfoDialogController',
             templateUrl: '/ViewScripts/Common/Views/spotInfoDialog.html',
             resolve: {
+                userInfo: function () {
+                    return userInfo;
+                },
                 roomList: function () {
                     return roomList;
+                },
+                pictureList: function () {
+                    return pictureList;
+                },
+                pictIDs: function () {
+                    return pictIDs;
+                },
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
+
+    this.scriptEditor = (function (model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'scriptEditorDialogController',
+            templateUrl: '/ViewScripts/Common/Views/scriptEditorDialog.html',
+            resolve: {
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
+
+    this.stateEditor = (function (userInfo, pictureList, pictIDs, model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'stateEditorDialogController',
+            templateUrl: '/ViewScripts/Common/Views/stateEditorDialog.html',
+            resolve: {
+                userInfo: function () {
+                    return userInfo;
+                },
+                pictureList: function () {
+                    return pictureList;
+                },
+                pictIDs: function () {
+                    return pictIDs;
                 },
                 model: function () {
                     return model;

@@ -27,6 +27,10 @@
         $scope.flags.DropZone = true;
     }
 
+    if (($scope.model.flags & RoomFlags.RF_NoLooseProps) != 0) {
+        $scope.flags.NoLooseProps = true;
+    }
+
     $scope.Save_OnClick = (function ($event) {
         $scope.model.flags = 0;
 
@@ -52,6 +56,10 @@
 
         if ($scope.flags.DropZone) {
             $scope.model.flags |= RoomFlags.RF_DropZone;
+        }
+
+        if ($scope.flags.NoLooseProps) {
+            $scope.model.flags |= RoomFlags.RF_NoLooseProps;
         }
 
         $scope.$close($scope.model);

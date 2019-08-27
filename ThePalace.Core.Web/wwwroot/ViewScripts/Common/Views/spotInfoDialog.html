@@ -1,4 +1,4 @@
-﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/Styles/spotInfoDialog.css" />
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/spotInfoDialog.css" />
 
 <div class="spotinfodialog">
     <div class="modalheader"><strong>Door Info</strong><span class="close" ng-click="$close()">&#10006;</span></div>
@@ -6,21 +6,31 @@
     <div class="modalbody">
         <label for="name">Name:</label><input id="name" type="text" ng-model="model.name" />
         <br />
+        <label for="type">Type:</label><select id="type" ng-model="model.type" ng-options="spotvalue as spotkey for ( spotkey, spotvalue ) in spotTypes"></select>
+        <br />
         <label for="name">Destination:</label><select id="dest" ng-model="model.dest" ng-options="room.id as room.name for room in roomList"></select>
         <br />
-        <label for="script">Script:</label>
+        <button ng-click="ScriptEditor_OnClick($event)">Edit Script</button>
         <br />
-        <textarea id="script" ng-model="model.script"></textarea>
+        <button ng-click="StateEditor_OnClick($event)">Picture Editor</button>
         <hr />
-        <input id="Draggable" name="flags" type="checkbox" ng-model="flags.Draggable" /><label for="Draggable">Draggable</label>
-        <input id="DontMoveHere" name="flags" type="checkbox" ng-model="flags.DontMoveHere" /><label for="DontMoveHere">Dont Move Here</label>
-        <input id="Invisible" name="flags" type="checkbox" ng-model="flags.Invisible" /><label for="Invisible">Invisible</label>
-        <input id="ShowFrame" name="flags" type="checkbox" ng-model="flags.ShowFrame" /><label for="ShowFrame">Show Frame</label>
-        <input id="Shadow" name="flags" type="checkbox" ng-model="flags.Shadow" /><label for="Shadow">Shadow</label>
-        <input id="Fill" name="flags" type="checkbox" ng-model="flags.Fill" /><label for="Fill">Fill</label>
-        <input id="Forbidden" name="flags" type="checkbox" ng-model="flags.Forbidden" /><label for="Forbidden">Forbidden</label>
-        <input id="Mandatory" name="flags" type="checkbox" ng-model="flags.Mandatory" /><label for="Mandatory">Mandatory</label>
-        <input id="LandingPad" name="flags" type="checkbox" ng-model="flags.LandingPad" /><label for="LandingPad">Landing Pad</label>
+        <input id="Draggable" name="flags" type="checkbox" ng-model="flags.Draggable" />&nbsp;<label for="Draggable">Draggable</label>
+        <br />
+        <input id="DontMoveHere" name="flags" type="checkbox" ng-model="flags.DontMoveHere" />&nbsp;<label for="DontMoveHere">Dont Move Here</label>
+        <br />
+        <input id="Invisible" name="flags" type="checkbox" ng-model="flags.Invisible" />&nbsp;<label for="Invisible">Invisible</label>
+        <br />
+        <input id="ShowFrame" name="flags" type="checkbox" ng-model="flags.ShowFrame" />&nbsp;<label for="ShowFrame">Show Frame</label>
+        <br />
+        <input id="Shadow" name="flags" type="checkbox" ng-model="flags.Shadow" />&nbsp;<label for="Shadow">Shadow</label>
+        <br />
+        <input id="Fill" name="flags" type="checkbox" ng-model="flags.Fill" />&nbsp;<label for="Fill">Fill</label>
+        <br />
+        <input id="Forbidden" name="flags" type="checkbox" ng-model="flags.Forbidden" />&nbsp;<label for="Forbidden">Forbidden</label>
+        <br />
+        <input id="Mandatory" name="flags" type="checkbox" ng-model="flags.Mandatory" />&nbsp;<label for="Mandatory">Mandatory</label>
+        <br />
+        <input id="LandingPad" name="flags" type="checkbox" ng-model="flags.LandingPad" />&nbsp;<label for="LandingPad">Landing Pad</label>
     </div>
     <div class="modalfooter">
         <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>

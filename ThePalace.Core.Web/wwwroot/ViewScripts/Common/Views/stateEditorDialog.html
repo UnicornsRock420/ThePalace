@@ -1,0 +1,52 @@
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/stateEditorDialog.css" />
+
+<div class="stateeditordialog">
+    <div class="modalheader"><strong>Iptscrae Editor</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="modalbody">
+        <label for="state">State ID:</label><input id="state" type="text" ng-model="model.state" />
+        <hr />
+        <div>States:</div>
+        <div class="filecontainer">
+            <p ng-repeat="stateFile in stateFiles track by $index" class="filename">
+                <span class="preview" ng-click="Preview_OnClick($event, stateFile)">{{$index}}.&nbsp;{{stateFile}}</span>
+                <span class="deletefile button" ng-click="DeleteState_OnClick($event, $index)">X</span>
+                <span class="orderup button" ng-click="OrderState_OnClick($event, $index, 0)" ng-show="$index &lt; model.states.length - 1">V</span>
+                <span class="orderdown button" ng-click="OrderState_OnClick($event, $index, 1)" ng-show="$index &gt; 0">^</span>
+            </p>
+        </div>
+        <hr />
+        <div>
+            Browse:&nbsp;<button id="browse" ng-click="Browse_OnClick($event)">Browse</button>&nbsp;<button id="next" ng-click="Next_OnClick($event)" ng-show="browseFiles.length &gt;= 1000">Next</button>&nbsp;<select id="filter" ng-model="filter" ng-change="Browse_OnClick($event)">
+                <option value="Images">Images (*.JPG;*.GIF;*.JPEG;*.PNG)</option>
+                <option value="Audio">Audio (*.WAV;*.MP3;*.MP4;*.MID;*.MIDI;*.OGG)</option>
+                <option value="Office">Office (*.XLS;*.XLSX;*.DOC;*.DOCX;*.TXT)</option>
+                <option value="All">All (*.*)</option>
+            </select>&nbsp;<select id="orderby" ng-model="orderby" ng-change="Browse_OnClick($event)">
+                <option value="LastModifiedDateDesc">Last Modified Date Desc</option>
+                <option value="TypeAsc_NameAsc">Type Asc, Name Asc</option>
+            </select>
+        </div>
+        <div class="filecontainer">
+            <p ng-repeat="browseFile in browseFiles" class="filename">
+                <span class="preview" ng-click="Preview_OnClick($event, browseFile)" title="{{browseFile}}">{{browseFile}}</span>
+                <span class="deletefile button" ng-click="DeleteFile_OnClick($event, browseFile)">X</span>
+                <span class="addfile button" ng-click="AddFile_OnClick($event, browseFile)">+</span>
+            </p>
+        </div>
+        <hr />
+        <input id="files" type="file" multiple style="display: none;" />
+        <div>Recent&nbsp;Files:&nbsp;<button id="upload" ng-click="Upload_OnClick($event)">Upload</button>&nbsp;<input id="overwrite" name="overwrite" type="checkbox" ng-model="overwrite" />&nbsp;<label for="overwrite">Overwrite?</label></div>
+        <div class="filecontainer">
+            <p ng-repeat="recentFile in recentFiles" class="filename">
+                <span class="preview" ng-click="Preview_OnClick($event, recentFile)">{{recentFile}}</span>
+                <span class="deletefile button" ng-click="DeleteFile_OnClick($event, recentFile)">X</span>
+                <span class="addfile button" ng-click="AddFile_OnClick($event, recentFile)">+</span>
+            </p>
+        </div>
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

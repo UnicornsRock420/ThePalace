@@ -16,7 +16,7 @@ namespace ThePalace.Core.Types
             v = (Int16)RndGenerator.NextSecure(0, 384);
         }
 
-        public Point(int hAxis, int vAxis)
+        public Point(Int16 hAxis, Int16 vAxis)
         {
             h = (Int16)hAxis;
             v = (Int16)vAxis;

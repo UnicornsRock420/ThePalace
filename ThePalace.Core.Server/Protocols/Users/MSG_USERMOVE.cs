@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.ComponentModel;
 using ThePalace.Core.Factories;
 using ThePalace.Core.Interfaces;
@@ -30,7 +31,7 @@ namespace ThePalace.Server.Protocols
             {
                 jsonResponse = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
 
-                pos = new Point((int)jsonResponse.pos.h, (int)jsonResponse.pos.v);
+                pos = new Point((Int16)jsonResponse.pos.h, (Int16)jsonResponse.pos.v);
             }
             catch
             {

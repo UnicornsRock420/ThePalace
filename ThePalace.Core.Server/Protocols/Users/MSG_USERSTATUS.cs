@@ -10,6 +10,7 @@ namespace ThePalace.Server.Protocols
     public struct MSG_USERSTATUS : ISendProtocol
     {
         public Int16 flags;
+        public Guid hash;
 
         public byte[] Serialize(object input = null)
         {
@@ -26,6 +27,7 @@ namespace ThePalace.Server.Protocols
             return JsonConvert.SerializeObject(new
             {
                 flags = flags,
+                hash = hash.ToString(),
             });
         }
     }

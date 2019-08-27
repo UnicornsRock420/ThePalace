@@ -238,6 +238,7 @@ namespace ThePalace.Server.Factories
                             if (image.Width > 0)
                             {
                                 _width = image.Width;
+                                _height = image.Height;
                             }
                         }
                     }
@@ -274,6 +275,7 @@ namespace ThePalace.Server.Factories
                         {
                             if (image.Height > 0)
                             {
+                                _width = image.Width;
                                 _height = image.Height;
                             }
                         }

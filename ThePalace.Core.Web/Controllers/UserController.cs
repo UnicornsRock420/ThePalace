@@ -20,13 +20,6 @@ namespace ThePalace.Server.Web.Controllers
                 return Json(new { });
             }
 
-            var ipAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-
-            //if (!WebSocketConnectionManager.connectionStates.ContainsKey(ipAddress))
-            //{
-            //    return Json(new { });
-            //}
-
             using (var dbContext = Database.For<ThePalaceEntities>())
             {
                 dbContext.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
@@ -70,13 +63,6 @@ namespace ThePalace.Server.Web.Controllers
             {
                 return null;
             }
-
-            var ipAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-
-            //if (!WebSocketConnectionManager.connectionStates.ContainsKey(ipAddress))
-            //{
-            //    return null;
-            //}
 
             using (var dbContext = Database.For<ThePalaceEntities>())
             {

@@ -5,16 +5,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ThePalace.Core.Constants;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Web.Models;
+using ThePalace.Server.Web.Utility;
 
 namespace ThePalace.Server.Web.Controllers
 {
@@ -32,7 +30,7 @@ namespace ThePalace.Server.Web.Controllers
             var nbrProps = 0;
 
             var ipAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-            var data = await getRawPostData((int)Request.ContentLength.Value);
+            var data = await Request.getRawPostData((int)Request.ContentLength.Value);
             var jsonResponse = (dynamic)null;
             var json = (string)null;
 
@@ -167,7 +165,7 @@ namespace ThePalace.Server.Web.Controllers
         {
             Request.EnableRewind();
 
-            var json = await getRawPostData();
+            var json = await Request.getRawPostData();
             var jsonResponse = (dynamic)null;
             var nbrProps = 0;
             var result = new PropWSNewResponse
@@ -297,7 +295,7 @@ namespace ThePalace.Server.Web.Controllers
 
             var boundary = $"\r\n--{Regex.Match(Request.ContentType, @"^multipart/form-data; charset=UTF-8; boundary=(.+)$", RegexOptions.IgnoreCase | RegexOptions.Singleline).Groups[1].Value}";
             var length = (int)Request.ContentLength.Value;
-            var data = await getRawPostData(length);
+            var data = await Request.getRawPostData(length);
             var form = data.GetString();
 
             var str = "Content-Disposition: form-data; name=\"id\"\r\n\r\n";
@@ -378,36 +376,6 @@ namespace ThePalace.Server.Web.Controllers
             });
 
             return Content(json, "application/json");
-        }
-
-        private async Task<string> getRawPostData()
-        {
-            var result = (string)null;
-
-            Request.Body.Seek(0, SeekOrigin.Begin);
-
-            using (var sr = new StreamReader(Request.Body, Encoding.ASCII, true, NetworkConstants.FILE_STREAM_BUFFER_SIZE, true))
-            {
-                result = await sr.ReadToEndAsync();
-            }
-
-            Request.Body.Seek(0, SeekOrigin.Begin);
-
-            return result;
-        }
-
-        private async Task<byte[]> getRawPostData(int limit, int offset = 0)
-        {
-            using (var mem = new MemoryStream())
-            {
-                Request.Body.Seek(offset, SeekOrigin.Begin);
-
-                await Request.Body.CopyToAsync(mem, limit);
-
-                Request.Body.Seek(0, SeekOrigin.Begin);
-
-                return mem.ToArray();
-            }
         }
 
         private IDisposable MemoryStream()

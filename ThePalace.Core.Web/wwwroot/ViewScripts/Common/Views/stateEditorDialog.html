@@ -18,7 +18,7 @@
         <hr />
         <div>
             Browse:&nbsp;<button id="browse" ng-click="Browse_OnClick($event)">Browse</button>&nbsp;<button id="next" ng-click="Next_OnClick($event)" ng-show="browseFiles.length &gt;= 1000">Next</button>&nbsp;<select id="filter" ng-model="filter" ng-change="Browse_OnClick($event)">
-                <option value="Images">Images (*.JPG;*.GIF;*.JPEG;*.PNG)</option>
+                <option value="Images">Images (*.GIF;*.JPG;*.JPEG;*.PNG)</option>
                 <option value="Audio">Audio (*.WAV;*.MP3;*.MP4;*.MID;*.MIDI;*.OGG)</option>
                 <option value="Office">Office (*.XLS;*.XLSX;*.DOC;*.DOCX;*.TXT)</option>
                 <option value="All">All (*.*)</option>

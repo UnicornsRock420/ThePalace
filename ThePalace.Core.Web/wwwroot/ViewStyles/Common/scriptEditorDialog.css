@@ -1,0 +1,33 @@
+﻿div.scripteditordialog {
+    padding: 10px;
+}
+
+    div.scripteditordialog div.modalheader {
+        text-align: center;
+    }
+
+        div.scripteditordialog div.modalheader span.close {
+            float: right;
+            cursor: pointer;
+        }
+
+    div.scripteditordialog div.modalbody {
+        padding-top: 10px;
+    }
+
+    div.scripteditordialog textarea#script {
+        border: 1px solid black;
+        min-height: 400px;
+        min-width: 400px;
+        height: auto;
+        width: auto;
+        overflow: auto;
+    }
+
+    div.scripteditordialog div.modalfooter {
+        text-align: right;
+    }
+
+        div.scripteditordialog div.modalfooter button {
+            padding: 10px;
+        }

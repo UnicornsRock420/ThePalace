@@ -1,0 +1,78 @@
+﻿div.stateeditordialog {
+    padding: 10px;
+}
+
+    div.stateeditordialog div.modalheader {
+        text-align: center;
+    }
+
+        div.stateeditordialog div.modalheader span.close {
+            float: right;
+            cursor: pointer;
+        }
+
+    div.stateeditordialog div.modalbody {
+        padding-top: 10px;
+    }
+
+        div.stateeditordialog div.modalbody div.filecontainer {
+            display: inline-flex;
+            max-height: 200px;
+            overflow: auto;
+            flex-direction: column;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        div.stateeditordialog div.modalbody p.filename {
+            display: inline-block;
+            width: 200px;
+            float: left;
+        }
+
+        div.stateeditordialog div.modalbody span.preview {
+            border: 1px solid transparent;
+            text-overflow: ellipsis;
+            display: inline-block;
+            white-space: nowrap;
+            max-width: 125px;
+            overflow: hidden;
+            cursor: pointer;
+            float: left;
+        }
+
+            div.stateeditordialog div.modalbody span.preview:hover {
+                border: 1px solid black;
+            }
+
+        div.stateeditordialog div.modalbody span.button {
+            border: 1px solid transparent;
+            text-align: center;
+            margin-right: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 1px;
+            float: right;
+            width: 20px;
+        }
+
+            div.stateeditordialog div.modalbody span.button:hover {
+                border: 1px solid black;
+            }
+
+        div.stateeditordialog div.modalbody span.addfile {
+            color: darkblue;
+        }
+
+        div.stateeditordialog div.modalbody span.deletefile {
+            color: red;
+        }
+
+    div.stateeditordialog div.modalfooter {
+        text-align: right;
+    }
+
+        div.stateeditordialog div.modalfooter button {
+            padding: 10px;
+        }

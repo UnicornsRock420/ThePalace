@@ -33,7 +33,7 @@ namespace ThePalace.Server.Web.Controllers
 
                 using (var dbContext = Database.For<ThePalaceEntities>())
                 {
-                    if (dbContext.Sessions.Any(s => s.Hash == hash))
+                    if (dbContext.Sessions.Any(s => s.Hash == hash && s.UntilDate > DateTime.UtcNow))
                     {
                         var path = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Media");
 
@@ -46,7 +46,7 @@ namespace ThePalace.Server.Web.Controllers
                                 switch (filter ?? UploadTypes.All)
                                 {
                                     case UploadTypes.Images:
-                                        filterStr = "*.JPG;*.GIF;*.JPEG;*.PNG";
+                                        filterStr = "*.GIF;*.JPG;*.JPEG;*.PNG";
 
                                         break;
                                     case UploadTypes.Audio:
@@ -86,7 +86,7 @@ namespace ThePalace.Server.Web.Controllers
                                 }
 
                                 files = files
-                                    .Select(f => Path.GetFileName(f).ToLower())
+                                    .Select(f => Path.GetFileName(f))
                                     .Distinct()
                                     .Skip(offset)
                                     .Take(limit)
@@ -123,7 +123,7 @@ namespace ThePalace.Server.Web.Controllers
 
                 using (var dbContext = Database.For<ThePalaceEntities>())
                 {
-                    if (dbContext.Sessions.Any(s => s.Hash == hash))
+                    if (dbContext.Sessions.Any(s => s.Hash == hash && s.UntilDate > DateTime.UtcNow))
                     {
                         var path = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Media", fileName);
 
@@ -133,7 +133,7 @@ namespace ThePalace.Server.Web.Controllers
                             {
                                 System.IO.File.Delete(path);
 
-                                files.Add(fileName.ToLower());
+                                files.Add(fileName);
 
                                 result = true;
                             }
@@ -171,7 +171,7 @@ namespace ThePalace.Server.Web.Controllers
 
                 using (var dbContext = Database.For<ThePalaceEntities>())
                 {
-                    if (dbContext.Sessions.Any(s => s.Hash == hash))
+                    if (dbContext.Sessions.Any(s => s.Hash == hash && s.UntilDate > DateTime.UtcNow))
                     {
                         var path = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Media");
 
@@ -183,15 +183,16 @@ namespace ThePalace.Server.Web.Controllers
 
                             foreach (var file in model.files)
                             {
-                                var fileName = Path.Combine(path, Path.GetFileName(file.Filename));
+                                var fileName = Path.GetFileName(file.Filename).ToLower();
+                                var filePath = Path.Combine(path, fileName);
 
-                                if (overwrite || !System.IO.File.Exists(fileName))
+                                if (overwrite || !System.IO.File.Exists(filePath))
                                 {
-                                    files.Add(Path.GetFileName(file.Filename).ToLower());
+                                    files.Add(fileName);
 
                                     try
                                     {
-                                        using (var stream = new FileStream(fileName, FileMode.Create))
+                                        using (var stream = new FileStream(filePath, FileMode.Create))
                                         {
                                             await stream.WriteAsync(file.FileContents);
                                         }

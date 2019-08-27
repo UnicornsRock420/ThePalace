@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using ThePalace.Core.Utility;
 
-namespace ThePalace.Core.Web
+namespace ThePalace.Server.Web
 {
     public class Program
     {

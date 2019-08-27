@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>7.2</LangVersion>
+    <RootNamespace>ThePalace.Server.Web</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Interfaces\IHub.cs" />
     <Compile Remove="Models\ProxyConnectionState.cs" />
   </ItemGroup>
 
@@ -23,8 +23,49 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Interfaces\IHub.cs" />
     <Content Include="Models\ProxyConnectionState.cs" />
+    <None Include="wwwroot\Media\Applause.mp3" />
+    <None Include="wwwroot\Media\binarydna.png" />
+    <None Include="wwwroot\Media\Boing.mp3" />
+    <None Include="wwwroot\Media\Bored.mp3" />
+    <None Include="wwwroot\Media\breakout.gif" />
+    <None Include="wwwroot\Media\c-stage.gif" />
+    <None Include="wwwroot\Media\clouds.gif" />
+    <None Include="wwwroot\Media\clouds.jpg" />
+    <None Include="wwwroot\Media\conference_room.gif" />
+    <None Include="wwwroot\Media\Connect.mp3" />
+    <None Include="wwwroot\Media\Cough.mp3" />
+    <None Include="wwwroot\Media\Crunch.mp3" />
+    <None Include="wwwroot\Media\Cyborg.txt" />
+    <None Include="wwwroot\Media\Demented.mp3" />
+    <None Include="wwwroot\Media\endoftime.gif" />
+    <None Include="wwwroot\Media\Hello.mp3" />
+    <None Include="wwwroot\Media\Hi.mp3" />
+    <None Include="wwwroot\Media\Kiss.mp3" />
+    <None Include="wwwroot\Media\lobby.gif" />
+    <None Include="wwwroot\Media\No.mp3" />
+    <None Include="wwwroot\Media\patient.gif" />
+    <None Include="wwwroot\Media\Poot.mp3" />
+    <None Include="wwwroot\Media\Pop.mp3" />
+    <None Include="wwwroot\Media\Queen.mid" />
+    <None Include="wwwroot\Media\Scream.mp3" />
+    <None Include="wwwroot\Media\Shh.mp3" />
+    <None Include="wwwroot\Media\SignOff.mp3" />
+    <None Include="wwwroot\Media\SignOn.mp3" />
+    <None Include="wwwroot\Media\Smileys\chewy-face.png" />
+    <None Include="wwwroot\Media\Smileys\chewy-face.pngmap.jpg" />
+    <None Include="wwwroot\Media\Smileys\dinks.png" />
+    <None Include="wwwroot\Media\Smileys\dinks.pngmap.jpg" />
+    <None Include="wwwroot\Media\Smileys\snoots.png" />
+    <None Include="wwwroot\Media\Smileys\snoots.pngmap.jpg" />
+    <None Include="wwwroot\Media\Smileys\starrykidds.png" />
+    <None Include="wwwroot\Media\Smileys\starrykidds.pngmap.jpg" />
+    <None Include="wwwroot\Media\sm_conference.gif" />
+    <None Include="wwwroot\Media\stage-sm.gif" />
+    <None Include="wwwroot\Media\Stageleft.mp3" />
+    <None Include="wwwroot\Media\Whispers.mp3" />
+    <None Include="wwwroot\Media\Yawn.mp3" />
+    <None Include="wwwroot\Media\Yes.mp3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,23 +75,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.4" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="2.2.6" />
@@ -58,7 +86,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.6" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.2.1" />
-    <PackageReference Include="Microsoft.NET.Sdk.Razor" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -244,12 +271,6 @@
     <Content Update="wwwroot\Scripts\popper.min.js.map">
       <DependentUpon>popper.js</DependentUpon>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Core\" />
-    <Folder Include="Libraries\" />
-    <Folder Include="Network\" />
   </ItemGroup>
 
 </Project>

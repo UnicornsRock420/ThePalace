@@ -160,11 +160,47 @@ namespace ThePalace.Server.Authorization
 
                 sessionState.userFlags |= (short)(UserFlags.U_SuperUser | UserFlags.U_God);
 
+                var now = DateTime.UtcNow;
+                var sessionDuration_InMinutes = ConfigManager.GetValue<UInt32>("SessionDuration_InMinutes", 1440).Value;
+                var expireDate = now.AddMinutes(sessionDuration_InMinutes);
+                var sessionRec = dbContext.Sessions
+                    .Where(s => s.UserId == authUserID)
+                    .SingleOrDefault();
+
+                if (sessionRec == null)
+                {
+                    sessionRec = new Sessions
+                    {
+                        UserId = authUserID,
+                        Hash = Guid.NewGuid(),
+                        UntilDate = expireDate,
+                        LastUsed = now,
+                    };
+
+                    dbContext.Sessions.Add(sessionRec);
+                }
+                else if (sessionRec.LastUsed < now)
+                {
+                    sessionRec.Hash = Guid.NewGuid();
+                    sessionRec.UntilDate = expireDate;
+                    sessionRec.LastUsed = now;
+                }
+                else
+                {
+                    sessionRec.LastUsed = now;
+                }
+
+                if (dbContext.HasUnsavedChanges())
+                {
+                    dbContext.SaveChanges();
+                }
+
                 if (sessionState.successfullyConnected)
                 {
                     var uSta = new MSG_USERSTATUS
                     {
                         flags = sessionState.userFlags,
+                        hash = sessionRec.Hash,
                     };
 
                     sessionState.Send(uSta, EventTypes.MSG_USERSTATUS, (Int32)sessionState.UserID);

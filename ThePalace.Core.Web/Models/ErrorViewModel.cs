@@ -1,6 +1,6 @@
 using System;
 
-namespace ThePalace.Core.Web.Models
+namespace ThePalace.Server.Web.Models
 {
     public class ErrorViewModel
     {

@@ -187,6 +187,7 @@
                         },
                         loosepropMouseDown: -1,
                         wornpropMouseDown: -1,
+                        spotMouseDown: null,
                         messageQueue: [],
                         messageTimer: null,
                         statusMessageTimer: null,
@@ -1115,7 +1116,7 @@
                             pos: pos,
                         });
 
-                    $scope.serverSend('MSG_TEST', {});
+                    //$scope.serverSend('MSG_TEST', {});
                 });
 
                 $scope.roomGoto = (function (roomID) {
@@ -1664,88 +1665,10 @@
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
-                    var personalBoundary = 66;
+                    var personalBoundary = 44;
                     var userBoundary = 33;
-                    var insideLooseProp = false;
                     var insideSpot = false;
-                    var insideUser = false;
-                    var loosepropIndex = -1;
-                    var looseprop = null;
                     var spot = null;
-                    var user = null;
-
-                    for (var j = 0; !insideLooseProp && j < $scope.model.RoomInfo.LooseProps.length; j++) {
-                        var polygon = [];
-
-                        looseprop = $scope.model.RoomInfo.LooseProps[j];
-                        loosepropIndex = j;
-
-                        polygon.push({
-                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        polygon.push({
-                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        polygon.push({
-                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        polygon.push({
-                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        insideLooseProp = utilService.pointInPolygon(polygon, {
-                            v: yCoord,
-                            h: xCoord,
-                        });
-                    }
-
-                    if (!insideLooseProp) {
-                        looseprop = null;
-                        loosepropIndex = -1;
-                    }
-
-                    for (var j = 0; !insideUser && j < $scope.model.RoomInfo.UserList.length; j++) {
-                        var polygon = [];
-
-                        user = $scope.model.RoomInfo.UserList[j];
-                        var isSelf = user.userID === $scope.model.UserInfo.userId;
-
-                        polygon.push({
-                            v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        insideUser = utilService.pointInPolygon(polygon, {
-                            v: yCoord,
-                            h: xCoord,
-                        });
-                    }
-
-                    if (!insideUser) {
-                        user = null;
-                    }
 
                     for (var j = 0; !insideSpot && j < $scope.model.RoomInfo.SpotList.length; j++) {
                         var polygon = [];
@@ -1771,50 +1694,142 @@
                         spot = null;
                     }
 
-                    if (user) {
-                        if ($event.originalEvent.button === 0) {
-                            if (user.userID === $scope.model.UserInfo.userId) {
-                                if (user.propSpec) {
-                                    var insideWornProp = false;
-                                    var wornProp = null;
+                    if ($scope.model.Interface.authoringMode) {
+                        $scope.model.Interface.spotMouseDown = spot;
+                    }
+                    else {
+                        var insideLooseProp = false;
+                        var insideUser = false;
+                        var loosepropIndex = -1;
+                        var looseprop = null;
+                        var user = null;
 
-                                    for (var j = 0; !insideWornProp && j < user.propSpec.length; j++) {
-                                        var polygon = [];
+                        for (var j = 0; !insideLooseProp && j < $scope.model.RoomInfo.LooseProps.length; j++) {
+                            var polygon = [];
 
-                                        wornProp = user.propSpec[j];
+                            looseprop = $scope.model.RoomInfo.LooseProps[j];
+                            loosepropIndex = j;
 
-                                        polygon.push({
-                                            v: user.roomPos.v + wornProp.prop.verticalOffset - (wornProp.prop.height / 2),
-                                            h: user.roomPos.h + wornProp.prop.horizontalOffset - (wornProp.prop.width / 2),
-                                        });
+                            polygon.push({
+                                v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
+                            });
 
-                                        polygon.push({
-                                            v: user.roomPos.v + wornProp.prop.verticalOffset - (wornProp.prop.height / 2),
-                                            h: user.roomPos.h + wornProp.prop.horizontalOffset + (wornProp.prop.width / 2),
-                                        });
+                            polygon.push({
+                                v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
+                            });
 
-                                        polygon.push({
-                                            v: user.roomPos.v + wornProp.prop.verticalOffset + (wornProp.prop.height / 2),
-                                            h: user.roomPos.h + wornProp.prop.horizontalOffset + (wornProp.prop.width / 2),
-                                        });
+                            polygon.push({
+                                v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
+                            });
 
-                                        polygon.push({
-                                            v: user.roomPos.v + wornProp.prop.verticalOffset + (wornProp.prop.height / 2),
-                                            h: user.roomPos.h + wornProp.prop.horizontalOffset - (wornProp.prop.width / 2),
-                                        });
+                            polygon.push({
+                                v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
+                            });
 
-                                        insideWornProp = utilService.pointInPolygon(polygon, {
-                                            v: yCoord,
-                                            h: xCoord,
-                                        });
-                                    }
+                            insideLooseProp = utilService.pointInPolygon(polygon, {
+                                v: yCoord,
+                                h: xCoord,
+                            });
+                        }
 
-                                    if (insideWornProp) {
-                                        $scope.model.Interface.wornpropMouseDown = wornProp;
-                                        $scope.model.Interface.wornpropMouseDown.loc = {
-                                            h: xCoord - 22,
-                                            v: yCoord - 22,
-                                        };
+                        if (!insideLooseProp) {
+                            looseprop = null;
+                            loosepropIndex = -1;
+                        }
+
+                        for (var j = 0; !insideUser && j < $scope.model.RoomInfo.UserList.length; j++) {
+                            var polygon = [];
+
+                            user = $scope.model.RoomInfo.UserList[j];
+                            var isSelf = user.userID === $scope.model.UserInfo.userId;
+
+                            polygon.push({
+                                v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            polygon.push({
+                                v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            polygon.push({
+                                v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            polygon.push({
+                                v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            insideUser = utilService.pointInPolygon(polygon, {
+                                v: yCoord,
+                                h: xCoord,
+                            });
+                        }
+
+                        if (!insideUser) {
+                            user = null;
+                        }
+
+                        if (user) {
+                            if ($event.originalEvent.button === 0) {
+                                if (user.userID === $scope.model.UserInfo.userId) {
+                                    if (user.propSpec) {
+                                        var insideWornProp = false;
+                                        var wornProp = null;
+
+                                        for (var j = 0; !insideWornProp && j < user.propSpec.length; j++) {
+                                            var polygon = [];
+
+                                            wornProp = user.propSpec[j];
+
+                                            polygon.push({
+                                                v: user.roomPos.v + wornProp.prop.verticalOffset - (wornProp.prop.height / 2),
+                                                h: user.roomPos.h + wornProp.prop.horizontalOffset - (wornProp.prop.width / 2),
+                                            });
+
+                                            polygon.push({
+                                                v: user.roomPos.v + wornProp.prop.verticalOffset - (wornProp.prop.height / 2),
+                                                h: user.roomPos.h + wornProp.prop.horizontalOffset + (wornProp.prop.width / 2),
+                                            });
+
+                                            polygon.push({
+                                                v: user.roomPos.v + wornProp.prop.verticalOffset + (wornProp.prop.height / 2),
+                                                h: user.roomPos.h + wornProp.prop.horizontalOffset + (wornProp.prop.width / 2),
+                                            });
+
+                                            polygon.push({
+                                                v: user.roomPos.v + wornProp.prop.verticalOffset + (wornProp.prop.height / 2),
+                                                h: user.roomPos.h + wornProp.prop.horizontalOffset - (wornProp.prop.width / 2),
+                                            });
+
+                                            insideWornProp = utilService.pointInPolygon(polygon, {
+                                                v: yCoord,
+                                                h: xCoord,
+                                            });
+                                        }
+
+                                        if (insideWornProp) {
+                                            $scope.model.Interface.wornpropMouseDown = wornProp;
+                                            $scope.model.Interface.wornpropMouseDown.loc = {
+                                                h: xCoord - 22,
+                                                v: yCoord - 22,
+                                            };
+                                        }
+                                        else {
+                                            $scope.setPos({
+                                                h: xCoord,
+                                                v: yCoord,
+                                            });
+
+                                            $scope.Screen_OnDraw('nametagsLayerUpdate', 'spriteLayerUpdate');
+                                        }
                                     }
                                     else {
                                         $scope.setPos({
@@ -1826,6 +1841,39 @@
                                     }
                                 }
                                 else {
+                                    if ($scope.model.Interface.whisperTargetId === 0 || $scope.model.Interface.whisperTargetId !== user.userID) {
+                                        $scope.model.Interface.whisperTargetId = user.userID;
+                                    }
+                                    else {
+                                        $scope.model.Interface.whisperTargetId = 0;
+                                    }
+
+                                    $scope.setStatusMsg();
+
+                                    $scope.Screen_OnDraw('nametagsLayerUpdate');
+                                }
+                            }
+                            else if ($event.originalEvent.button === 2) {
+                                $scope.model.Interface.contextMenu.type = 'user';
+                                $scope.model.Interface.contextMenu.targetId = user.userID;
+                                $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
+                                $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
+                            }
+                        }
+                        else if (looseprop) {
+                            if ($event.originalEvent.button === 0) {
+                                $scope.model.Interface.loosepropMouseDown = loosepropIndex;
+                            }
+                            else if ($event.originalEvent.button === 2) {
+                                $scope.model.Interface.contextMenu.type = 'looseprop';
+                                $scope.model.Interface.contextMenu.targetId = loosepropIndex;
+                                $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
+                                $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
+                            }
+                        }
+                        else if (spot) {
+                            if ($event.originalEvent.button === 0) {
+                                if ((spot.flags & (HotSpotFlags.HF_DontMoveHere | HotSpotFlags.HF_Forbidden)) === 0) {
                                     $scope.setPos({
                                         h: xCoord,
                                         v: yCoord,
@@ -1833,70 +1881,29 @@
 
                                     $scope.Screen_OnDraw('nametagsLayerUpdate', 'spriteLayerUpdate');
                                 }
-                            }
-                            else {
-                                if ($scope.model.Interface.whisperTargetId === 0 || $scope.model.Interface.whisperTargetId !== user.userID) {
-                                    $scope.model.Interface.whisperTargetId = user.userID;
+
+                                if (spot.events && spot.events['SELECT']) {
+                                    $scope.Spot_OnEvent(spot.id, 'SELECT');
                                 }
-                                else {
-                                    $scope.model.Interface.whisperTargetId = 0;
+                                else if (spot.type === HotSpotTypes.HS_Door && spot.dest !== 0) {
+                                    $scope.roomGoto(spot.dest);
                                 }
-
-                                $scope.setStatusMsg();
-
-                                $scope.Screen_OnDraw('nametagsLayerUpdate');
+                            }
+                            else if ($event.originalEvent.button === 2 && $scope.model.UserInfo.hasAdmin) {
+                                $scope.model.Interface.contextMenu.type = 'hotspot';
+                                $scope.model.Interface.contextMenu.targetId = spot.id;
+                                $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
+                                $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
                             }
                         }
-                        else if ($event.originalEvent.button === 2) {
-                            $scope.model.Interface.contextMenu.type = 'user';
-                            $scope.model.Interface.contextMenu.targetId = user.userID;
-                            $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
-                            $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
-                        }
-                    }
-                    else if (looseprop) {
-                        if ($event.originalEvent.button === 0) {
-                            $scope.model.Interface.loosepropMouseDown = loosepropIndex;
-                        }
-                        else if ($event.originalEvent.button === 2) {
-                            $scope.model.Interface.contextMenu.type = 'looseprop';
-                            $scope.model.Interface.contextMenu.targetId = loosepropIndex;
-                            $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
-                            $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
-                        }
-                    }
-                    else if (spot) {
-                        if ($event.originalEvent.button === 0) {
-                            if ((spot.flags & (HotSpotFlags.HF_DontMoveHere | HotSpotFlags.HF_Forbidden)) === 0) {
-                                $scope.setPos({
-                                    h: xCoord,
-                                    v: yCoord,
-                                });
+                        else {
+                            $scope.setPos({
+                                h: xCoord,
+                                v: yCoord,
+                            });
 
-                                $scope.Screen_OnDraw('nametagsLayerUpdate', 'spriteLayerUpdate');
-                            }
-
-                            if (spot.events && spot.events['SELECT']) {
-                                $scope.Spot_OnEvent(spot.id, 'SELECT');
-                            }
-                            else if (spot.type === HotSpotTypes.HS_Door && spot.dest !== 0) {
-                                $scope.roomGoto(spot.dest);
-                            }
+                            $scope.Screen_OnDraw('nametagsLayerUpdate', 'spriteLayerUpdate');
                         }
-                        else if ($event.originalEvent.button === 2 && $scope.model.UserInfo.hasAdmin) {
-                            $scope.model.Interface.contextMenu.type = 'hotspot';
-                            $scope.model.Interface.contextMenu.targetId = spot.id;
-                            $scope.model.Interface.contextMenu.positionX = $event.originalEvent.clientX - 10;
-                            $scope.model.Interface.contextMenu.positionY = $event.originalEvent.clientY - 10;
-                        }
-                    }
-                    else {
-                        $scope.setPos({
-                            h: xCoord,
-                            v: yCoord,
-                        });
-
-                        $scope.Screen_OnDraw('nametagsLayerUpdate', 'spriteLayerUpdate');
                     }
                 });
 
@@ -1905,151 +1912,172 @@
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
-                    var personalBoundary = 66;
-                    var userBoundary = 33;
-                    var insideLooseProp = false;
-                    var insideSpot = false;
-                    var insideUser = false;
-                    var looseprop = null;
-                    var spot = null;
-                    var user = null;
 
                     $window.MousePositionX = xCoord;
                     $window.MousePositionY = yCoord;
 
-                    for (var j = 0; !insideLooseProp && j < $scope.model.RoomInfo.LooseProps.length; j++) {
-                        var polygon = [];
+                    if ($scope.model.Interface.authoringMode) {
+                        if ($scope.model.Interface.spotMouseDown) {
+                            for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
+                                var spot = $scope.model.RoomInfo.SpotList[j];
 
-                        looseprop = $scope.model.RoomInfo.LooseProps[j];
+                                if ($scope.model.Interface.spotMouseDown.id === spot.id) {
+                                    spot.loc = {
+                                        v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
+                                        h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
+                                    };
 
-                        polygon.push({
-                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        polygon.push({
-                            v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        polygon.push({
-                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        polygon.push({
-                            v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
-                            h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
-                        });
-
-                        insideLooseProp = utilService.pointInPolygon(polygon, {
-                            v: yCoord,
-                            h: xCoord,
-                        });
-                    }
-
-                    if (!insideLooseProp) {
-                        looseprop = null;
-                    }
-
-                    for (var j = 0; !insideUser && j < $scope.model.RoomInfo.UserList.length; j++) {
-                        var polygon = [];
-
-                        user = $scope.model.RoomInfo.UserList[j];
-                        var isSelf = user.userID === $scope.model.UserInfo.userId;
-
-                        polygon.push({
-                            v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
-                            h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
-                        });
-
-                        insideUser = utilService.pointInPolygon(polygon, {
-                            v: yCoord,
-                            h: xCoord,
-                        });
-                    }
-
-                    if (!insideUser) {
-                        user = null;
-                    }
-
-                    for (var j = 0; !insideSpot && j < $scope.model.RoomInfo.SpotList.length; j++) {
-                        var polygon = [];
-
-                        spot = $scope.model.RoomInfo.SpotList[j];
-
-                        if ((spot.flags & HotSpotFlags.HF_Invisible) === 0) {
-                            for (var k = 0; k < spot.vortexes.length; k++) {
-                                polygon.push({
-                                    v: spot.loc.v + spot.vortexes[k].v,
-                                    h: spot.loc.h + spot.vortexes[k].h,
-                                });
+                                    break;
+                                }
                             }
 
-                            insideSpot = utilService.pointInPolygon(polygon, {
+                            $scope.Screen_OnDraw('spotLayerUpdate');
+                        }
+                    }
+                    else {
+                        var personalBoundary = 44;
+                        var userBoundary = 33;
+                        var insideLooseProp = false;
+                        var insideUser = false;
+                        var insideSpot = false;
+                        var looseprop = null;
+                        var spot = null;
+                        var user = null;
+
+                        for (var j = 0; !insideSpot && j < $scope.model.RoomInfo.SpotList.length; j++) {
+                            var polygon = [];
+
+                            spot = $scope.model.RoomInfo.SpotList[j];
+
+                            if ((spot.flags & HotSpotFlags.HF_Invisible) === 0) {
+                                for (var k = 0; k < spot.vortexes.length; k++) {
+                                    polygon.push({
+                                        v: spot.loc.v + spot.vortexes[k].v,
+                                        h: spot.loc.h + spot.vortexes[k].h,
+                                    });
+                                }
+
+                                insideSpot = utilService.pointInPolygon(polygon, {
+                                    v: yCoord,
+                                    h: xCoord,
+                                });
+                            }
+                        }
+
+                        if (!insideSpot) {
+                            spot = null;
+                        }
+
+                        for (var j = 0; !insideLooseProp && j < $scope.model.RoomInfo.LooseProps.length; j++) {
+                            var polygon = [];
+
+                            looseprop = $scope.model.RoomInfo.LooseProps[j];
+
+                            polygon.push({
+                                v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
+                            });
+
+                            polygon.push({
+                                v: looseprop.loc.v - (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
+                            });
+
+                            polygon.push({
+                                v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h + (looseprop.propSpec.prop.width / 2),
+                            });
+
+                            polygon.push({
+                                v: looseprop.loc.v + (looseprop.propSpec.prop.height / 2),
+                                h: looseprop.loc.h - (looseprop.propSpec.prop.width / 2),
+                            });
+
+                            insideLooseProp = utilService.pointInPolygon(polygon, {
                                 v: yCoord,
                                 h: xCoord,
                             });
                         }
+
+                        if (!insideLooseProp) {
+                            looseprop = null;
+                        }
+
+                        for (var j = 0; !insideUser && j < $scope.model.RoomInfo.UserList.length; j++) {
+                            var polygon = [];
+
+                            user = $scope.model.RoomInfo.UserList[j];
+                            var isSelf = user.userID === $scope.model.UserInfo.userId;
+
+                            polygon.push({
+                                v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            polygon.push({
+                                v: user.roomPos.v - (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            polygon.push({
+                                v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h + (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            polygon.push({
+                                v: user.roomPos.v + (isSelf ? personalBoundary : userBoundary),
+                                h: user.roomPos.h - (isSelf ? personalBoundary : userBoundary),
+                            });
+
+                            insideUser = utilService.pointInPolygon(polygon, {
+                                v: yCoord,
+                                h: xCoord,
+                            });
+                        }
+
+                        if (!insideUser) {
+                            user = null;
+                        }
+
+                        if (user && user.userID === $scope.model.UserInfo.userId && $scope.model.Interface.wornpropMouseDown !== -1) {
+                            $scope.model.Interface.wornpropMouseDown.loc = {
+                                v: yCoord - 22,
+                                h: xCoord - 22,
+                            };
+
+                            $scope.Screen_OnDraw('loosepropLayerUpdate');
+                        }
+
+                        if (insideUser || insideLooseProp || insideSpot) {
+                            $scope.model.Interface.cursor = 'pointer';
+                        }
+                        else {
+                            $scope.model.Interface.cursor = 'default';
+                        }
+
+                        if (looseprop) {
+                            $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown].dirty = true;
+                            $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown].loc = {
+                                v: yCoord - 22,
+                                h: xCoord - 22,
+                            };
+
+                            $scope.Screen_OnDraw('loosepropLayerUpdate');
+                        }
+
+                        if ((insideSpot && !$scope.model.Screen.spotHovering) || ($scope.model.Screen.spotHoveringId > 0 && spot && $scope.model.Screen.spotHoveringId != spot.id)) {
+                            $scope.model.Screen.spotHoveringId = spot.id;
+
+                            $scope.Spot_OnEvent(spot.id, 'MOUSEENTER');
+                        }
+                        else if ((!insideSpot && $scope.model.Screen.spotHovering) || ($scope.model.Screen.spotHoveringId > 0 && (!spot || $scope.model.Screen.spotHoveringId != spot.id))) {
+                            $scope.Spot_OnEvent($scope.model.Screen.spotHoveringId, 'MOUSEEXIT');
+
+                            $scope.model.Screen.spotHoveringId = 0;
+                        }
+
+                        $scope.model.Screen.spotHovering = insideSpot;
                     }
-
-                    if (!insideSpot) {
-                        spot = null;
-                    }
-
-                    if (user && user.userID === $scope.model.UserInfo.userId && $scope.model.Interface.wornpropMouseDown !== -1) {
-                        $scope.model.Interface.wornpropMouseDown.loc = {
-                            v: yCoord - 22,
-                            h: xCoord - 22,
-                        };
-
-                        $scope.Screen_OnDraw('loosepropLayerUpdate');
-                    }
-
-                    if (insideUser || insideLooseProp || insideSpot) {
-                        $scope.model.Interface.cursor = 'pointer';
-                    }
-                    else {
-                        $scope.model.Interface.cursor = 'default';
-                    }
-
-                    if (looseprop) {
-                        $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown].dirty = true;
-                        $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown].loc = {
-                            v: yCoord - 22,
-                            h: xCoord - 22,
-                        };
-
-                        $scope.Screen_OnDraw('loosepropLayerUpdate');
-                    }
-
-                    if ((insideSpot && !$scope.model.Screen.spotHovering) || ($scope.model.Screen.spotHoveringId > 0 && spot && $scope.model.Screen.spotHoveringId != spot.id)) {
-                        $scope.model.Screen.spotHoveringId = spot.id;
-
-                        $scope.Spot_OnEvent(spot.id, 'MOUSEENTER');
-                    }
-                    else if ((!insideSpot && $scope.model.Screen.spotHovering) || ($scope.model.Screen.spotHoveringId > 0 && (!spot || $scope.model.Screen.spotHoveringId != spot.id))) {
-                        $scope.Spot_OnEvent($scope.model.Screen.spotHoveringId, 'MOUSEEXIT');
-
-                        $scope.model.Screen.spotHoveringId = 0;
-                    }
-
-                    $scope.model.Screen.spotHovering = insideSpot;
                 });
 
                 $scope.Screen_OnMouseUp = (function ($event) {
@@ -2057,113 +2085,132 @@
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
-                    var userBoundary = 33;
-                    var insideUser = false;
-                    var user = null;
 
-                    for (var j = 0; !insideUser && j < $scope.model.RoomInfo.UserList.length; j++) {
-                        var polygon = [];
+                    if ($scope.model.Interface.authoringMode) {
+                        if ($scope.model.Interface.spotMouseDown) {
+                            $scope.serverSend(
+                                'MSG_SPOTMOVE',
+                                {
+                                    roomID: $scope.model.RoomInfo.roomId,
+                                    spotID: $scope.model.Interface.spotMouseDown.id,
+                                    pos: {
+                                        v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
+                                        h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
+                                    },
+                                });
 
-                        user = $scope.model.RoomInfo.UserList[j];
-
-                        polygon.push({
-                            v: user.roomPos.v - userBoundary,
-                            h: user.roomPos.h - userBoundary,
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v - userBoundary,
-                            h: user.roomPos.h + userBoundary,
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v + userBoundary,
-                            h: user.roomPos.h + userBoundary,
-                        });
-
-                        polygon.push({
-                            v: user.roomPos.v + userBoundary,
-                            h: user.roomPos.h - userBoundary,
-                        });
-
-                        insideUser = utilService.pointInPolygon(polygon, {
-                            v: yCoord,
-                            h: xCoord,
-                        });
+                            $scope.model.Interface.spotMouseDown = null;
+                        }
                     }
+                    else {
+                        var userBoundary = 33;
+                        var insideUser = false;
+                        var user = null;
 
-                    if (!insideUser) {
-                        user = null;
-                    }
+                        for (var j = 0; !insideUser && j < $scope.model.RoomInfo.UserList.length; j++) {
+                            var polygon = [];
 
-                    if ($scope.model.Interface.wornpropMouseDown !== -1) {
-                        var wornProp = $scope.model.Interface.wornpropMouseDown;
+                            user = $scope.model.RoomInfo.UserList[j];
 
-                        for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
-                            var user = $scope.model.RoomInfo.UserList[j];
+                            polygon.push({
+                                v: user.roomPos.v - userBoundary,
+                                h: user.roomPos.h - userBoundary,
+                            });
 
-                            if (user.userID === $scope.model.UserInfo.userId) {
-                                for (var k = 0; k < user.propSpec.length; k++) {
-                                    if (user.propSpec[k].id === wornProp.id) {
-                                        user.propSpec.splice(k, 1);
+                            polygon.push({
+                                v: user.roomPos.v - userBoundary,
+                                h: user.roomPos.h + userBoundary,
+                            });
 
-                                        $scope.setProps(user.propSpec);
+                            polygon.push({
+                                v: user.roomPos.v + userBoundary,
+                                h: user.roomPos.h + userBoundary,
+                            });
 
-                                        $scope.serverSend(
-                                            'MSG_PROPNEW',
-                                            {
-                                                propSpec: {
-                                                    id: wornProp.id,
-                                                    crc: 0,
-                                                },
-                                                loc: {
-                                                    v: yCoord,
-                                                    h: xCoord,
-                                                },
-                                            });
+                            polygon.push({
+                                v: user.roomPos.v + userBoundary,
+                                h: user.roomPos.h - userBoundary,
+                            });
 
-                                        break;
+                            insideUser = utilService.pointInPolygon(polygon, {
+                                v: yCoord,
+                                h: xCoord,
+                            });
+                        }
+
+                        if (!insideUser) {
+                            user = null;
+                        }
+
+                        if ($scope.model.Interface.wornpropMouseDown !== -1) {
+                            var wornProp = $scope.model.Interface.wornpropMouseDown;
+
+                            for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
+                                var user = $scope.model.RoomInfo.UserList[j];
+
+                                if (user.userID === $scope.model.UserInfo.userId) {
+                                    for (var k = 0; k < user.propSpec.length; k++) {
+                                        if (user.propSpec[k].id === wornProp.id) {
+                                            user.propSpec.splice(k, 1);
+
+                                            $scope.setProps(user.propSpec);
+
+                                            $scope.serverSend(
+                                                'MSG_PROPNEW',
+                                                {
+                                                    propSpec: {
+                                                        id: wornProp.id,
+                                                        crc: 0,
+                                                    },
+                                                    loc: {
+                                                        v: yCoord,
+                                                        h: xCoord,
+                                                    },
+                                                });
+
+                                            break;
+                                        }
                                     }
+
+                                    break;
+                                }
+                            }
+                        }
+                        else if ($scope.model.Interface.loosepropMouseDown > -1 && $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown].dirty) {
+                            var looseprop = $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown];
+
+                            if (user && user.userID === $scope.model.UserInfo.userId && (!user.propSpec || user.propSpec.length < 9)) {
+                                if (!user.propSpec) {
+                                    user.propSpec = [];
                                 }
 
-                                break;
+                                user.propSpec.push(looseprop.propSpec);
+
+                                $scope.setProps(user.propSpec);
+
+                                $scope.serverSend(
+                                    'MSG_PROPDEL',
+                                    {
+                                        propNum: $scope.model.Interface.loosepropMouseDown,
+                                        pos: looseprop.loc,
+                                    });
+                            }
+                            else {
+                                looseprop.dirty = false;
+
+                                $scope.serverSend(
+                                    'MSG_PROPMOVE',
+                                    {
+                                        propNum: $scope.model.Interface.loosepropMouseDown,
+                                        pos: looseprop.loc,
+                                    });
                             }
                         }
+
+                        $scope.model.Interface.contextMenu.type = null;
+                        $scope.model.Interface.loosepropMouseDown = -1;
+                        $scope.model.Interface.wornpropMouseDown = -1;
                     }
-                    else if ($scope.model.Interface.loosepropMouseDown > -1 && $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown].dirty) {
-                        var looseprop = $scope.model.RoomInfo.LooseProps[$scope.model.Interface.loosepropMouseDown];
-
-                        if (user && user.userID === $scope.model.UserInfo.userId && (!user.propSpec || user.propSpec.length < 9)) {
-                            if (!user.propSpec) {
-                                user.propSpec = [];
-                            }
-
-                            user.propSpec.push(looseprop.propSpec);
-
-                            $scope.setProps(user.propSpec);
-
-                            $scope.serverSend(
-                                'MSG_PROPDEL',
-                                {
-                                    propNum: $scope.model.Interface.loosepropMouseDown,
-                                    pos: looseprop.loc,
-                                });
-                        }
-                        else {
-                            looseprop.dirty = false;
-
-                            $scope.serverSend(
-                                'MSG_PROPMOVE',
-                                {
-                                    propNum: $scope.model.Interface.loosepropMouseDown,
-                                    pos: looseprop.loc,
-                                });
-                        }
-                    }
-
-                    $scope.model.Interface.contextMenu.type = null;
-                    $scope.model.Interface.loosepropMouseDown = -1;
-                    $scope.model.Interface.wornpropMouseDown = -1;
                 });
 
                 $scope.StatusMsg_OnClick = (function ($event) {
@@ -2284,7 +2331,14 @@
                         .on('keydown', function (event) {
                             var $chat = $('#chat');
 
-                            if (!$scope.model.Screen.spotLayerShow && event.ctrlKey && event.shiftKey) {
+                            if (event.ctrlKey && event.shiftKey && event.keyCode == 65) {
+                                if (($scope.model.UserInfo.userFlags & (UserFlags.UF_SuperUser | UserFlags.UF_God)) != 0) {
+                                    $scope.model.Interface.authoringMode = !$scope.model.Interface.authoringMode;
+
+                                    $scope.Screen_OnDraw('spotLayerUpdate', 'spotLayerShow');
+                                }
+                            }
+                            else if (!$scope.model.Screen.spotLayerShow && event.ctrlKey && event.shiftKey) {
                                 $scope.Screen_OnDraw('spotLayerUpdate', 'spotLayerShow');
                             }
                             else if ($scope.model.Screen.nametagsLayerShow && event.ctrlKey && event.altKey) {

@@ -1385,6 +1385,7 @@
                                                         type: response.type,
                                                         state: response.state,
                                                         states: response.states,
+                                                        vortexes: response.vortexes,
                                                         script: response.script,
                                                         name: response.name,
                                                         loc: response.loc,
@@ -1973,6 +1974,7 @@
                                 var spot = $scope.model.RoomInfo.SpotList[j];
 
                                 if ($scope.model.Interface.spotSelected.id === spot.id && spot.vortexes) {
+                                    $scope.model.Interface.spotSelected.isDirty = true;
                                     $scope.model.Interface.vortexMouseDown.v = yCoord;
                                     $scope.model.Interface.vortexMouseDown.h = xCoord;
 
@@ -1982,11 +1984,13 @@
 
                             $scope.Screen_OnDraw('spotLayerUpdate');
                         }
-                        else if ($scope.model.Interface.spotMouseDown) {
+
+                        if ($scope.model.Interface.spotMouseDown) {
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 var spot = $scope.model.RoomInfo.SpotList[j];
 
                                 if ($scope.model.Interface.spotMouseDown.id === spot.id) {
+                                    $scope.model.Interface.spotMouseDown.isDirty = true;
                                     spot.loc = {
                                         v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
                                         h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
@@ -2150,10 +2154,12 @@
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
-                    var isSame = $window.MousePositionX === xCoord && $window.MousePositionY === yCoord;
 
                     if ($scope.model.Interface.authoringMode) {
-                        if ($scope.model.Interface.spotSelected) {
+                        if ($scope.model.Interface.spotSelected && $scope.model.Interface.spotSelected.isDirty && $scope.model.Interface.vortexMouseDown) {
+                            $scope.model.Interface.vortexMouseDown.v = yCoord;
+                            $scope.model.Interface.vortexMouseDown.h = xCoord;
+
                             $scope.serverSend(
                                 'MSG_SPOTINFO',
                                 {
@@ -2170,21 +2176,21 @@
                                     flags: $scope.model.Interface.spotSelected.flags,
                                 });
 
-                            $scope.model.Interface.spotSelected = null;
-
                             $scope.Screen_OnDraw('spotLayerUpdate');
                         }
 
-                        if ($scope.model.Interface.spotMouseDown) {
+                        if ($scope.model.Interface.spotMouseDown && $scope.model.Interface.spotMouseDown.isDirty) {
+                            $scope.model.Interface.spotMouseDown.loc = {
+                                v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
+                                h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
+                            };
+
                             $scope.serverSend(
                                 'MSG_SPOTMOVE',
                                 {
                                     roomID: $scope.model.RoomInfo.roomId,
                                     spotID: $scope.model.Interface.spotMouseDown.id,
-                                    pos: {
-                                        v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
-                                        h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
-                                    },
+                                    pos: $scope.model.Interface.spotMouseDown.loc,
                                 });
 
                             $scope.model.Interface.spotMouseDown = null;

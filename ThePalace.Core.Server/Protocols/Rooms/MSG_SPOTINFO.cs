@@ -25,8 +25,6 @@ namespace ThePalace.Server.Protocols
         {
             var jsonResponse = (dynamic)null;
 
-            pictureList = new List<PictureRec>();
-
             try
             {
                 jsonResponse = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
@@ -46,23 +44,45 @@ namespace ThePalace.Server.Protocols
 
                 spot.states = new List<HotspotStateRec>();
 
-                foreach (var state in jsonResponse.states)
+                if (jsonResponse.states != null && jsonResponse.states.Count > 0)
                 {
-                    spot.states.Add(new HotspotStateRec
+                    foreach (var state in jsonResponse.states)
                     {
-                        pictID = (Int16)state.pictID,
-                        picLoc = new Point((Int16)state.picLoc.h, (Int16)state.picLoc.v),
-                    });
+                        spot.states.Add(new HotspotStateRec
+                        {
+                            pictID = (Int16)state.pictID,
+                            picLoc = new Point((Int16)state.picLoc.h, (Int16)state.picLoc.v),
+                        });
+                    }
                 }
 
-                foreach (var picture in jsonResponse.pictureList)
+                spot.Vortexes = new List<Point>();
+
+                if (jsonResponse.vortexes != null && jsonResponse.vortexes.Count > 0)
                 {
-                    pictureList.Add(new PictureRec
+                    foreach (var vortex in jsonResponse.vortexes)
                     {
-                        picID = (Int16)picture.picID,
-                        name = picture.name,
-                        transColor = (Int16)picture.transColor,
-                    });
+                        spot.Vortexes.Add(new Point((Int16)vortex.h, (Int16)vortex.v));
+                    }
+                }
+
+                if (jsonResponse.pictureList == null || jsonResponse.pictureList.Count < 1)
+                {
+                    pictureList = null;
+                }
+                else
+                {
+                    pictureList = new List<PictureRec>();
+
+                    foreach (var picture in jsonResponse.pictureList)
+                    {
+                        pictureList.Add(new PictureRec
+                        {
+                            picID = (Int16)picture.picID,
+                            name = picture.name,
+                            transColor = (Int16)picture.transColor,
+                        });
+                    }
                 }
             }
             catch

@@ -187,7 +187,9 @@
                         },
                         loosepropMouseDown: -1,
                         wornpropMouseDown: -1,
+                        vortexMouseDown: null,
                         spotMouseDown: null,
+                        spotSelected: null,
                         messageQueue: [],
                         messageTimer: null,
                         statusMessageTimer: null,
@@ -1309,6 +1311,7 @@
                         case 'AUTHORINGMODE':
                             $scope.model.Interface.authoringMode = !$scope.model.Interface.authoringMode;
                             $scope.model.Interface.contextMenu.type = null;
+                            $scope.model.Interface.spotSelected = null;
 
                             $scope.Screen_OnDraw('spotLayerUpdate');
 
@@ -1553,6 +1556,23 @@
                                     ((spot.flags & HotSpotFlags.HF_Invisible) === 0 && $scope.model.Screen.spotLayerShow)) {
                                     spotCanvas.fill();
                                 }
+
+                                if ($scope.model.Interface.authoringMode && $scope.model.Interface.spotSelected && $scope.model.Interface.spotSelected.id === spot.id) {
+                                    for (var k = spot.vortexes.length - 1; k >= 0; k--) {
+                                        xCoord = spot.loc.h + spot.vortexes[k].h;
+                                        yCoord = spot.loc.v + spot.vortexes[k].v;
+
+                                        spotCanvas.moveTo(xCoord - 4, yCoord - 4);
+
+                                        spotCanvas.lineTo(xCoord + 4, yCoord - 4);
+                                        spotCanvas.lineTo(xCoord + 4, yCoord + 4);
+                                        spotCanvas.lineTo(xCoord - 4, yCoord + 4);
+                                        spotCanvas.lineTo(xCoord - 4, yCoord - 4);
+
+                                        spotCanvas.stroke();
+                                        spotCanvas.fill();
+                                    }
+                                }
                             }
                         }
                     }
@@ -1667,7 +1687,9 @@
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
                     var personalBoundary = 44;
                     var userBoundary = 33;
+                    var insideVortex = false;
                     var insideSpot = false;
+                    var vortex = null;
                     var spot = null;
 
                     for (var j = 0; !insideSpot && j < $scope.model.RoomInfo.SpotList.length; j++) {
@@ -1676,18 +1698,37 @@
                         spot = $scope.model.RoomInfo.SpotList[j];
 
                         if (spot.vortexes && spot.vortexes.length > 0) {
-                            for (var k = 0; k < spot.vortexes.length; k++) {
+                            for (var k = 0; !insideVortex && k < spot.vortexes.length; k++) {
+                                vortex = spot.vortexes[k];
+
+                                var xCoord2 = spot.loc.h + vortex.h;
+                                var yCoord2 = spot.loc.v + vortex.v;
+
+                                insideVortex = utilService.pointInPolygon([
+                                    { v: yCoord2 - 4, h: xCoord2 - 4 },
+                                    { v: yCoord2 - 4, h: xCoord2 + 4 },
+                                    { v: yCoord2 + 4, h: xCoord2 + 4 },
+                                    { v: yCoord2 + 4, h: xCoord2 - 4 },
+                                ], {
+                                        v: yCoord,
+                                        h: xCoord,
+                                    });
+
                                 polygon.push({
-                                    v: spot.loc.v + spot.vortexes[k].v,
-                                    h: spot.loc.h + spot.vortexes[k].h,
+                                    v: yCoord2,
+                                    h: xCoord2,
                                 });
                             }
 
-                            insideSpot = utilService.pointInPolygon(polygon, {
+                            insideSpot = insideVortex || utilService.pointInPolygon(polygon, {
                                 v: yCoord,
                                 h: xCoord,
                             });
                         }
+                    }
+
+                    if (!insideVortex) {
+                        vortex = null;
                     }
 
                     if (!insideSpot) {
@@ -1695,7 +1736,17 @@
                     }
 
                     if ($scope.model.Interface.authoringMode) {
-                        $scope.model.Interface.spotMouseDown = spot;
+
+                        if (insideVortex) {
+                            $scope.model.Interface.vortexMouseDown = vortex;
+                            $scope.model.Interface.spotMouseDown = null;
+                        }
+                        else {
+                            $scope.model.Interface.vortexMouseDown = null;
+                            $scope.model.Interface.spotMouseDown = spot;
+                        }
+
+                        $scope.model.Interface.spotSelected = spot;
                     }
                     else {
                         var insideLooseProp = false;
@@ -1917,7 +1968,21 @@
                     $window.MousePositionY = yCoord;
 
                     if ($scope.model.Interface.authoringMode) {
-                        if ($scope.model.Interface.spotMouseDown) {
+                        if ($scope.model.Interface.spotSelected && $scope.model.Interface.vortexMouseDown) {
+                            for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
+                                var spot = $scope.model.RoomInfo.SpotList[j];
+
+                                if ($scope.model.Interface.spotSelected.id === spot.id && spot.vortexes) {
+                                    $scope.model.Interface.vortexMouseDown.v = yCoord;
+                                    $scope.model.Interface.vortexMouseDown.h = xCoord;
+
+                                    break;
+                                }
+                            }
+
+                            $scope.Screen_OnDraw('spotLayerUpdate');
+                        }
+                        else if ($scope.model.Interface.spotMouseDown) {
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 var spot = $scope.model.RoomInfo.SpotList[j];
 
@@ -2085,8 +2150,31 @@
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
+                    var isSame = $window.MousePositionX === xCoord && $window.MousePositionY === yCoord;
 
                     if ($scope.model.Interface.authoringMode) {
+                        if ($scope.model.Interface.spotSelected) {
+                            $scope.serverSend(
+                                'MSG_SPOTINFO',
+                                {
+                                    roomID: $scope.model.RoomInfo.roomId,
+                                    spotID: $scope.model.Interface.spotSelected.id,
+                                    type: $scope.model.Interface.spotSelected.type,
+                                    state: $scope.model.Interface.spotSelected.state,
+                                    states: $scope.model.Interface.spotSelected.states,
+                                    vortexes: $scope.model.Interface.spotSelected.vortexes,
+                                    script: $scope.model.Interface.spotSelected.script,
+                                    name: $scope.model.Interface.spotSelected.name,
+                                    loc: $scope.model.Interface.spotSelected.loc,
+                                    dest: $scope.model.Interface.spotSelected.dest,
+                                    flags: $scope.model.Interface.spotSelected.flags,
+                                });
+
+                            $scope.model.Interface.spotSelected = null;
+
+                            $scope.Screen_OnDraw('spotLayerUpdate');
+                        }
+
                         if ($scope.model.Interface.spotMouseDown) {
                             $scope.serverSend(
                                 'MSG_SPOTMOVE',
@@ -2100,6 +2188,8 @@
                                 });
 
                             $scope.model.Interface.spotMouseDown = null;
+
+                            $scope.Screen_OnDraw('spotLayerUpdate');
                         }
                     }
                     else {
@@ -2334,6 +2424,7 @@
                             if (event.ctrlKey && event.shiftKey && event.keyCode == 65) {
                                 if (($scope.model.UserInfo.userFlags & (UserFlags.UF_SuperUser | UserFlags.UF_God)) != 0) {
                                     $scope.model.Interface.authoringMode = !$scope.model.Interface.authoringMode;
+                                    $scope.model.Interface.spotSelected = null;
 
                                     $scope.Screen_OnDraw('spotLayerUpdate', 'spotLayerShow');
                                 }

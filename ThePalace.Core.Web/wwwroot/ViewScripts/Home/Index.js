@@ -1141,7 +1141,7 @@
                     $scope.model.Interface[propertyName] = !$scope.model.Interface[propertyName];
 
                     if ($scope.model.Interface[propertyName]) {
-                        var panel = $(''.concat('#', propertyName.substring(4).toLowerCase()));
+                        var panel = angular.element(''.concat('#', propertyName.substring(4).toLowerCase()));
 
                         panel.css('left', 0);
                         panel.css('top', 0);
@@ -1965,9 +1965,6 @@
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
 
-                    $window.MousePositionX = xCoord;
-                    $window.MousePositionY = yCoord;
-
                     if ($scope.model.Interface.authoringMode) {
                         if ($scope.model.Interface.spotSelected && $scope.model.Interface.vortexMouseDown) {
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
@@ -1975,8 +1972,8 @@
 
                                 if ($scope.model.Interface.spotSelected.id === spot.id && spot.vortexes) {
                                     $scope.model.Interface.spotSelected.isDirty = true;
-                                    $scope.model.Interface.vortexMouseDown.v = yCoord;
-                                    $scope.model.Interface.vortexMouseDown.h = xCoord;
+                                    $scope.model.Interface.vortexMouseDown.v = yCoord - $scope.model.Interface.spotSelected.loc.v;
+                                    $scope.model.Interface.vortexMouseDown.h = xCoord - $scope.model.Interface.spotSelected.loc.h;
 
                                     break;
                                 }
@@ -1992,8 +1989,8 @@
                                 if ($scope.model.Interface.spotMouseDown.id === spot.id) {
                                     $scope.model.Interface.spotMouseDown.isDirty = true;
                                     spot.loc = {
-                                        v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
-                                        h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
+                                        v: yCoord,
+                                        h: xCoord,
                                     };
 
                                     break;
@@ -2157,8 +2154,8 @@
 
                     if ($scope.model.Interface.authoringMode) {
                         if ($scope.model.Interface.spotSelected && $scope.model.Interface.spotSelected.isDirty && $scope.model.Interface.vortexMouseDown) {
-                            $scope.model.Interface.vortexMouseDown.v = yCoord;
-                            $scope.model.Interface.vortexMouseDown.h = xCoord;
+                            $scope.model.Interface.vortexMouseDown.v = yCoord - $scope.model.Interface.spotSelected.loc.v;
+                            $scope.model.Interface.vortexMouseDown.h = xCoord - $scope.model.Interface.spotSelected.loc.h;
 
                             $scope.serverSend(
                                 'MSG_SPOTINFO',
@@ -2176,13 +2173,15 @@
                                     flags: $scope.model.Interface.spotSelected.flags,
                                 });
 
+                            $scope.model.Interface.vortexMouseDown = null;
+
                             $scope.Screen_OnDraw('spotLayerUpdate');
                         }
 
                         if ($scope.model.Interface.spotMouseDown && $scope.model.Interface.spotMouseDown.isDirty) {
                             $scope.model.Interface.spotMouseDown.loc = {
-                                v: yCoord - ($window.parseInt($scope.model.Screen.height) / 2),
-                                h: xCoord - ($window.parseInt($scope.model.Screen.width) / 2),
+                                v: yCoord,
+                                h: xCoord,
                             };
 
                             $scope.serverSend(
@@ -2421,11 +2420,11 @@
                 connection.on('connect', (function () {
                     $scope.model.ConnectionInfo.connected = true;
 
-                    $(window)
+                    angular.element(window)
                         .off('keydown')
                         .off('keyup')
                         .on('keydown', function (event) {
-                            var $chat = $('#chat');
+                            var $chat = angular.element('#chat');
 
                             if (event.ctrlKey && event.shiftKey && event.keyCode == 65) {
                                 if (($scope.model.UserInfo.userFlags & (UserFlags.UF_SuperUser | UserFlags.UF_God)) != 0) {
@@ -2462,8 +2461,8 @@
 
                                         break;
                                     default:
-                                        if (!$('body').hasClass('modal-open')) {
-                                            $('#chat').focus();
+                                        if (!angular.element('body').hasClass('modal-open')) {
+                                            angular.element('#chat').focus();
                                         }
 
                                         break;
@@ -2481,7 +2480,7 @@
                             }
                         });
 
-                    $('#interface').css('visibility', 'visible');
+                    angular.element('#interface').css('visibility', 'visible');
                 }));
 
                 connection.on('error', (function (event) {

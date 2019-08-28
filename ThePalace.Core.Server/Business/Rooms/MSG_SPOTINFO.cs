@@ -54,8 +54,12 @@ namespace ThePalace.Server.Business
                                 spot.script = inboundPacket.spot.script;
                                 spot.dest = inboundPacket.spot.dest;
                                 spot.flags = inboundPacket.spot.flags;
+                                spot.Vortexes = inboundPacket.spot.Vortexes;
 
-                                room.Pictures = inboundPacket.pictureList;
+                                if (inboundPacket.pictureList != null)
+                                {
+                                    room.Pictures = inboundPacket.pictureList;
+                                }
 
                                 break;
                             }

@@ -119,6 +119,7 @@
             type: $scope.model.type,
             state: $scope.model.state,
             states: $scope.model.states,
+            vortexes: $scope.model.vortexes,
             script: $scope.model.script,
             name: $scope.model.name,
             loc: $scope.model.loc,

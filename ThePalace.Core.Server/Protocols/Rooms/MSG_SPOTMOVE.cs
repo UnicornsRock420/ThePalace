@@ -44,7 +44,7 @@ namespace ThePalace.Server.Protocols
 
                 roomID = jsonResponse.roomID;
                 spotID = jsonResponse.spotID;
-                pos = jsonResponse.pos;
+                pos = new Point((Int16)jsonResponse.pos.h, (Int16)jsonResponse.pos.v);
             }
             catch
             {

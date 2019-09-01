@@ -1,0 +1,24 @@
+﻿div.tooloptionsdialog {
+    padding: 10px;
+}
+
+    div.tooloptionsdialog div.modalheader {
+        text-align: center;
+    }
+
+        div.tooloptionsdialog div.modalheader span.close {
+            float: right;
+            cursor: pointer;
+        }
+
+    div.tooloptionsdialog div.modalbody {
+        padding-top: 10px;
+    }
+
+    div.tooloptionsdialog div.modalfooter {
+        text-align: right;
+    }
+
+        div.tooloptionsdialog div.modalfooter button {
+            padding: 10px;
+        }

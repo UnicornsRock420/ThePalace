@@ -1,0 +1,24 @@
+﻿div.effectoptionsdialog {
+    padding: 10px;
+}
+
+    div.effectoptionsdialog div.modalheader {
+        text-align: center;
+    }
+
+        div.effectoptionsdialog div.modalheader span.close {
+            float: right;
+            cursor: pointer;
+        }
+
+    div.effectoptionsdialog div.modalbody {
+        padding-top: 10px;
+    }
+
+    div.effectoptionsdialog div.modalfooter {
+        text-align: right;
+    }
+
+        div.effectoptionsdialog div.modalfooter button {
+            padding: 10px;
+        }

@@ -1,0 +1,56 @@
+﻿div.colorpickerdialog {
+    padding: 10px;
+}
+
+    div.colorpickerdialog div.modalheader {
+        text-align: center;
+    }
+
+        div.colorpickerdialog div.modalheader span.close {
+            float: right;
+            cursor: pointer;
+        }
+
+    div.colorpickerdialog div.modalbody {
+        padding-top: 10px;
+    }
+
+        div.colorpickerdialog div.modalbody div#pickermask {
+            background-image: url(/images/ui/picker_mask.png);
+            background-color: rgb(255, 0, 0);
+            width: 182px;
+            height: 182px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        div.colorpickerdialog div.modalbody div#picker_thumb {
+            background-image: url(/images/ui/picker_thumb.png);
+            width: 11px;
+            height: 11px;
+            position: absolute;
+        }
+
+        div.colorpickerdialog div.modalbody div#huebg {
+            background-image: url(/images/ui/hue_bg.png);
+            width: 14px;
+            height: 183px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        div.colorpickerdialog div.modalbody div#hue_thumb {
+            background-image: url(/images/ui/hue_thumb.png);
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            left: -2px;
+        }
+
+    div.colorpickerdialog div.modalfooter {
+        text-align: right;
+    }
+
+        div.colorpickerdialog div.modalfooter button {
+            padding: 10px;
+        }

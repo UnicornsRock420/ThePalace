@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
-using ThePalace.Core.Types;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Core;
 using ThePalace.Server.Models;
@@ -70,7 +67,7 @@ namespace ThePalace.Server.Business
 
                         ServerState.FlushRooms(dbContext);
 
-                        SessionManager.SendToRoomID(sessionState.RoomID, 0, room, EventTypes.MSG_ROOMSETDESC, 0);
+                        SessionManager.SendToRoomID(sessionState.RoomID, sessionState.UserID, room, EventTypes.MSG_ROOMSETDESC, 0);
                     }
                 }
             }

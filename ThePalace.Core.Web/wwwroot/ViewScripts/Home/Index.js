@@ -1155,6 +1155,26 @@
                                 $scope.ListOfAllRoomsRefresh_OnClick();
 
                                 break;
+                            case 'showPropbag':
+                                var user = null;
+
+                                for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
+                                    if ($scope.model.RoomInfo.UserList[j].userID == $scope.model.UserInfo.userId) {
+                                        user = $scope.model.RoomInfo.UserList[j];
+
+                                        break;
+                                    }
+                                }
+
+                                if (user) {
+                                    dialogService.propEditor(user).then(function (response) {
+
+                                    }, function (errors) {
+
+                                    });
+                                }
+
+                                break;
                         }
                     }
                 });
@@ -1967,35 +1987,19 @@
 
                     if ($scope.model.Interface.authoringMode) {
                         if ($scope.model.Interface.spotSelected && $scope.model.Interface.vortexMouseDown) {
-                            for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
-                                var spot = $scope.model.RoomInfo.SpotList[j];
-
-                                if ($scope.model.Interface.spotSelected.id === spot.id && spot.vortexes) {
-                                    $scope.model.Interface.spotSelected.isDirty = true;
-                                    $scope.model.Interface.vortexMouseDown.v = yCoord - $scope.model.Interface.spotSelected.loc.v;
-                                    $scope.model.Interface.vortexMouseDown.h = xCoord - $scope.model.Interface.spotSelected.loc.h;
-
-                                    break;
-                                }
-                            }
+                            $scope.model.Interface.spotSelected.isDirty = true;
+                            $scope.model.Interface.vortexMouseDown.v = yCoord - $scope.model.Interface.spotSelected.loc.v;
+                            $scope.model.Interface.vortexMouseDown.h = xCoord - $scope.model.Interface.spotSelected.loc.h;
 
                             $scope.Screen_OnDraw('spotLayerUpdate');
                         }
 
                         if ($scope.model.Interface.spotMouseDown) {
-                            for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
-                                var spot = $scope.model.RoomInfo.SpotList[j];
-
-                                if ($scope.model.Interface.spotMouseDown.id === spot.id) {
-                                    $scope.model.Interface.spotMouseDown.isDirty = true;
-                                    spot.loc = {
-                                        v: yCoord,
-                                        h: xCoord,
-                                    };
-
-                                    break;
-                                }
-                            }
+                            $scope.model.Interface.spotMouseDown.isDirty = true;
+                            $scope.model.Interface.spotMouseDown.loc = {
+                                v: yCoord + ($window.parseInt($scope.model.Screen.height) / 4),
+                                h: xCoord + ($window.parseInt($scope.model.Screen.width) / 4),
+                            };
 
                             $scope.Screen_OnDraw('spotLayerUpdate');
                         }
@@ -2114,7 +2118,7 @@
                             $scope.Screen_OnDraw('loosepropLayerUpdate');
                         }
 
-                        if (insideUser || insideLooseProp || insideSpot) {
+                        if ((insideUser || insideLooseProp || insideSpot) && !$scope.model.Interface.vortexMouseDown) {
                             $scope.model.Interface.cursor = 'pointer';
                         }
                         else {
@@ -2180,8 +2184,8 @@
 
                         if ($scope.model.Interface.spotMouseDown && $scope.model.Interface.spotMouseDown.isDirty) {
                             $scope.model.Interface.spotMouseDown.loc = {
-                                v: yCoord,
-                                h: xCoord,
+                                v: yCoord + ($window.parseInt($scope.model.Screen.height) / 4),
+                                h: xCoord + ($window.parseInt($scope.model.Screen.width) / 4),
                             };
 
                             $scope.serverSend(
@@ -2444,6 +2448,22 @@
                             }
                             else if (!$chat.is(':focus')) {
                                 switch (event.keyCode) {
+                                    case 33:
+                                        $scope.userSlide(4, -4);
+
+                                        break;
+                                    case 34:
+                                        $scope.userSlide(4, 4);
+
+                                        break;
+                                    case 35:
+                                        $scope.userSlide(-4, 4);
+
+                                        break;
+                                    case 36:
+                                        $scope.userSlide(-4, -4);
+
+                                        break;
                                     case 37:
                                         $scope.userSlide(-4, 0);
 
@@ -2744,15 +2764,15 @@
                     'MSG_USERLOG': (function (refNum, message) {
                         $scope.model.ServerInfo.totalPeople = message.nbrUsers;
 
-                        $scope.model.Application.soundPlayer.preload({
-                            sourceUrl: '/media/SignOn.mp3',
-                            resolve: function (response) {
-                                this.play();
-                            },
-                            reject: function (errors) {
-                            },
-                        });
-                        $scope.model.Application.soundPlayer.load();
+                        //$scope.model.Application.soundPlayer.preload({
+                        //    sourceUrl: '/media/SignOn.mp3',
+                        //    resolve: function (response) {
+                        //        this.play();
+                        //    },
+                        //    reject: function (errors) {
+                        //    },
+                        //});
+                        //$scope.model.Application.soundPlayer.load();
 
                         if ($scope.model.UserInfo.userId === refNum) {
                             if ($scope.model.Application.cyborg['SIGNON']) {
@@ -2827,6 +2847,8 @@
                             $scope.model.RoomInfo.PictureList = response.pictures;
                             $scope.model.RoomInfo.LooseProps = [];
                             $scope.model.RoomInfo.DrawCmds = [];
+
+                            $scope.model.Screen.assetCache = [];
 
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 if (($scope.model.RoomInfo.SpotList[j].script || '').trim() !== '') {

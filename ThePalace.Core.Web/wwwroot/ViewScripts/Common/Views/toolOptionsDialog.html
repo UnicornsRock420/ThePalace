@@ -1,0 +1,12 @@
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/toolOptionsDialog.css" />
+
+<div class="tooloptionsdialog">
+    <div class="modalheader"><strong>Tool Options</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="modalbody" ng-init="ToolOptions_OnInit()">
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

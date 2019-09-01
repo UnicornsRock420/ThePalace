@@ -1,0 +1,19 @@
+﻿<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/colorPickerDialog.css" />
+
+<div class="colorpickerdialog">
+    <div class="modalheader"><strong>Color Picker</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="modalbody" ng-init="ColorPicker_OnInit()">
+        <div id="pickermask" ng-mousemove="PickerThumb_OnMouseMove($event)" ng-mouseleave="PickerThumb_OnMouseMove($event)" ng-mousedown="PickerThumb_OnMouseMove($event)" ng-mouseup="PickerThumb_OnMouseMove($event)">
+            <div id="picker_thumb" ng-style="{top: pickerLoc.v, left: pickerLoc.h}"></div>
+        </div>
+        <div id="huebg" ng-mousemove="HueThumb_OnMouseMove($event)" ng-mouseleave="HueThumb_OnMouseMove($event)" ng-mousedown="HueThumb_OnMouseMove($event)" ng-mouseup="HueThumb_OnMouseMove($event)">
+            <div id="hue_thumb" ng-style="{top: hueLevel + 'px'}"></div>
+        </div>
+        <label id="color" ng-style="{'background-color': 'rgb(' + pickerPixel[1] + ',' + pickerPixel[2] + ',' + pickerPixel[0] + ')'}">R: {{pickerPixel[0]}}, B: {{pickerPixel[1]}}, G: {{pickerPixel[2]}}</label>
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

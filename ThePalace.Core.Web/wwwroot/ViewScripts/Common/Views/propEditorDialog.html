@@ -1,0 +1,138 @@
+﻿<link type="text/css" rel="stylesheet" href="/Content/navbar.css" />
+<link type="text/css" rel="stylesheet" href="/ViewStyles/Common/propEditorDialog.css" />
+
+<div class="propeditordialog">
+    <div class="modalheader"><strong>Prop Editor</strong><span class="close" ng-click="$close()">&#10006;</span></div>
+    <hr />
+    <div class="nav-bar">
+        <ul class="nav-menu">
+            <li>
+                <a href="#">File ▾</a>
+                <ul>
+                    <li>
+                        <input id="files" type="file" style="display: none;" multiple />
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'FILE_OPEN')">Open</a>
+                    </li>
+                    <!--<li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'FILE_SAVE')">Save</a>
+                    </li>-->
+                </ul>
+            </li>
+            <li>
+                <a href="#">Edit ▾</a>
+                <ul>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_UNDO')">Undo</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">Effects ▾</a>
+                <ul>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_BASICBLURIMAGE')">Basic Blur Image</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_BNC')">Brightness & Contrast</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_HNS')">Hue & Saturation</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_ZOOMBLUR')">Zoom Blur</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_NOISE')">Noise</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_DENOISE')">Denoise</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_INK')">Ink</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_VIBRANCE')">Vibrance</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_UNSHARPMASK')">Unsharp Mask</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_SEPIA')">Sepia</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_VIGNETTE')">Vignette</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_LENSBLUR')">Lens Blur</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_HEXAGONALPIXELATE')">Hexagonal Pixelate</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EFFECTS_SWIRL')">Swirl</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <hr />
+    <div class="modalbody" ng-keydown="Overlay_OnKeyDown($event)">
+        <!--<div id="demo">
+            <canvas class="demo"></canvas>
+        </div>-->
+        <div id="toolbox">
+            <div draggable>Toolbox</div>
+            <div id="bgcolor" ng-style="{'background-color': 'rgba(' + bgcolor[1] + ',' + bgcolor[2] + ',' + bgcolor[0] + ', 255)'}" ng-click="BgColor_OnClick($event)"></div>
+            <div id="fgcolor" ng-style="{'background-color': 'rgba(' + fgcolor[1] + ',' + fgcolor[2] + ',' + fgcolor[0] + ', 255)'}" ng-click="FgColor_OnClick($event)"></div>
+            <div id="options">
+                <div ng-if="['Pencil', 'Airbrush', 'Blur', 'Clone', 'Text'].indexOf(selectedTool.name) &gt; -1">
+                    <input class="tooloptions" type="text" ng-model="selectedTool.options.size" title="Size" ng-change="ToolOptions_OnChange($event, 'size')" />
+                </div>
+                <div ng-if="selectedTool.name === 'Pencil'">
+                    <select class="tooloptions" ng-model="selectedTool.options.shape" ng-options="shape.value as shape.label for shape in selectedTool.options.shape_choices" ng-change="ToolOptions_OnChange($event, 'shape')" title="Shape"></select>
+                </div>
+                <div ng-if="selectedTool.name === 'Bucket Fill'">
+                    <input class="tooloptions" type="text" ng-model="selectedTool.options.tolerance" ng-change="ToolOptions_OnChange($event, 'tolerance')" title="Tolerance" />
+                </div>
+                <div ng-if="selectedTool.name === 'Airbrush'">
+                    <input class="tooloptions" type="text" ng-model="selectedTool.options.opacity" ng-change="ToolOptions_OnChange($event, 'opacity')" title="Opacity" />
+                </div>
+                <div ng-if="['Blur', 'Gradient'].indexOf(selectedTool.name) &gt; -1">
+                    <input class="tooloptions" type="text" ng-model="selectedTool.options.radius" ng-change="ToolOptions_OnChange($event, 'radius')" title="Radius" />
+                </div>
+                <div ng-if="selectedTool.name === 'Blur'">
+                    <input class="tooloptions" type="text" ng-model="selectedTool.options.iterations" ng-change="ToolOptions_OnChange($event, 'iterations')" title="Iterations" />
+                </div>
+                <div ng-if="selectedTool.name === 'Text'">
+                    <input class="tooloptions" type="text" ng-model="selectedTool.options.lineWidth" ng-change="ToolOptions_OnChange($event, 'lineWidth')" title="Line Width" />
+                </div>
+                <div ng-if="selectedTool.name === 'Text'">
+                    <select class="tooloptions" ng-model="selectedTool.options.font" ng-options="font.value as font.label for font in selectedTool.options.font_choices" ng-change="ToolOptions_OnChange($event, 'font')" title="Font"></select>
+                </div>
+            </div>
+            <ul id="toolbar">
+                <li ng-attr-id="{{tool.name}}" ng-repeat="tool in toolbar" ng-click="ToolBar_OnClick($event, tool)" class="tool" ng-class="{selected: selectedTool.name === tool.name}" title="{{tool.name}}" ng-style="{'background-image': 'url(\'/images/cursors/' + tool.icon + '\')'}">&nbsp;</li>
+            </ul>
+        </div>
+        <div class="filecontainer" ng-repeat="file in fileList track by $index" ng-init="FileOpen_OnInit(file)" ng-style="{width: file.image.width, height: file.image.height}" ng-mouseenter="SelectFile_OnMouseEnter($event, file)">
+            <div draggable>
+                <span class="filename">{{file.name}}</span>
+                <span class="fileclose button" ng-click="FileButtons_OnClick($event, $index, file, 'CLOSE')" title="Close">X</span>
+                <span class="filemax button" ng-click="FileButtons_OnClick($event, $index, file, 'MAX')" title="Maximize">^</span>
+                <span class="filemin button" ng-click="FileButtons_OnClick($event, $index, file, 'MIN')" title="Minimize">V</span>
+            </div>
+            <div ng-attr-id="{{file.name.substring(0, file.name.indexOf('.'))}}" style="overflow: auto; position: relative;" ng-style="{width: file.image.width, height: file.image.height}">
+                <canvas class="display" style="position: relative; top: 0; left: 0;"></canvas>
+                <canvas class="selectionmask" style="position: absolute; top: 0; left: 0;"></canvas>
+                <canvas class="cropmask" style="position: absolute; top: 0; left: 0;"></canvas>
+                <canvas class="text" style="position: absolute; top: 0; left: 0;"></canvas>
+                <canvas class="cursor" style="position: absolute; top: 0; left: 0;"></canvas>
+                <canvas class="overlay" style="position: absolute; top: 0; left: 0; z-index: 100;" ng-style="{cursor: 'url(\'/images/cursors/' + selectedTool.cursor + '\'), auto'}" ng-mouseleave="Overlay_OnMouseUp($event, $index, file)" ng-mousedown="Overlay_OnMouseDown($event, $index, file)" ng-mousemove="Overlay_OnMouseMove($event, $index, file)" ng-mouseup="Overlay_OnMouseUp($event, $index, file)"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="modalfooter">
+        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
+        <button class="btn" ng-click="$close()">Cancel</button>
+    </div>
+</div>

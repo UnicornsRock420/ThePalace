@@ -53,45 +53,47 @@
 
             return metrics.width;
         }),
-        setPixelData: (function (x, y, r, g, b, a) {
+        setPixelData: (function (x, y, r, b, g, a, w) {
             if (arguments.length < 1) {
                 return;
             }
 
-            if (x && y && r && g && b) {
-                if (!this.imageData) {
-                    this.getImageData(0, 0, this.width(), this.height());
-                }
+            var delta = 0;
 
-                var coord = (x * y);
+            if (w === undefined || w < 1) {
+                w = 1;
+            }
 
-                if (coord < this.imageData.length) {
-                    this.imageData.data[coord + 0] = b;
-                    this.imageData.data[coord + 1] = g;
-                    this.imageData.data[coord + 2] = r;
+            if (w > 1) {
+                delta = $window.parseInt(w / 2);
+            }
 
-                    if (a) {
-                        this.imageData.data[coord + 3] = a;
+            if (x && y && r !== undefined && g !== undefined && b !== undefined) {
+                this.imageData = this.context.getImageData(x - delta, y - delta, w + delta, w + delta);
+
+                for (var j = 0; j < this.imageData.data.length; j += 4) {
+                    this.imageData.data[j + 0] = b;
+                    this.imageData.data[j + 1] = g;
+                    this.imageData.data[j + 2] = r;
+
+                    if (a !== undefined) {
+                        this.imageData.data[j + 3] = a;
                     }
                 }
+
+                this.context.putImageData(this.imageData, x - delta, y - delta, 0, 0, w + delta, w + delta);
             }
         }),
         getPixelData: (function (x, y) {
             if (x && y) {
-                if (!this.imageData) {
-                    this.getImageData(0, 0, this.width(), this.height());
-                }
+                var imageData = this.context.getImageData(x, y, 1, 1);
 
-                var coord = (x * y);
-
-                if (coord < this.imageData.length) {
-                    return [
-                        this.imageData.data[coord + 3], //a
-                        this.imageData.data[coord + 2], //r
-                        this.imageData.data[coord + 1], //g
-                        this.imageData.data[coord + 0], //b
-                    ];
-                }
+                return [
+                    imageData.data[2], //r
+                    imageData.data[0], //b
+                    imageData.data[1], //g
+                    imageData.data[3], //a
+                ];
             }
         }),
         /* End Methods */
@@ -121,6 +123,9 @@
         beginPath: (function () {
             this.context.beginPath();
         }),
+        closePath: (function () {
+            this.context.closePath();
+        }),
         restore: (function () {
             this.context.restore();
         }),
@@ -134,6 +139,12 @@
 
             this.context.beginPath();
             this.context.translate(cx, cy);
+        }),
+        setTransform: (function (x1, x2, x3, x4, x5, x6) {
+            this.context.setTransform(x1, x2, x3, x4, x5, x6);
+        }),
+        toDataURL: (function (type) {
+            return this.canvas.toDataURL(type);
         }),
         scale: (function (rx, ry) {
             if (arguments.length < 2) {
@@ -174,6 +185,15 @@
 
             if (value !== undefined) {
                 this.context.globalAlpha = value;
+            }
+        }),
+        globalCompositeOperation: (function (value) {
+            if (arguments.length < 1) {
+                return;
+            }
+
+            if (value !== undefined) {
+                this.context.globalCompositeOperation = value;
             }
         }),
         fillStyle: (function (value) {
@@ -302,7 +322,7 @@
         setRawImageData: (function (data) {
             this.imageData = data;
         }),
-        putImageData: (function (x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
+        putImageData: (function (x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight, data) {
             if (arguments.length < 6) {
                 dirtyHeight = this.height();
             }
@@ -327,7 +347,7 @@
                 x = 0;
             }
 
-            this.context.putImageData(this.imageData, x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight);
+            this.context.putImageData(data || this.imageData, x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight);
         }),
         beginPath: (function (cfg) {
             this.context.beginPath();
@@ -417,7 +437,7 @@
         scale: (function (width, height) {
             this.context.scale(width, height);
         }),
-        clearRect: (function (width, height) {
+        clearRect: (function (width, height, x, y) {
             if (arguments.length < 2) {
                 height = this.height();
             }
@@ -428,7 +448,7 @@
 
             this.imageData = null;
 
-            this.context.clearRect(0, 0, width, height);
+            this.context.clearRect(x || 0, y || 0, width, height);
         }),
         rect: (function (x, y, width, height) {
             if (arguments.length < 4) {

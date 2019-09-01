@@ -265,4 +265,100 @@
 
         return deferred.promise;
     });
+
+    this.propEditor = (function (model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'propEditorDialogController',
+            templateUrl: '/ViewScripts/Common/Views/propEditorDialog.html',
+            resolve: {
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
+
+    this.colorPicker = (function (model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'colorPickerDialogController',
+            templateUrl: '/ViewScripts/Common/Views/colorPickerDialog.html',
+            resolve: {
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
+
+    this.toolOptions = (function (model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'toolOptionsDialogController',
+            templateUrl: '/ViewScripts/Common/Views/toolOptionsDialog.html',
+            resolve: {
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
+
+    this.effectOptions = (function (model) {
+        var deferred = $q.defer();
+        var instance = $uibModal.open({
+            size: 'lg',
+            animation: false,
+            backdrop: 'static',
+            controller: 'effectOptionsDialogController',
+            templateUrl: '/ViewScripts/Common/Views/effectOptionsDialog.html',
+            resolve: {
+                model: function () {
+                    return model;
+                }
+            }
+        });
+
+        instance.result.then(function (result) {
+            deferred.resolve(result);
+        }, function (result) {
+            deferred.reject(result);
+        });
+
+        return deferred.promise;
+    });
 }]);

@@ -3,6 +3,7 @@
 }
 
 @section css {
+    <link type="text/css" rel="stylesheet" href="~/Content/themes/base/jquery-ui.css">
     <link type="text/css" rel="stylesheet" href="~/Content/bootstrap.css">
     <link type="text/css" rel="stylesheet" href="~/Content/font-awesome.css">
     <link type="text/css" rel="stylesheet" href="~/Scripts/tabstrip/ng-tabstrip.css">
@@ -31,6 +32,7 @@
     <script type="text/javascript" src="~/Scripts/jimp.min.js"></script>
     <script type="text/javascript" src="~/Scripts/expect.min.js"></script>
     <script type="text/javascript" src="~/Scripts/expect-element.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/glfx.js"></script>
     <script type="text/javascript" src="~/Scripts/midi.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/app.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Constants/CommonFlags.js"></script>
@@ -46,6 +48,13 @@
     <script type="text/javascript" src="~/ViewScripts/Common/Controllers/clientSettingsDialogController.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Controllers/roomInfoDialogController.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Controllers/spotInfoDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/scriptEditorDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/stateEditorDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/propEditorDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/colorPickerDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/toolOptionsDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/effectOptionsDialogController.js"></script>
+    <script type="text/javascript" src="~/ViewScripts/Common/Controllers/messageDialogController.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Controllers/yesNoDialogController.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Services/dialogService.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Services/utilService.js"></script>
@@ -71,7 +80,8 @@
         ng-style="{
             left: model.Interface.contextMenu.positionX,
             top: model.Interface.contextMenu.positionY}">
-        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId === model.UserInfo.userId" ng-click="Menu_OnClick($event, 'USERNAME')">Change Nickname</li>
+        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId === model.UserInfo.userId" ng-click="Menu_OnClick($event, 'CLIENTSETTINGS')">Change Nickname</li>
+        <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId === model.UserInfo.userId" ng-click="Menu_OnClick($event, 'NAKED')">Naked</li>
         <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId" ng-click="Menu_OnClick($event, 'WHISPER')">Whisper</li>
         <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId" ng-click="Menu_OnClick($event, 'OFFER')">Offer</li>
         <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId && model.UserInfo.hasAdmin" ng-click="Menu_OnClick($event, 'KILLUSER')">Kill</li>
@@ -142,6 +152,7 @@
     </div>
 
     <div id="screen"
+         ng-mouseleave="Screen_OnMouseUp($event)"
          ng-mousedown="Screen_OnClick($event)"
          ng-mouseup="Screen_OnMouseUp($event)"
          ng-mousemove="Screen_OnMouseMove($event)"
@@ -154,11 +165,11 @@
                 ng-style="{
                     'width': model.RoomInfo.width,
                     'height': model.RoomInfo.height}"></canvas>
-        <canvas id="looseprops"
+        <canvas id="spot"
                 ng-style="{
                     'width': model.RoomInfo.width,
                     'height': model.RoomInfo.height}"></canvas>
-        <canvas id="spot"
+        <canvas id="looseprops"
                 ng-style="{
                     'width': model.RoomInfo.width,
                     'height': model.RoomInfo.height}"></canvas>

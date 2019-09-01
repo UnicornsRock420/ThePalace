@@ -11,8 +11,4 @@
     <ProjectReference Include="..\ThePalace.Core.Server\ThePalace.Core.Server.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-
 </Project>

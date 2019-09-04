@@ -33,8 +33,7 @@ namespace ThePalace.Server.Protocols
 
                 if (!message.sessionState.Authorized)
                 {
-                    query = query
-                        .Where(u => (u.userFlags & (Int32)(UserFlags.U_Hide)) == 0);
+                    query = query.Where(u => (u.userFlags & (Int32)(UserFlags.U_Hide)) == 0);
                 }
 
                 var users = query
@@ -72,8 +71,7 @@ namespace ThePalace.Server.Protocols
 
                 if (!message.sessionState.Authorized)
                 {
-                    query = query
-                        .Where(u => (u.userFlags & (Int32)(UserFlags.U_Hide)) == 0);
+                    query = query.Where(u => (u.userFlags & (Int32)(UserFlags.U_Hide)) == 0);
                 }
 
                 var users = query

@@ -29,15 +29,15 @@ namespace ThePalace.Server.Protocols
             using (var dbContext = Database.For<ThePalaceEntities>())
             {
                 var query = dbContext.Rooms.AsNoTracking()
-                        .AsQueryable();
+                    .AsQueryable();
 
                 if (!message.sessionState.Authorized)
                 {
-                    query = query
-                        .Where(r => (r.Flags & (Int32)RoomFlags.RF_Hidden) == 0);
+                    query = query.Where(r => (r.Flags & (Int32)RoomFlags.RF_Hidden) == 0);
                 }
 
                 var rooms = query
+                    .OrderBy(r => r.OrderID)
                     .AsEnumerable()
                     .Select(r => new ListBuilder
                     {
@@ -67,15 +67,15 @@ namespace ThePalace.Server.Protocols
             using (var dbContext = Database.For<ThePalaceEntities>())
             {
                 var query = dbContext.Rooms.AsNoTracking()
-                        .AsQueryable();
+                    .AsQueryable();
 
                 if (!message.sessionState.Authorized)
                 {
-                    query = query
-                        .Where(r => (r.Flags & (Int32)RoomFlags.RF_Hidden) == 0);
+                    query = query.Where(r => (r.Flags & (Int32)RoomFlags.RF_Hidden) == 0);
                 }
 
                 var rooms = query
+                    .OrderBy(r => r.OrderID)
                     .AsEnumerable()
                     .Select(r => new ListBuilder
                     {

@@ -38,13 +38,12 @@
 
         div.propeditordialog div.modalbody ul#toolbar {
             background-color: lightgray;
-            position: absolute;
             width: 68px;
             padding: 0;
             margin: 0;
         }
 
-            div.propeditordialog div.modalbody ul#toolbar li {
+            div.propeditordialog div.modalbody ul#toolbar li.tool {
                 background-position: -49px -49px;
                 border: 1px solid transparent;
                 border-radius: 3px;
@@ -54,25 +53,99 @@
                 float: left;
             }
 
-                div.propeditordialog div.modalbody ul#toolbar li:nth-child(odd) {
+                div.propeditordialog div.modalbody ul#toolbar li.tool:nth-child(odd) {
                     margin-right: 2px;
                 }
 
-                div.propeditordialog div.modalbody ul#toolbar li:nth-child(even) {
+                div.propeditordialog div.modalbody ul#toolbar li.tool:nth-child(even) {
                     margin-left: 2px;
                 }
 
-                div.propeditordialog div.modalbody ul#toolbar li:hover,
-                div.propeditordialog div.modalbody ul#toolbar li.selected {
+                div.propeditordialog div.modalbody ul#toolbar li.tool:hover,
+                div.propeditordialog div.modalbody ul#toolbar li.tool.selected {
                     border: 1px solid black;
                 }
 
-                div.propeditordialog div.modalbody ul#toolbar li img.toolicon {
+                div.propeditordialog div.modalbody ul#toolbar li.tool img.toolicon {
                     height: 32px;
                     width: 32px;
                 }
 
+        div.propeditordialog div.modalbody ul#layersbar {
+            background-color: lightgray;
+            width: 200px;
+            padding: 0;
+            margin: 0;
+        }
+
+            div.propeditordialog div.modalbody ul#layersbar li.layer {
+                border: 1px solid transparent;
+                background-color: gray;
+                border-radius: 3px;
+                width: 150px;
+                padding: 0;
+                margin: 0;
+            }
+
+                div.propeditordialog div.modalbody ul#layersbar li.layer:hover,
+                div.propeditordialog div.modalbody ul#layersbar li.layer.selected {
+                    border: 1px solid black;
+                }
+
+                div.propeditordialog div.modalbody ul#layersbar li.layer span.visibility {
+                    display: inline-block;
+                    font-weight: bold;
+                    cursor: pointer;
+                }
+
+                div.propeditordialog div.modalbody ul#layersbar li.layer span.name {
+                    display: inline-block;
+                    font-weight: bold;
+                    cursor: pointer;
+                }
+
+        div.propeditordialog div.modalbody ul#historybar,
+        div.propeditordialog div.modalbody ul#redobar {
+            background-color: lightgray;
+            width: 200px;
+            padding: 0;
+            margin: 0;
+        }
+
+            div.propeditordialog div.modalbody ul#historybar li.history,
+            div.propeditordialog div.modalbody ul#redobar li.redo {
+                border: 1px solid transparent;
+                background-color: gray;
+                border-radius: 3px;
+                width: 150px;
+                padding: 0;
+                margin: 0;
+            }
+
+                div.propeditordialog div.modalbody ul#historybar li.history:hover,
+                div.propeditordialog div.modalbody ul#historybar li.history.selected,
+                div.propeditordialog div.modalbody ul#redobar li.redo:hover,
+                div.propeditordialog div.modalbody ul#redobar li.redo.selected {
+                    border: 1px solid black;
+                }
+
+                div.propeditordialog div.modalbody ul#historybar li.history span.label {
+                    display: inline-block;
+                    font-weight: bold;
+                    cursor: pointer;
+                    color: black;
+                }
+
+                div.propeditordialog div.modalbody ul#redobar li.redo span.label {
+                    display: inline-block;
+                    font-style: italic;
+                    font-weight: bold;
+                    cursor: pointer;
+                    color: darkgray;
+                }
+
         div.propeditordialog div.modalbody div.filecontainer {
+            position: absolute;
         }
 
         div.propeditordialog div.modalbody span.button {

@@ -1652,7 +1652,7 @@
         }
     });
 
-    $scope.MenuOption_OnClick = (function ($event, option) {
+    $scope.MenuOption_OnClick = (function ($event, option, skipRedraw) {
         $event.preventDefault();
         $event.stopPropagation();
 
@@ -1779,12 +1779,11 @@
                             }
 
                             break;
-                        //default:
-
-                        //    break;
                     }
 
-                    $scope.Redraw(true);
+                    if (!skipRedraw) {
+                        $scope.Redraw(true);
+                    }
                 }
 
                 break;
@@ -1844,12 +1843,11 @@
                             }
 
                             break;
-                        default:
-
-                            break;
                     }
 
-                    $scope.Redraw(true);
+                    if (!skipRedraw) {
+                        $scope.Redraw(true);
+                    }
                 }
 
                 break;
@@ -2402,7 +2400,7 @@
 
         while (file.historyEvents.length > 1) {
             try {
-                $scope.MenuOption_OnClick($event, 'EDIT_UNDO');
+                $scope.MenuOption_OnClick($event, 'EDIT_UNDO', true);
             } catch (e) {
                 return;
             }
@@ -2411,6 +2409,8 @@
                 break;
             }
         }
+
+        $scope.Redraw(true);
     });
 
     $scope.RedoEvent_OnClick = (function ($event, $index, redo) {
@@ -2420,7 +2420,7 @@
             var historyId = file.redoEvents[0].historyId;
 
             try {
-                $scope.MenuOption_OnClick($event, 'EDIT_REDO');
+                $scope.MenuOption_OnClick($event, 'EDIT_REDO', true);
             } catch (e) {
                 return;
             }
@@ -2429,6 +2429,8 @@
                 break;
             }
         }
+
+        $scope.Redraw(true);
     });
 
     $scope.Save_OnClick = (function ($event) {

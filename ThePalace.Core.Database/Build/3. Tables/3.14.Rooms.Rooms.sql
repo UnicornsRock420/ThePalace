@@ -6,6 +6,7 @@ IF NOT EXISTS(SELECT TOP 1 1 FROM SYS.TABLES WHERE OBJECT_ID = OBJECT_ID('[Rooms
 		[CreateDate] [DATETIME] NOT NULL,
 		[LastModified] [DATETIME] NULL,
 		[MaxOccupancy] [smallint] NOT NULL DEFAULT 0,
+		[OrderID] [smallint] NOT NULL DEFAULT 0,
 	 CONSTRAINT [PK_Rooms] PRIMARY KEY CLUSTERED 
 	(
 		[RoomID] ASC

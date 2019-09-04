@@ -2,6 +2,7 @@
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Core.Types;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Core;
@@ -11,25 +12,12 @@ using ThePalace.Server.Network;
 namespace ThePalace.Server.Business
 {
     [Description("sSta")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_SPOTSTATE : IReceiveBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
         {
             var sessionState = ((Message)message).sessionState;
-
-            if (!sessionState.successfullyConnected)
-            {
-                new MSG_SERVERDOWN
-                {
-                    reason = ServerDownFlags.SD_CommError,
-                    whyMessage = "Communication Error!",
-                }.Send(dbContext, message);
-
-                sessionState.driver.DropConnection();
-
-                return;
-            }
-
             var protocol = ((Message)message).protocol;
             var inboundPacket = (Protocols.MSG_SPOTSTATE)protocol;
 

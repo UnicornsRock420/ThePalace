@@ -4,12 +4,14 @@ using System.Linq;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
 
 namespace ThePalace.Server.Business
 {
     [Description("usrD")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_USERDESC : IReceiveBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
@@ -17,20 +19,6 @@ namespace ThePalace.Server.Business
             var sessionState = ((Message)message).sessionState;
             var protocol = ((Message)message).protocol;
             var header = ((Message)message).header;
-
-            if (!sessionState.successfullyConnected)
-            {
-                new MSG_SERVERDOWN
-                {
-                    reason = ServerDownFlags.SD_CommError,
-                    whyMessage = "Communication Error!",
-                }.Send(dbContext, message);
-
-                sessionState.driver.DropConnection();
-
-                return;
-            }
-
             var inboundPacket = (Protocols.MSG_USERDESC)protocol;
             var user = dbContext.UserData
                 .Where(u => u.UserId == sessionState.UserID)

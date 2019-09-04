@@ -15,7 +15,6 @@ namespace ThePalace.Server.Business
         {
             var sessionState = ((Message)message).sessionState;
             var protocol = ((Message)message).protocol;
-
             var inboundPacket = (Protocols.MSG_FILEQUERY)protocol;
             var fileNotFound = new Protocols.MSG_FILENOTFND
             {

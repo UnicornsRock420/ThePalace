@@ -1,12 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using ThePalace.Core.Database;
-using ThePalace.Server.Core;
 using ThePalace.Core.Enums;
+using ThePalace.Core.Interfaces;
+using ThePalace.Server.Core;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
-using ThePalace.Server.Protocols;
-using ThePalace.Core.Interfaces;
 
 namespace ThePalace.Server.Business
 {

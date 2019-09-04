@@ -2,12 +2,14 @@
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
 
 namespace ThePalace.Server.Business
 {
     [Description("sFil")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_FILESEND : ISendBusiness
     {
         public void Send(ThePalaceEntities dbContext, object message)

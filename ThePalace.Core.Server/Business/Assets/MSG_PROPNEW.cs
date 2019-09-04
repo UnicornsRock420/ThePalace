@@ -1,18 +1,17 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Core.Types;
 using ThePalace.Core.Utility;
-using ThePalace.Server.Core;
-using ThePalace.Server.Factories;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
 
 namespace ThePalace.Server.Business
 {
     [Description("prPn")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_PROPNEW : IReceiveBusiness
     {
 
@@ -20,20 +19,6 @@ namespace ThePalace.Server.Business
         {
             var sessionState = ((Message)message).sessionState;
             var protocol = ((Message)message).protocol;
-
-            if (!sessionState.successfullyConnected)
-            {
-                new MSG_SERVERDOWN
-                {
-                    reason = ServerDownFlags.SD_CommError,
-                    whyMessage = "Communication Error!",
-                }.Send(dbContext, message);
-
-                sessionState.driver.DropConnection();
-
-                return;
-            }
-
             var room = dbContext.GetRoom(sessionState.RoomID);
             var inboundPacket = (Protocols.MSG_PROPNEW)protocol;
 

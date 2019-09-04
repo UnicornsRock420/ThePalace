@@ -3,6 +3,7 @@ using System.ComponentModel;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Commands;
 using ThePalace.Server.Models;
@@ -11,26 +12,13 @@ using ThePalace.Server.Network;
 namespace ThePalace.Server.Business
 {
     [Description("talk")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_TALK : IReceiveBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
         {
             var sessionState = ((Message)message).sessionState;
             var protocol = ((Message)message).protocol;
-
-            if (!sessionState.successfullyConnected)
-            {
-                new MSG_SERVERDOWN
-                {
-                    reason = ServerDownFlags.SD_CommError,
-                    whyMessage = "Communication Error!",
-                }.Send(dbContext, message);
-
-                sessionState.driver.DropConnection();
-
-                return;
-            }
-
             var inboundPacket = (Protocols.MSG_TALK)protocol;
             var chatStr = inboundPacket.text;
 

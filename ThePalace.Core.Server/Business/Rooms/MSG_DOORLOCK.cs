@@ -1,63 +1,52 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
-using ThePalace.Server.Core;
+using ThePalace.Core.Server.Attributes;
+using ThePalace.Core.Utility;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
 
 namespace ThePalace.Server.Business
 {
     [Description("lock")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_DOORLOCK : IReceiveBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
         {
             var sessionState = ((Message)message).sessionState;
             var protocol = ((Message)message).protocol;
-
-            if (!sessionState.successfullyConnected)
-            {
-                new MSG_SERVERDOWN
-                {
-                    reason = ServerDownFlags.SD_CommError,
-                    whyMessage = "Communication Error!",
-                }.Send(dbContext, message);
-
-                sessionState.driver.DropConnection();
-
-                return;
-            }
-
             var inboundPacket = (Protocols.MSG_DOORLOCK)protocol;
 
             if (inboundPacket.roomID == sessionState.RoomID)
             {
-                var hotspotType = dbContext.Hotspots.AsNoTracking()
-                    .Where(h => h.RoomId == inboundPacket.roomID)
-                    .Where(h => h.HotspotId == inboundPacket.spotID)
-                    .Select(h => h.Type)
-                    .FirstOrDefault();
+                var room = dbContext.GetRoom(sessionState.RoomID);
 
-                if (hotspotType == (short)HotspotTypes.HS_Bolt)
+                if (!room.NotFound)
                 {
-                    if (ServerState.roomsCache.ContainsKey(sessionState.RoomID))
+                    var hotspotType = room.Hotspots
+                        .Where(s => s.id == inboundPacket.spotID)
+                        .Select(s => (short)s.type)
+                        .FirstOrDefault();
+
+                    if (hotspotType == (short)HotspotTypes.HS_Bolt)
                     {
-                        ServerState.roomsCache[sessionState.RoomID].Flags |= (int)RoomFlags.RF_Closed;
+                        room.Flags |= (int)RoomFlags.RF_Closed;
+
+                        SessionManager.SendToRoomID(sessionState.RoomID, 0, inboundPacket, EventTypes.MSG_DOORLOCK, (Int32)sessionState.UserID);
                     }
-
-                    SessionManager.SendToRoomID(sessionState.RoomID, 0, inboundPacket, EventTypes.MSG_DOORLOCK, 0);
-                }
-                else
-                {
-                    var outboundPacket = new Protocols.MSG_XTALK
+                    else
                     {
-                        text = "The door you are attempting to lock is not a deadbolt!",
-                    };
+                        var outboundPacket = new Protocols.MSG_XTALK
+                        {
+                            text = "The door you are attempting to lock is not a deadbolt!",
+                        };
 
-                    sessionState.Send(outboundPacket, EventTypes.MSG_XTALK, 0);
+                        sessionState.Send(outboundPacket, EventTypes.MSG_XTALK, 0);
+                    }
                 }
             }
         }

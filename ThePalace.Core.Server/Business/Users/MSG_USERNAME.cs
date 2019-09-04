@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Models;
 using ThePalace.Server.Network;
@@ -11,25 +12,13 @@ using ThePalace.Server.Network;
 namespace ThePalace.Server.Business
 {
     [Description("usrN")]
+    [SuccessfullyConnectedProtocol]
     public struct MSG_USERNAME : IReceiveBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
         {
             var sessionState = ((Message)message).sessionState;
             var protocol = ((Message)message).protocol;
-
-            if (!sessionState.successfullyConnected)
-            {
-                new MSG_SERVERDOWN
-                {
-                    reason = ServerDownFlags.SD_CommError,
-                    whyMessage = "Communication Error!",
-                }.Send(dbContext, message);
-
-                sessionState.driver.DropConnection();
-
-                return;
-            }
 
             if (!sessionState.Authorized)
             {

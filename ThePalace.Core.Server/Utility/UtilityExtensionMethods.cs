@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ThePalace.Core.Database;
 using ThePalace.Server.Core;
 using ThePalace.Server.Factories;
@@ -38,6 +39,23 @@ namespace ThePalace.Core.Utility
             }
 
             return room;
+        }
+
+        public static bool AttributeWrapper(this Type objectType, Type attributeType, string methodName, params object[] values)
+        {
+            var attribute = objectType.GetCustomAttributes(attributeType, false).SingleOrDefault();
+            if (attribute != null)
+            {
+                var cstrPtr = attributeType.GetConstructor(Type.EmptyTypes);
+                var attributeClassObj = cstrPtr.Invoke(new object[] { });
+                var method = attributeType.GetMethod(methodName);
+
+                if (method == null) return false;
+
+                return (bool)method.Invoke(attributeClassObj, values);
+            }
+
+            return true;
         }
     }
 }

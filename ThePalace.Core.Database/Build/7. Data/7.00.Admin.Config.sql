@@ -9,7 +9,7 @@ END
 GO
 
 IF NOT EXISTS(SELECT TOP 1 1 FROM [Admin].[Config] WHERE [Key] = 'BindAddress') BEGIN
-	INSERT [Admin].[Config] ([Key], [Value]) VALUES (N'BindAddress', N'127.0.0.1')
+	INSERT [Admin].[Config] ([Key], [Value]) VALUES (N'BindAddress', N'0.0.0.0')
 END
 GO
 

@@ -47,23 +47,14 @@ namespace ThePalace.Server.Commands
 
                 if (type != null)
                 {
-                    var attribute = type.GetCustomAttributes(typeof(AdminOnlyCommandAttribute), false).SingleOrDefault();
+                    var value = type.AttributeWrapper(typeof(AdminOnlyCommandAttribute), "OnBeforeCommandExecute", new object[] {
+                        new Dictionary<string, object> {
+                            { "UserID", UserID },
+                        } });
 
-                    if (attribute != null)
+                    if (!value)
                     {
-                        var attributeType = attribute.GetType();
-                        var cstrPtr = attributeType.GetConstructor(Type.EmptyTypes);
-                        var attributeClassObj = cstrPtr.Invoke(new object[] { });
-                        var method = attributeType.GetMethod("OnBeforeCommandExecute");
-                        var value = (bool)method.Invoke(attributeClassObj, new object[] {
-                            new Dictionary<string, object> {
-                                { "UserID", UserID },
-                            } });
-
-                        if (!value)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
 
                     var command = (ICommand)Activator.CreateInstance(type);

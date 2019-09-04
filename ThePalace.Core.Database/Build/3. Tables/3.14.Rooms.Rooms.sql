@@ -18,3 +18,10 @@ END ELSE BEGIN
 	PRINT 'ALREADY EXISTS [Rooms].[Rooms]'
 END
 GO
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM SYS.COLUMNS WHERE OBJECT_ID = OBJECT_ID('[Rooms].[Rooms]') AND NAME = N'OrderID') BEGIN
+	ALTER TABLE [Rooms].[Rooms] ADD OrderID [smallint] NULL
+	EXEC('UPDATE [Rooms].[Rooms] SET OrderID = 0')
+	ALTER TABLE [Rooms].[Rooms] ALTER COLUMN OrderID [smallint] NOT NULL
+END
+GO

@@ -120,7 +120,7 @@
                         userId: 0,
                         userFlags: 0,
                         hasAdmin: false,
-                        desiredRoom: 69,
+                        desiredRoom: $window.parseInt($window.location.hash.replace(/[^0-9]+/g, '') || 0),
                         regSeed: 0,
                         regCrc: 0,
                         regCtr: 0,
@@ -198,6 +198,7 @@
                         spotHover: null,
                         chatWindowText: '',
                         authoringMode: false,
+                        soundsEnabled: false,
                     },
                     Application: {
                         soundPlayer: new AudioObject(),
@@ -255,22 +256,10 @@
                 var newHeight = 384;
                 var newWidth = 512;
 
-                $scope.model.Screen.layers['spotCanvas'].width(newWidth);
-                $scope.model.Screen.layers['spotCanvas'].height(newHeight);
-                $scope.model.Screen.layers['bubbleCanvas'].width(newWidth);
-                $scope.model.Screen.layers['bubbleCanvas'].height(newHeight);
-                $scope.model.Screen.layers['spriteCanvas'].width(newWidth);
-                $scope.model.Screen.layers['spriteCanvas'].height(newHeight);
-                $scope.model.Screen.layers['dimroomCanvas'].width(newWidth);
-                $scope.model.Screen.layers['dimroomCanvas'].height(newHeight);
-                $scope.model.Screen.layers['nametagsCanvas'].width(newWidth);
-                $scope.model.Screen.layers['nametagsCanvas'].height(newHeight);
-                $scope.model.Screen.layers['bgDrawCmdCanvas'].width(newWidth);
-                $scope.model.Screen.layers['bgDrawCmdCanvas'].height(newHeight);
-                $scope.model.Screen.layers['fgDrawCmdCanvas'].width(newWidth);
-                $scope.model.Screen.layers['fgDrawCmdCanvas'].height(newHeight);
-                $scope.model.Screen.layers['loosepropsCanvas'].width(newWidth);
-                $scope.model.Screen.layers['loosepropsCanvas'].height(newHeight);
+                $.each($scope.model.Screen.layers, function () {
+                    this.width(newWidth);
+                    this.height(newHeight);
+                });
 
                 $scope.model.Screen.width = newWidth + 'px';
                 $scope.model.Screen.height = newHeight + 'px';
@@ -646,15 +635,17 @@
                                             propSpec.prop.asset.name = assetName;
                                             propSpec.prop.asset.flags = assetFlags;
 
-                                            propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
+                                            propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl, function (newProp) {
+                                                if (newProp.ready && !newProp.badProp) {
+                                                    $scope.model.Screen.assetCache[newProp.asset.id] = newProp;
 
-                                            if (propSpec.prop.ready && !propSpec.prop.badProp) {
-                                                $scope.model.Screen.assetCache[assetID] = propSpec.prop;
+                                                    $scope.Screen_OnDraw('spriteLayerUpdate');
 
-                                                $scope.Screen_OnDraw('spriteLayerUpdate');
+                                                    $scope.$apply();
+                                                }
+                                            });
 
-                                                $scope.$apply();
-                                            }
+                                            userRef.isDirty = true;
                                         }
                                     }
                                 }
@@ -770,19 +761,20 @@
                         }
 
                         if (message.text.indexOf(')') > -1 && (match = (/^\s*[\)]([a-z0-9\._]+)\s*(.*)/i).exec(message.text))) {
-                            var soundFile = match[1];
-                            var soundUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, $scope.model.ServerInfo.mediaUrl.length) === '/' ? '' : '/') + soundFile;
+                            if ($scope.model.Interface.soundsEnabled) {
+                                var soundFile = match[1];
+                                var soundUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, $scope.model.ServerInfo.mediaUrl.length) === '/' ? '' : '/') + soundFile;
 
-                            $scope.model.Application.soundPlayer.preload({
-                                sourceUrl: soundUrl,
-                                resolve: function (response) {
-                                    this.play();
-                                },
-                                reject: function (errors) {
-                                },
-                            });
-
-                            $scope.model.Application.soundPlayer.load();
+                                $scope.model.Application.soundPlayer.preload({
+                                    sourceUrl: soundUrl,
+                                    resolve: function (response) {
+                                        this.play();
+                                    },
+                                    reject: function (errors) {
+                                    },
+                                });
+                                $scope.model.Application.soundPlayer.load();
+                            }
 
                             message.text = match[2];
                         }
@@ -1630,6 +1622,16 @@
                     if ($scope.model.Screen.spriteLayerUpdate || $scope.model.Screen.nametagsLayerUpdate) {
                         for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
                             var user = $scope.model.RoomInfo.UserList[j];
+
+                            if (user.isDirty || !user.animation) {
+                                user.animation = {
+                                    frames: [],
+                                    index: 0,
+                                    bounce: false,
+                                    direction: false,
+                                };
+                            }
+
                             var isSelf = user.userID === $scope.model.UserInfo.userId;
                             var styleIndex = isSelf ? 'mine' : $scope.model.Interface.whisperTargetId > 0 ? (user.userID === $scope.model.Interface.whisperTargetId ? 'whipertarget' : 'whipernontarget') : 'users';
                             var style = $scope.model.ClientSettings.userNameStyle[styleIndex];
@@ -1648,6 +1650,16 @@
                                         if (!propSpec.prop || !propSpec.prop.ready) continue;
 
                                         hasHeadProp |= propSpec.prop.head;
+
+                                        if (user.isDirty || (user.animation && user.animation.frames.length === 0)) {
+                                            if (propSpec.prop.animate) {
+                                                user.animation.frames.push(propSpec);
+                                            }
+
+                                            if (propSpec.prop.bounce) {
+                                                user.animation.bounce = true;
+                                            }
+                                        }
                                     }
                                 }
 
@@ -1656,6 +1668,8 @@
                                 }
 
                                 if (user.propSpec && user.propSpec.length > 0) {
+                                    var animationIndex = 0;
+
                                     for (var k = 0; k < user.propSpec.length; k++) {
                                         var propSpec = user.propSpec[k];
 
@@ -1664,7 +1678,17 @@
                                         var xCoord = user.roomPos.h + propSpec.prop.horizontalOffset - 22;
                                         var yCoord = user.roomPos.v + propSpec.prop.verticalOffset - 22;
 
-                                        spriteCanvas.drawImage(propSpec.prop.imageObject.image, xCoord, yCoord, propSpec.prop.width, propSpec.prop.height, 0, 0, propSpec.prop.width, propSpec.prop.height);
+                                        if (propSpec.prop.animate) {
+                                            if (user.animation && user.animation.frames.length > 0 && user.animation.index === animationIndex) {
+                                                var propSpec = user.animation.frames[user.animation.index];
+                                                spriteCanvas.drawImage(propSpec.prop.imageObject.image, xCoord, yCoord, propSpec.prop.width, propSpec.prop.height, 0, 0, propSpec.prop.width, propSpec.prop.height);
+                                            }
+
+                                            animationIndex++;
+                                        }
+                                        else {
+                                            spriteCanvas.drawImage(propSpec.prop.imageObject.image, xCoord, yCoord, propSpec.prop.width, propSpec.prop.height, 0, 0, propSpec.prop.width, propSpec.prop.height);
+                                        }
                                     }
                                 }
                             }
@@ -1690,6 +1714,8 @@
                                 nametagsCanvas.fillStyle($scope.model.ClientSettings.userNameStyle.messsageColor ? '#'.concat($scope.model.ClientSettings.messages.backgroundColor[user.colorNbr % 16]) : style.foregroundColor);
                                 nametagsCanvas.drawText(user.name, xCoord, yCoord + fontSize, nameWidth, true);
                             }
+
+                            user.isDirty = false;
                         }
                     }
 
@@ -2679,6 +2705,8 @@
                                 var userRef = $scope.model.RoomInfo.UserList[j];
 
                                 if (userRef.propSpec) {
+                                    userRef.isDirty = true;
+
                                     for (var k = 0; k < userRef.propSpec.length; k++) {
                                         var propSpec = userRef.propSpec[k];
 
@@ -2704,6 +2732,8 @@
                                 userRef.propSpec = message.propSpec;
 
                                 if (userRef.propSpec) {
+                                    userRef.isDirty = true;
+
                                     for (var k = 0; k < userRef.propSpec.length; k++) {
                                         var propSpec = userRef.propSpec[k];
 
@@ -2729,6 +2759,8 @@
                                 userRef.propSpec = message.propSpec;
 
                                 if (userRef.propSpec) {
+                                    userRef.isDirty = true;
+
                                     for (var k = 0; k < userRef.propSpec.length; k++) {
                                         var propSpec = userRef.propSpec[k];
 
@@ -2764,15 +2796,17 @@
                     'MSG_USERLOG': (function (refNum, message) {
                         $scope.model.ServerInfo.totalPeople = message.nbrUsers;
 
-                        //$scope.model.Application.soundPlayer.preload({
-                        //    sourceUrl: '/media/SignOn.mp3',
-                        //    resolve: function (response) {
-                        //        this.play();
-                        //    },
-                        //    reject: function (errors) {
-                        //    },
-                        //});
-                        //$scope.model.Application.soundPlayer.load();
+                        if ($scope.model.Interface.soundsEnabled) {
+                            $scope.model.Application.soundPlayer.preload({
+                                sourceUrl: '/media/SignOn.mp3',
+                                resolve: function (response) {
+                                    this.play();
+                                },
+                                reject: function (errors) {
+                                },
+                            });
+                            $scope.model.Application.soundPlayer.load();
+                        }
 
                         if ($scope.model.UserInfo.userId === refNum) {
                             if ($scope.model.Application.cyborg['SIGNON']) {
@@ -2850,6 +2884,8 @@
 
                             $scope.model.Screen.assetCache = [];
 
+                            $window.location.href = ''.concat($window.location.protocol, '//', $window.location.hostname, ':', $window.location.port, '#', response.room.roomID);
+
                             for (var j = 0; j < $scope.model.RoomInfo.SpotList.length; j++) {
                                 if (($scope.model.RoomInfo.SpotList[j].script || '').trim() !== '') {
                                     $scope.model.RoomInfo.SpotList[j].events = iptService.iptParser($scope.model.RoomInfo.SpotList[j].script, true);
@@ -2909,15 +2945,15 @@
                                                         looseprop.propSpec.prop.asset.name = assetName;
                                                         looseprop.propSpec.prop.asset.flags = assetFlags;
 
-                                                        looseprop.propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
+                                                        looseprop.propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl, function (newProp) {
+                                                            if (newProp.ready && !newProp.badProp) {
+                                                                $scope.model.Screen.assetCache[newProp.asset.id] = newProp;
 
-                                                        if (looseprop.propSpec.prop.ready && !looseprop.propSpec.prop.badProp) {
-                                                            $scope.model.Screen.assetCache[assetID] = looseprop.propSpec.prop;
+                                                                $scope.Screen_OnDraw('loosepropLayerUpdate');
 
-                                                            $scope.Screen_OnDraw('loosepropLayerUpdate');
-
-                                                            $scope.$apply();
-                                                        }
+                                                                $scope.$apply();
+                                                            }
+                                                        });
 
                                                         break;
                                                     }
@@ -2929,22 +2965,10 @@
                                     var newHeight = this.height < 384 ? 384 : this.height;
                                     var newWidth = this.width < 512 ? 512 : this.width;
 
-                                    $scope.model.Screen.layers['spotCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['spotCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['bubbleCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['bubbleCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['spriteCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['spriteCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['dimroomCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['dimroomCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['nametagsCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['nametagsCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['bgDrawCmdCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['bgDrawCmdCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['fgDrawCmdCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['fgDrawCmdCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['loosepropsCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['loosepropsCanvas'].height(newHeight);
+                                    $.each($scope.model.Screen.layers, function () {
+                                        this.width(newWidth);
+                                        this.height(newHeight);
+                                    });
 
                                     $scope.model.Screen.width = newWidth + 'px';
                                     $scope.model.Screen.height = newHeight + 'px';
@@ -2958,22 +2982,10 @@
                                     var newHeight = 384;
                                     var newWidth = 512;
 
-                                    $scope.model.Screen.layers['spotCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['spotCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['bubbleCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['bubbleCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['spriteCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['spriteCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['dimroomCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['dimroomCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['nametagsCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['nametagsCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['bgDrawCmdCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['bgDrawCmdCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['fgDrawCmdCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['fgDrawCmdCanvas'].height(newHeight);
-                                    $scope.model.Screen.layers['loosepropsCanvas'].width(newWidth);
-                                    $scope.model.Screen.layers['loosepropsCanvas'].height(newHeight);
+                                    $.each($scope.model.Screen.layers, function () {
+                                        this.width(newWidth);
+                                        this.height(newHeight);
+                                    });
 
                                     $scope.model.Screen.width = newWidth + 'px';
                                     $scope.model.Screen.height = newHeight + 'px';
@@ -3026,15 +3038,15 @@
                                         looseprop.propSpec.prop.asset.name = assetName;
                                         looseprop.propSpec.prop.asset.flags = assetFlags;
 
-                                        looseprop.propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl);
+                                        looseprop.propSpec.prop.decodeProp($scope.model.ServerInfo.mediaUrl, function (newProp) {
+                                            if (newProp.ready && !newProp.badProp) {
+                                                $scope.model.Screen.assetCache[newProp.asset.id] = newProp;
 
-                                        if (looseprop.propSpec.prop.ready && !looseprop.propSpec.prop.badProp) {
-                                            $scope.model.Screen.assetCache[assetID] = looseprop.propSpec.prop;
+                                                $scope.Screen_OnDraw('loosepropLayerUpdate');
 
-                                            $scope.Screen_OnDraw('loosepropLayerUpdate');
-
-                                            $scope.$apply();
-                                        }
+                                                $scope.$apply();
+                                            }
+                                        });
 
                                         break;
                                     }
@@ -3092,6 +3104,77 @@
                     }
                 }));
 
-                connection.start('ws://192.168.1.215:10000/PalaceWebSocket');
+                connection.start('ws://' + $window.location.hostname + ':10000/PalaceWebSocket');
+
+                var requestAnimationFrameTimestamp = null;
+                var requestAnimationFrameCallback = (function (timestamp) {
+                    if (!$scope.model.ConnectionInfo.connected) {
+                        return;
+                    }
+
+                    if (!requestAnimationFrameTimestamp) {
+                        requestAnimationFrameTimestamp = timestamp;
+                    }
+
+                    if (timestamp - requestAnimationFrameTimestamp < 500) {
+                        $window.requestAnimationFrame(requestAnimationFrameCallback);
+
+                        return;
+                    }
+
+                    for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
+                        var user = $scope.model.RoomInfo.UserList[j];
+
+                        if (user.animation && user.animation.frames.length > 0 && user.animation.index > -1) {
+                            if (user.animation.bounce) {
+                                if (user.animation.direction) {
+                                    user.animation.index++;
+
+                                    if (user.animation.index >= user.animation.frames.length - 1) {
+                                        user.animation.direction = false;
+
+                                        if (user.animation.index >= user.animation.frames.length - 1) {
+                                            user.animation.index = user.animation.frames.length - 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    user.animation.index--;
+
+                                    if (user.animation.index <= 0) {
+                                        user.animation.direction = true;
+
+                                        if (user.animation.index <= 0) {
+                                            user.animation.index = 0;
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                user.animation.index++;
+                            }
+
+                            user.animation.index %= user.animation.frames.length;
+                        }
+                    }
+
+                    $scope.Screen_OnDraw('spriteLayerUpdate');
+
+                    requestAnimationFrameTimestamp = timestamp;
+
+                    $window.requestAnimationFrame(requestAnimationFrameCallback);
+                });
+
+                $window.requestAnimationFrame(requestAnimationFrameCallback);
+
+                angular.element($window).on('hashchange', function ($event) {
+                    if ($scope.model.ConnectionInfo.connected) {
+                        $scope.serverSend(
+                            'MSG_ROOMGOTO',
+                            {
+                                dest: $window.parseInt($window.location.hash.replace(/[^0-9]+/g, '') || 0),
+                            });
+                    }
+                });
             }]);
 })();

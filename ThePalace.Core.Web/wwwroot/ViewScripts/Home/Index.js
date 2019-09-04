@@ -3169,11 +3169,15 @@
 
                 angular.element($window).on('hashchange', function ($event) {
                     if ($scope.model.ConnectionInfo.connected) {
-                        $scope.serverSend(
-                            'MSG_ROOMGOTO',
-                            {
-                                dest: $window.parseInt($window.location.hash.replace(/[^0-9]+/g, '') || 0),
-                            });
+                        var dest = $window.parseInt($window.location.hash.replace(/[^0-9]+/g, '') || 0);
+
+                        if (dest !== $scope.model.RoomInfo.roomId) {
+                            $scope.serverSend(
+                                'MSG_ROOMGOTO',
+                                {
+                                    dest: dest,
+                                });
+                        }
                     }
                 });
             }]);

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using ThePalace.Core.Database;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Server.Attributes;
 using ThePalace.Core.Utility;
 using ThePalace.Server.Core;
 using ThePalace.Server.Interfaces;
@@ -205,6 +206,23 @@ namespace ThePalace.Server.Network
                         if (type == null)
                         {
                             type = Type.GetType($"ThePalace.Server.Business.{message.header.eventType}");
+                        }
+
+                        var value = true;
+
+                        value &= type.AttributeWrapper(typeof(AdminOnlyProtocolAttribute), "OnBeforeProtocolExecute", new object[] {
+                            new Dictionary<string, object> {
+                                { "UserID", message.sessionState.UserID },
+                            } });
+
+                        value &= type.AttributeWrapper(typeof(SuccessfullyConnectedProtocolAttribute), "OnBeforeProtocolExecute", new object[] {
+                            new Dictionary<string, object> {
+                                { "UserID", message.sessionState.UserID },
+                            } });
+
+                        if (!value)
+                        {
+                            return;
                         }
 
                         if (type != null)

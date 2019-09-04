@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using System;
 using ThePalace.Core.Utility;
 
 namespace ThePalace.Server.Web
@@ -8,11 +9,13 @@ namespace ThePalace.Server.Web
     {
         public static void Main(string[] args)
         {
-            var bindAddress = ConfigManager.GetValue("BindAddress", string.Empty);
+            var bindAddress = ConfigManager.GetValue("BindAddress", "0.0.0.0");
 
-            if (string.IsNullOrEmpty(bindAddress))
+            if (string.IsNullOrWhiteSpace(bindAddress))
             {
-                bindAddress = $"http://192.168.1.215:5000";
+                Environment.Exit(0);
+
+                return;
             }
 
             WebHost.CreateDefaultBuilder(args)

@@ -15,14 +15,14 @@
 
     this.SwapLong = (function (source) {
         return ((source >> 24) & 0x000000FF) |
-               ((source >> 8) & 0x0000FF00) |
-               ((source << 8) & 0x00FF0000) |
-               ((source << 24) & 0xFF000000);
+            ((source >> 8) & 0x0000FF00) |
+            ((source << 8) & 0x00FF0000) |
+            ((source << 24) & 0xFF000000);
     });
 
     this.SwapShort = (function (source) {
         return ((source >> 8) & 0x00FF) |
-               ((source << 8) & 0xFF00);
+            ((source << 8) & 0xFF00);
     });
 
     this.createUID = (function () {
@@ -93,7 +93,7 @@
         }
 
         var returnValue = (this.ReadByte(source, 0 + offset) << 8)
-                         | this.ReadByte(source, 1 + offset);
+            | this.ReadByte(source, 1 + offset);
 
         if (swap) {
             returnValue = this.SwapShort(returnValue);
@@ -112,9 +112,9 @@
         }
 
         var returnValue = (this.ReadByte(source, 0 + offset) << 24)
-                        | (this.ReadByte(source, 1 + offset) << 16)
-                        | (this.ReadByte(source, 2 + offset) << 8)
-                         | this.ReadByte(source, 3 + offset);
+            | (this.ReadByte(source, 1 + offset) << 16)
+            | (this.ReadByte(source, 2 + offset) << 8)
+            | this.ReadByte(source, 3 + offset);
 
         if (swap) {
             returnValue = this.SwapLong(returnValue);
@@ -486,6 +486,41 @@
                     break;
             }
         }
+
+        return result;
+    });
+
+    this.getBoundingBox = (function (list) {
+        if (list.length < 1) {
+            return null;
+        }
+
+        var result = {
+            left: list[0].h,
+            top: list[0].v,
+            right: list[0].h,
+            bottom: list[0].v,
+            width: 0,
+            height: 0,
+        };
+
+        for (var j = 1; j < list.length; j++) {
+            if (list[j].h < result.left) {
+                result.left = list[j].h;
+            }
+            if (list[j].v < result.top) {
+                result.top = list[j].v;
+            }
+            if (list[j].h > result.right) {
+                result.right = list[j].h;
+            }
+            if (list[j].v > result.bottom) {
+                result.bottom = list[j].v;
+            }
+        }
+
+        result.width = result.right - result.left;
+        result.height = result.bottom - result.top;
 
         return result;
     });

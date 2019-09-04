@@ -91,7 +91,7 @@
                     }
                 }),
 
-                decodeProp: (function (mediaUrl) {
+                decodeProp: (function (mediaUrl, callback) {
                     if (this.badProp || this.ready) {
                         return;
                     }
@@ -114,7 +114,11 @@
 
                                     that.ready = true;
 
-                                    that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
+                                    //that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
+
+                                    if (callback) {
+                                        callback(that);
+                                    }
                                 },
                                 reject: function (errors) {
                                 },
@@ -175,7 +179,11 @@
                                             resolve: function () {
                                                 that.ready = true;
 
-                                                that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
+                                                //that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
+
+                                                if (callback) {
+                                                    callback(that);
+                                                }
                                             },
                                         });
 

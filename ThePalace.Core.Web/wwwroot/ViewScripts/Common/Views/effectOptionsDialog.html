@@ -9,37 +9,37 @@
             <canvas style="position: absolute; left: 0; top: 0;" class="overlay" ng-mousemove="Overlay_MouseMove($event)" ng-show="['EFFECTS_ZOOMBLUR', 'EFFECTS_SWIRL', 'EFFECTS_HEXAGONALPIXELATE'].indexOf(model.effect) &gt; -1"></canvas>
         </div>
         <div ng-show="['EFFECTS_SWIRL', 'EFFECTS_LENSBLUR'].indexOf(model.effect) &gt; -1">
-            Angle:&nbsp;<div class="angle"></div>
+            <label>Angle:</label>&nbsp;<div class="angle"></div>
         </div>
         <div ng-show="['EFFECTS_BASICBLURIMAGE', 'EFFECTS_SWIRL', 'EFFECTS_UNSHARPMASK', 'EFFECTS_LENSBLUR'].indexOf(model.effect) &gt; -1">
-            Radius:&nbsp;<div class="radius"></div>
+            <label>Radius:</label>&nbsp;<div class="radius"></div>
         </div>
         <div ng-show="['EFFECTS_INK', 'EFFECTS_ZOOMBLUR', 'EFFECTS_UNSHARPMASK'].indexOf(model.effect) &gt; -1">
-            Strength:&nbsp;<div class="strength"></div>
+            <label>Strength:</label>&nbsp;<div class="strength"></div>
         </div>
         <div ng-show="['EFFECTS_BNC', 'EFFECTS_LENSBLUR'].indexOf(model.effect) &gt; -1">
-            Brightness:&nbsp;<div class="brightness"></div>
+            <label>Brightness:</label>&nbsp;<div class="brightness"></div>
         </div>
         <div ng-show="['EFFECTS_BNC'].indexOf(model.effect) &gt; -1">
-            Contrast:&nbsp;<div class="contrast"></div>
+            <label>Contrast:</label>&nbsp;<div class="contrast"></div>
         </div>
         <div ng-show="['EFFECTS_HNS'].indexOf(model.effect) &gt; -1">
-            Hue:&nbsp;<div class="hue"></div>
+            <label>Hue:</label>&nbsp;<div class="hue"></div>
         </div>
         <div ng-show="['EFFECTS_HNS'].indexOf(model.effect) &gt; -1">
-            Saturation:&nbsp;<div class="saturation"></div>
+            <label>Saturation:</label>&nbsp;<div class="saturation"></div>
         </div>
         <div ng-show="['EFFECTS_VIGNETTE'].indexOf(model.effect) &gt; -1">
-            Size:&nbsp;<div class="size"></div>
+            <label>Size:</label>&nbsp;<div class="size"></div>
         </div>
         <div ng-show="['EFFECTS_NOISE', 'EFFECTS_VIBRANCE', 'EFFECTS_SEPIA', 'EFFECTS_VIGNETTE'].indexOf(model.effect) &gt; -1">
-            Amount:&nbsp;<div class="amount"></div>
+            <label>Amount:</label>&nbsp;<div class="amount"></div>
         </div>
         <div ng-show="['EFFECTS_DENOISE'].indexOf(model.effect) &gt; -1">
-            Exponent:&nbsp;<div class="exponent"></div>
+            <label>Exponent:</label>&nbsp;<div class="exponent"></div>
         </div>
         <div ng-show="['EFFECTS_HEXAGONALPIXELATE'].indexOf(model.effect) &gt; -1">
-            Scale:&nbsp;<div class="scale"></div>
+            <label>Scale:</label>&nbsp;<div class="scale"></div>
         </div>
     </div>
     <div class="modalfooter">

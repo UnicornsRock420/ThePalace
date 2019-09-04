@@ -7,6 +7,8 @@
 
     $scope.Save_OnClick = (function ($event) {
         $scope.$close({
+            height: $scope.model.height,
+            width: $scope.model.width,
         });
     });
 }]);

@@ -322,17 +322,19 @@
 
             switch (item.type) {
                 case 'string':
-                    var audioUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, 1) === '/' ? '' : '/') + item.value;
+                    if ($scope.model.Interface.soundsEnabled) {
+                        var audioUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, 1) === '/' ? '' : '/') + item.value;
 
-                    $scope.model.Application.soundPlayer.preload({
-                        sourceUrl: audioUrl,
-                        resolve: function (response) {
-                            this.play();
-                        },
-                        reject: function (errors) {
-                        },
-                    });
-                    $scope.model.Application.soundPlayer.load();
+                        $scope.model.Application.soundPlayer.preload({
+                            sourceUrl: audioUrl,
+                            resolve: function (response) {
+                                this.play();
+                            },
+                            reject: function (errors) {
+                            },
+                        });
+                        $scope.model.Application.soundPlayer.load();
+                    }
 
                     break;
                 default:
@@ -352,9 +354,11 @@
 
             switch (item.type) {
                 case 'string':
-                    var audioUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, 1) === '/' ? '' : '/') + item.value;
+                    if ($scope.model.Interface.soundsEnabled) {
+                        var audioUrl = $scope.model.ServerInfo.mediaUrl + ($scope.model.ServerInfo.mediaUrl.substring($scope.model.ServerInfo.mediaUrl.length - 1, 1) === '/' ? '' : '/') + item.value;
 
-                    $scope.model.Application.midiPlayer.play(audioUrl);
+                        $scope.model.Application.midiPlayer.play(audioUrl);
+                    }
 
                     break;
                 default:

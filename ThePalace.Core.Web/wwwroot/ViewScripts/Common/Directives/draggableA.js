@@ -21,14 +21,13 @@ angular.module('ThePalace').directive('draggable', ['$document', '$compile', '$w
 
             var mouseup = function () {
                 $document.off('mousemove', mousemove);
+                $document.off('mouseleave', mouseup);
                 $document.off('mouseup', mouseup);
             }
 
             element.parent().css({
                 backgroundColor: 'lightgray',
                 position: 'absolute',
-                left: '0px',
-                top: '0px',
             });
 
             element.css({
@@ -38,6 +37,12 @@ angular.module('ThePalace').directive('draggable', ['$document', '$compile', '$w
             });
 
             element.on('mousedown', function ($event) {
+                y = $window.parseInt(element.parent().css('top'));
+                x = $window.parseInt(element.parent().css('left'));
+
+                if (isNaN(y)) y = 0;
+                if (isNaN(x)) x = 0;
+
                 // Prevent default dragging of selected content
                 $event.preventDefault();
 
@@ -55,6 +60,7 @@ angular.module('ThePalace').directive('draggable', ['$document', '$compile', '$w
                 });
 
                 $document.on('mousemove', mousemove);
+                $document.on('mouseleave', mouseup);
                 $document.on('mouseup', mouseup);
             });
         }

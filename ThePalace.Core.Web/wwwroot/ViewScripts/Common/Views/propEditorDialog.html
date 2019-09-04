@@ -1,7 +1,7 @@
 ﻿<link type="text/css" rel="stylesheet" href="/Content/navbar.css" />
 <link type="text/css" rel="stylesheet" href="/ViewStyles/Common/propEditorDialog.css" />
 
-<div class="propeditordialog">
+<div class="propeditordialog" ng-init="Dialog_OnInit()">
     <div class="modalheader"><strong>Prop Editor</strong><span class="close" ng-click="$close()">&#10006;</span></div>
     <hr />
     <div class="nav-bar">
@@ -10,12 +10,12 @@
                 <a href="#">File ▾</a>
                 <ul>
                     <li>
-                        <input id="files" type="file" style="display: none;" multiple />
+                        <input id="load" type="file" style="display: none;" multiple />
                         <a href="#" ng-click="MenuOption_OnClick($event, 'FILE_OPEN')">Open</a>
                     </li>
-                    <!--<li>
-                        <a href="#" ng-click="MenuOption_OnClick($event, 'FILE_SAVE')">Save</a>
-                    </li>-->
+                    <li>
+                        <a id="save" href="#" target="_blank" ng-mouseover="MenuOption_OnClick($event, 'FILE_SAVE')">Save</a>
+                    </li>
                 </ul>
             </li>
             <li>
@@ -23,6 +23,100 @@
                 <ul>
                     <li>
                         <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_UNDO')">Undo</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_REDO')">Redo</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_COPY')">Copy</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_CUT')">Cut&nbsp;&nbsp;&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_PASTE')">Paste</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">Layers ▾</a>
+                <ul>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_NEW')">New Layer</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_DELETE')">Delete Layer</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_MERGEDOWN')">Layer Merge Down</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_MERGEUP')">Layer Merge Up</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_FLATTEN')">Flatten Layers</a>
+                    </li>
+                    <li>
+                        <a href="#">Rotate ▾</a>
+                        <ul>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_ROTATE90')">Rotate 90&deg; Clockwise</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_ROTATE-90')">Rotate 90&deg; Counter-Clockwise</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_ROTATE180')">Rotate 180&deg; Clockwise</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_ROTATE-180')">Rotate 180&deg; Counter-Clockwise</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Position ▾</a>
+                        <ul>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_MOVEUP')">Move Up</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_MOVEDOWN')">Move Down</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_MOVETOP')">Bring to Front</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'LAYER_MOVEBOTTOM')">Move to Back</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">Image ▾</a>
+                <ul>
+                    <li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_CANVASSIZE')">Canvas Size</a>
+                    </li>
+                    <!--<li>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_IMAGESIZE')">Image Size</a>
+                    </li>-->
+                    <li>
+                        <a href="#">Rotate ▾</a>
+                        <ul>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_ROTATE90')">Rotate 90&deg; Clockwise</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_ROTATE-90')">Rotate 90&deg; Counter-Clockwise</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_ROTATE180')">Rotate 180&deg; Clockwise</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_ROTATE-180')">Rotate 180&deg; Counter-Clockwise</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </li>
@@ -85,10 +179,10 @@
             <div id="bgcolor" ng-style="{'background-color': 'rgba(' + bgcolor[1] + ',' + bgcolor[2] + ',' + bgcolor[0] + ', 255)'}" ng-click="BgColor_OnClick($event)"></div>
             <div id="fgcolor" ng-style="{'background-color': 'rgba(' + fgcolor[1] + ',' + fgcolor[2] + ',' + fgcolor[0] + ', 255)'}" ng-click="FgColor_OnClick($event)"></div>
             <div id="options">
-                <div ng-if="['Pencil', 'Airbrush', 'Blur', 'Clone', 'Text'].indexOf(selectedTool.name) &gt; -1">
+                <div ng-if="['Pencil', 'Airbrush', 'Blur', 'Clone', 'Text', 'Eraser'].indexOf(selectedTool.name) &gt; -1">
                     <input class="tooloptions" type="text" ng-model="selectedTool.options.size" title="Size" ng-change="ToolOptions_OnChange($event, 'size')" />
                 </div>
-                <div ng-if="selectedTool.name === 'Pencil'">
+                <div ng-if="['Pencil', 'Eraser'].indexOf(selectedTool.name) &gt; -1">
                     <select class="tooloptions" ng-model="selectedTool.options.shape" ng-options="shape.value as shape.label for shape in selectedTool.options.shape_choices" ng-change="ToolOptions_OnChange($event, 'shape')" title="Shape"></select>
                 </div>
                 <div ng-if="selectedTool.name === 'Bucket Fill'">
@@ -114,12 +208,38 @@
                 <li ng-attr-id="{{tool.name}}" ng-repeat="tool in toolbar" ng-click="ToolBar_OnClick($event, tool)" class="tool" ng-class="{selected: selectedTool.name === tool.name}" title="{{tool.name}}" ng-style="{'background-image': 'url(\'/images/cursors/' + tool.icon + '\')'}">&nbsp;</li>
             </ul>
         </div>
+        <div id="layers">
+            <div draggable>Layers</div>
+            <ul id="layersbar" ng-if="selectedFile !== null">
+                <li ng-repeat="layer in selectedFile.editor.layers track by $index" class="layer" ng-class="{selected: selectedFile.editor.activeLayer.layerId === layer.layerId}" title="{{layer.name || layer.layerId}}">
+                    <span class="fa visibility" ng-click="LayerVisibility_OnClick($event, $index, layer)" ng-class="{
+                          'fa-eye': layer.visible,
+                          'fa-eye-slash': !layer.visible,
+                          }"></span>
+                    <span class="name" ng-click="LayerSelect_OnClick($event, $index, layer)">&nbsp;{{layer.name}}</span>
+                </li>
+            </ul>
+        </div>
+        <div id="history">
+            <div draggable>History</div>
+            <ul id="historybar" ng-if="selectedFile !== null">
+                <li ng-repeat="history in selectedFile.historyEvents track by $index" class="history" title="{{history.label}}">
+                    <span class="label" ng-click="HistoryEvent_OnClick($event, $index, history)">&nbsp;{{history.label}}</span>
+                </li>
+            </ul>
+            <ul id="redobar" ng-if="selectedFile !== null">
+                <li ng-repeat="redo in selectedFile.redoEvents track by $index" class="redo" title="{{redo.label}}">
+                    <span class="label" ng-click="RedoEvent_OnClick($event, $index, redo)">&nbsp;{{redo.label}}</span>
+                </li>
+            </ul>
+        </div>
         <div class="filecontainer" ng-repeat="file in fileList track by $index" ng-init="FileOpen_OnInit(file)" ng-style="{width: file.image.width, height: file.image.height}" ng-mouseenter="SelectFile_OnMouseEnter($event, file)">
             <div draggable>
                 <span class="filename">{{file.name}}</span>
                 <span class="fileclose button" ng-click="FileButtons_OnClick($event, $index, file, 'CLOSE')" title="Close">X</span>
-                <span class="filemax button" ng-click="FileButtons_OnClick($event, $index, file, 'MAX')" title="Maximize">^</span>
-                <span class="filemin button" ng-click="FileButtons_OnClick($event, $index, file, 'MIN')" title="Minimize">V</span>
+                <span class="filemax button" ng-click="FileButtons_OnClick($event, $index, file, 'MAX')" ng-show="!file.isMaximized" title="Maximize">^</span>
+                <span class="filerestore button" ng-click="FileButtons_OnClick($event, $index, file, 'RESTORE')" ng-show="file.isMaximized || file.isMinimized" title="Restore">=</span>
+                <span class="filemin button" ng-click="FileButtons_OnClick($event, $index, file, 'MIN')" ng-show="!file.isMinimized" title="Minimize">V</span>
             </div>
             <div ng-attr-id="{{file.name.substring(0, file.name.indexOf('.'))}}" style="overflow: auto; position: relative;" ng-style="{width: file.image.width, height: file.image.height}">
                 <canvas class="display" style="position: relative; top: 0; left: 0;"></canvas>

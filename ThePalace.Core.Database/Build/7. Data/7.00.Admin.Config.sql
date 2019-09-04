@@ -34,7 +34,7 @@ END
 GO
 
 IF NOT EXISTS(SELECT TOP 1 1 FROM [Admin].[Config] WHERE [Key] = 'MediaUrl') BEGIN
-	INSERT [Admin].[Config] ([Key], [Value]) VALUES (N'MediaUrl', N'https://www.aephixcore.com/palace/media')
+	INSERT [Admin].[Config] ([Key], [Value]) VALUES (N'MediaUrl', N'https://localhost:5000/media')
 END
 GO
 

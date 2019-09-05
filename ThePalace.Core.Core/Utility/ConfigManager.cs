@@ -1,10 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Xml;
 using ThePalace.Core.Database;
 
 namespace ThePalace.Core.Utility
@@ -38,19 +42,81 @@ namespace ThePalace.Core.Utility
             _collection = collection;
         }
 
-        public static string GetConnectionString(this string key)
+        public static string GetConnectionString(this string key, Type startingClass = null)
         {
-            if (_collection != null)
+            var value = (string)null;
+
+            var actions = new List<Action>
             {
-                return _collection.GetConnectionString(key);
-            }
-            else
+                () =>
+                {
+                    value = _collection.GetConnectionString(key);
+                },
+                () => {
+                    value = ConfigurationManager.ConnectionStrings[key].ConnectionString;
+                },
+                () =>
+                {
+                    if (startingClass == null) return;
+
+                    var assemblyName = startingClass.Assembly.GetName().Name;
+                    var path = Path.Combine(Environment.CurrentDirectory, $"{assemblyName}.dll.config");
+
+                    if (!File.Exists(path)) return;
+
+                    using (var streamReader = new StreamReader(path))
+                    {
+                        var xml = streamReader.ReadToEnd();
+                        var doc = new XmlDocument();
+                        doc.LoadXml(xml);
+                        var json = JsonConvert.SerializeXmlNode(doc);
+                        var jsonObject = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                        for (var j = 0; j < jsonObject.configuration.connectionStrings.add.Count; j++)
+                        {
+                            if (jsonObject.configuration.connectionStrings.add[j]["@name"].ToString() == key)
+                            {
+                                value = jsonObject.configuration.connectionStrings.add[j]["@connectionString"].ToString();
+
+                                break;
+                            }
+                        }
+                    }
+                },
+                () =>
+                {
+                    var path = Path.Combine(Environment.CurrentDirectory, "appSettings.json");
+
+                    if (!File.Exists(path)) return;
+
+                    using (var streamReader = new StreamReader(path))
+                    {
+                        var json = streamReader.ReadToEnd();
+                        var jsonObject = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                        value = (string)jsonObject.ConnectionStrings[key];
+                    }
+                },
+            };
+
+            foreach (var action in actions)
             {
-                return ConfigurationManager.ConnectionStrings[key].ConnectionString;
+                try
+                {
+                    action();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        return value;
+                    }
+                }
+                catch { }
             }
+
+            return null;
         }
 
-        public static string GetValue(this string key, string defaultValue = null, bool bypassCache = false)
+        public static string GetValue(this string key, string defaultValue = null, bool bypassCache = false, Type startingClass = null)
         {
             if (!bypassCache)
             {
@@ -62,7 +128,6 @@ namespace ThePalace.Core.Utility
                 }
             }
 
-            var result = (string)null;
             var value = (string)null;
 
             var actions = new List<Action>
@@ -79,6 +144,48 @@ namespace ThePalace.Core.Utility
                 },
                 () =>
                 {
+                    if (startingClass == null) return;
+
+                    var assemblyName = startingClass.Assembly.GetName().Name;
+                    var path = Path.Combine(Environment.CurrentDirectory, $"{assemblyName}.dll.config");
+
+                    if (!File.Exists(path)) return;
+
+                    using (var streamReader = new StreamReader(path))
+                    {
+                        var xml = streamReader.ReadToEnd();
+                        var doc = new XmlDocument();
+                        doc.LoadXml(xml);
+                        var json = JsonConvert.SerializeXmlNode(doc);
+                        var jsonObject = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                        for (var j = 0; j < jsonObject.configuration.appSettings.add.Count; j++)
+                        {
+                            if (jsonObject.configuration.appSettings.add[j]["@key"].ToString() == key)
+                            {
+                                value = jsonObject.configuration.appSettings.add[j]["@value"].ToString();
+
+                                break;
+                            }
+                        }
+                    }
+                },
+                () =>
+                {
+                    var path = Path.Combine(Environment.CurrentDirectory, "appSettings.json");
+
+                    if (!File.Exists(path)) return;
+
+                    using (var streamReader = new StreamReader(path))
+                    {
+                        var json = streamReader.ReadToEnd();
+                        var jsonObject = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                        value = (string)jsonObject[key];
+                    }
+                },
+                () =>
+                {
                     using (var dbContext = Database.Database.For<ThePalaceEntities>())
                     {
                         value = dbContext.Config.AsNoTracking()
@@ -99,19 +206,22 @@ namespace ThePalace.Core.Utility
                     {
                         lock (_cache)
                         {
-                            _cache[key] = result = value;
+                            _cache[key] = value;
                         }
 
-                        return result;
+                        return value;
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    ex.DebugLog();
+                }
             }
 
             return defaultValue;
         }
 
-        public static T? GetValue<T>(this string key, T? defaultValue = null, bool bypassCache = false) where T : struct
+        public static T? GetValue<T>(this string key, T? defaultValue = null, bool bypassCache = false, Type startingClass = null) where T : struct
         {
             if (!bypassCache)
             {
@@ -123,7 +233,6 @@ namespace ThePalace.Core.Utility
                 }
             }
 
-            T? result = null;
             var value = (string)null;
 
             var actions = new List<Action>
@@ -137,6 +246,48 @@ namespace ThePalace.Core.Utility
                 },
                 () =>
                 {
+                    if (startingClass == null) return;
+
+                    var assemblyName = startingClass.Assembly.GetName().Name;
+                    var path = Path.Combine(Environment.CurrentDirectory, $"{assemblyName}.dll.config");
+
+                    if (!File.Exists(path)) return;
+
+                    using (var streamReader = new StreamReader(path))
+                    {
+                        var xml = streamReader.ReadToEnd();
+                        var doc = new XmlDocument();
+                        doc.LoadXml(xml);
+                        var json = JsonConvert.SerializeXmlNode(doc);
+                        var jsonObject = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                        for (var j = 0; j < jsonObject.configuration.appSettings.add.Count; j++)
+                        {
+                            if (jsonObject.configuration.appSettings.add[j]["@key"].ToString() == key)
+                            {
+                                value = jsonObject.configuration.appSettings.add[j]["@value"].ToString().TryParse<T>();
+
+                                break;
+                            }
+                        }
+                    }
+                },
+                () =>
+                {
+                    var path = Path.Combine(Environment.CurrentDirectory, "appSettings.json");
+
+                    if (!File.Exists(path)) return;
+
+                    using (var streamReader = new StreamReader(path))
+                    {
+                        var json = streamReader.ReadToEnd();
+                        var jsonObject = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                        value = jsonObject[key].TryParse<T>();
+                    }
+                },
+                () =>
+                {
                     using (var dbContext = Database.Database.For<ThePalaceEntities>())
                     {
                         value = dbContext.Config.AsNoTracking()
@@ -157,10 +308,9 @@ namespace ThePalace.Core.Utility
                     {
                         lock (_cache)
                         {
-                            _cache[key] = result = value.TryParse<T>();
+                            return (T)(_cache[key] = value.TryParse<T>());
                         }
 
-                        return result;
                     }
                 }
                 catch { }

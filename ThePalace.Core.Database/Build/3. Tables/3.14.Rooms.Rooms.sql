@@ -23,5 +23,7 @@ IF NOT EXISTS(SELECT TOP 1 1 FROM SYS.COLUMNS WHERE OBJECT_ID = OBJECT_ID('[Room
 	ALTER TABLE [Rooms].[Rooms] ADD OrderID [smallint] NULL
 	EXEC('UPDATE [Rooms].[Rooms] SET OrderID = 0')
 	ALTER TABLE [Rooms].[Rooms] ALTER COLUMN OrderID [smallint] NOT NULL
+
+	PRINT 'ADD COLUMN [Rooms].[Rooms].[OrderID]'
 END
 GO

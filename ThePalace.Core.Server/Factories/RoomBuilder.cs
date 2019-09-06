@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using ThePalace.Core.Database;
 using ThePalace.Core.Factories;
 using ThePalace.Core.Interfaces;
 using ThePalace.Core.Types;
 using ThePalace.Core.Utility;
+using ThePalace.Server.Core;
 
 namespace ThePalace.Server.Factories
 {
@@ -466,6 +468,30 @@ namespace ThePalace.Server.Factories
             }
 
             HasUnsavedAuthorChanges = false;
+        }
+
+        public void Delete(ThePalaceEntities dbContext)
+        {
+            lock (ServerState.roomsCache)
+            {
+                var room = dbContext.Rooms
+                    .Where(r => r.RoomId == ID)
+                    .SingleOrDefault();
+                dbContext.Rooms.Remove(room);
+
+                var roomData = dbContext.RoomData
+                    .Where(r => r.RoomId == ID)
+                    .SingleOrDefault();
+                dbContext.RoomData.Remove(roomData);
+
+                dbContext.SaveChanges();
+
+                var sqlParam1 = new SqlParameter("roomID", ID);
+                var sqlParam2 = new SqlParameter("hasUnsavedAuthorChanges", HasUnsavedAuthorChanges);
+                dbContext.Database.ExecuteSqlCommand("EXEC Rooms.FlushExtendedRoomDetails @roomID, @hasUnsavedAuthorChanges", sqlParam1, sqlParam2);
+
+                ServerState.roomsCache.Remove(ID);
+            }
         }
     }
 }

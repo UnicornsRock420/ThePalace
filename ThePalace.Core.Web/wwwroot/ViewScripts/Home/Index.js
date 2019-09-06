@@ -253,6 +253,8 @@
                 $scope.model.Screen.layers['fgDrawCmdCanvas'] = new CanvasNode('2d', angular.element('#fgdrawcmd'));
                 $scope.model.Screen.layers['loosepropsCanvas'] = new CanvasNode('2d', angular.element('#looseprops'));
 
+                var windowElement = angular.element($window);
+
                 var newHeight = 384;
                 var newWidth = 512;
 
@@ -1328,6 +1330,10 @@
                             $scope.Screen_OnDraw('spotLayerUpdate');
 
                             break;
+                        case 'ROOMNEW':
+                            $scope.serverSend('MSG_ROOMNEW');
+
+                            break;
                         case 'ROOMINFO':
                             var copy = $.extend(false, {}, $scope.model.RoomInfo);
 
@@ -1647,6 +1653,10 @@
                                     for (var k = 0; k < user.propSpec.length; k++) {
                                         var propSpec = user.propSpec[k];
 
+                                        if (!propSpec.prop && $scope.model.Screen.assetCache[propSpec.id]) {
+                                            propSpec.prop = $scope.model.Screen.assetCache[propSpec.id];
+                                        }
+
                                         if (!propSpec.prop || !propSpec.prop.ready) continue;
 
                                         hasHeadProp |= propSpec.prop.head;
@@ -1672,6 +1682,10 @@
 
                                     for (var k = 0; k < user.propSpec.length; k++) {
                                         var propSpec = user.propSpec[k];
+
+                                        if (!propSpec.prop && $scope.model.Screen.assetCache[propSpec.id]) {
+                                            propSpec.prop = $scope.model.Screen.assetCache[propSpec.id];
+                                        }
 
                                         if (!propSpec.prop || !propSpec.prop.ready || !propSpec.prop.imageObject) continue;
 
@@ -1728,7 +1742,6 @@
                 });
 
                 $scope.Screen_OnClick = (function ($event) {
-                    var windowElement = angular.element($window);
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
@@ -1737,6 +1750,7 @@
                     var insideVortex = false;
                     var insideSpot = false;
                     var vortex = null;
+                    var vortexSpot = null;
                     var spot = null;
 
                     for (var j = 0; !insideSpot && j < $scope.model.RoomInfo.SpotList.length; j++) {
@@ -1761,6 +1775,10 @@
                                         h: xCoord,
                                     });
 
+                                if (insideVortex) {
+                                    vortexSpot = spot;
+                                }
+
                                 polygon.push({
                                     v: yCoord2,
                                     h: xCoord2,
@@ -1775,6 +1793,7 @@
                     }
 
                     if (!insideVortex) {
+                        vortexSpot = null;
                         vortex = null;
                     }
 
@@ -1783,17 +1802,16 @@
                     }
 
                     if ($scope.model.Interface.authoringMode) {
-
                         if (insideVortex) {
                             $scope.model.Interface.vortexMouseDown = vortex;
                             $scope.model.Interface.spotMouseDown = null;
+                            $scope.model.Interface.spotSelected = vortexSpot;
                         }
                         else {
                             $scope.model.Interface.vortexMouseDown = null;
                             $scope.model.Interface.spotMouseDown = spot;
+                            $scope.model.Interface.spotSelected = spot;
                         }
-
-                        $scope.model.Interface.spotSelected = spot;
                     }
                     else {
                         var insideLooseProp = false;
@@ -2006,7 +2024,6 @@
                 });
 
                 $scope.Screen_OnMouseMove = (function ($event) {
-                    var windowElement = angular.element($window);
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
@@ -2022,9 +2039,10 @@
 
                         if ($scope.model.Interface.spotMouseDown) {
                             $scope.model.Interface.spotMouseDown.isDirty = true;
+                            var boundingBox = utilService.getBoundingBox($scope.model.Interface.spotMouseDown.vortexes);
                             $scope.model.Interface.spotMouseDown.loc = {
-                                v: yCoord + ($window.parseInt($scope.model.Screen.height) / 4),
-                                h: xCoord + ($window.parseInt($scope.model.Screen.width) / 4),
+                                v: yCoord - boundingBox.top - (boundingBox.height / 2),
+                                h: xCoord - boundingBox.left - (boundingBox.width / 2),
                             };
 
                             $scope.Screen_OnDraw('spotLayerUpdate');
@@ -2177,7 +2195,6 @@
                 });
 
                 $scope.Screen_OnMouseUp = (function ($event) {
-                    var windowElement = angular.element($window);
                     var screenElement = angular.element("#screen");
                     var xCoord = ($event.originalEvent.clientX - screenElement.prop('offsetLeft')) + windowElement.scrollLeft();
                     var yCoord = ($event.originalEvent.clientY - screenElement.prop('offsetTop')) + windowElement.scrollTop();
@@ -2209,9 +2226,10 @@
                         }
 
                         if ($scope.model.Interface.spotMouseDown && $scope.model.Interface.spotMouseDown.isDirty) {
+                            var boundingBox = utilService.getBoundingBox($scope.model.Interface.spotMouseDown.vortexes);
                             $scope.model.Interface.spotMouseDown.loc = {
-                                v: yCoord + ($window.parseInt($scope.model.Screen.height) / 4),
-                                h: xCoord + ($window.parseInt($scope.model.Screen.width) / 4),
+                                v: yCoord - boundingBox.top - (boundingBox.height / 2),
+                                h: xCoord - boundingBox.left - (boundingBox.width / 2),
                             };
 
                             $scope.serverSend(
@@ -2332,7 +2350,6 @@
                             }
                         }
 
-                        $scope.model.Interface.contextMenu.type = null;
                         $scope.model.Interface.loosepropMouseDown = -1;
                         $scope.model.Interface.wornpropMouseDown = -1;
                     }
@@ -3099,7 +3116,7 @@
                         eventType = protocols[eventType];
                     }
 
-                    if (protocols[eventType]) {
+                    if (typeof protocols[eventType] === 'function') {
                         protocols[eventType].apply(this, [refNum, message]);
                     }
                 }));

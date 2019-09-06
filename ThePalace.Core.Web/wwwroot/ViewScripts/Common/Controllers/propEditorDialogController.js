@@ -108,6 +108,9 @@
             ],
         },
     }];
+    $scope.shiftKey = false;
+    $scope.ctrlKey = false;
+    $scope.altKey = false;
     $scope.mouseButtonId = 0;
     $scope.selectedTool = $scope.toolbar[0];
     $scope.selectedFile = null;
@@ -415,12 +418,14 @@
                 file.overlay.width(file.image.width);
             }
 
-            var fileContainer = angular.element('div.propeditordialog div#' + fileName).closest('div.filecontainer');
+            var fileContainer = angular.element('div.propeditordialog div#' + fileName);
             var yCoord = ((windowElement.height() / 2) - (fileContainer.height() / 2) - fileContainer.offset().top) + windowElement.scrollTop();
             var xCoord = ((windowElement.width() / 2) - (fileContainer.width() / 2) - fileContainer.offset().left) + windowElement.scrollLeft();
             fileContainer.css({
                 top: yCoord + 'px',
                 left: xCoord + 'px',
+                height: file.image.height + 'px',
+                width: file.image.width + 'px',
             });
             fileContainer.resizable({
                 resize: function ($event, ui) {
@@ -428,31 +433,27 @@
 
                     if (file) {
                         var fileName = file.name.substring(0, file.name.indexOf('.'));
-                        var uiContainer = angular.element('div.propeditordialog div#' + fileName);
-                        var fileContainer = uiContainer.closest('div.filecontainer');
-                        var oHeight = file.overlay.height();
-                        var oWidth = file.overlay.width();
+                        var fileContainer = angular.element('div.propeditordialog div#' + fileName);
+                        var height = 100;
+                        var width = 100;
 
-                        if (fileContainer.width() < oWidth || fileContainer.height() < oHeight) {
+                        if (!file.isMinimized && (fileContainer.width() < width || fileContainer.height() < height)) {
                             fileContainer.css({
-                                height: oHeight,
-                                width: oWidth,
-                            });
-
-                            uiContainer.css({
-                                height: oHeight,
-                                width: oWidth,
+                                height: height + 'px',
+                                width: width + 'px',
                             });
                         }
                         else {
-                            uiContainer.css({
-                                height: 'auto',
-                                width: 'auto',
+                            fileContainer.css({
+                                height: (ui.size.height + 25) + 'px',
+                                width: ui.size.width + 'px',
                             });
                         }
                     }
                 },
             });
+
+            fileContainer.find('div.ui-resizable-e, div.ui-resizable-s').remove();
 
             $scope.Redraw(true);
         }, 0);
@@ -464,8 +465,7 @@
         if (!file) return;
 
         var fileName = file.name.substring(0, file.name.indexOf('.'));
-        var overlayContainer = angular.element('div.propeditordialog div#' + fileName);
-        var fileContainer = overlayContainer.closest('div.filecontainer');
+        var fileContainer = angular.element('div.propeditordialog div#' + fileName);
 
         switch (mode) {
             case 'CLOSE':
@@ -496,11 +496,6 @@
                     width: file.restorePoint.width + 'px',
                 });
 
-                overlayContainer.css({
-                    height: file.image.height + 'px',
-                    width: file.image.width + 'px',
-                });
-
                 break;
             case 'MIN':
                 var rHeight = $window.parseInt(fileContainer.css('height'));
@@ -524,11 +519,6 @@
                     left: xCoord + 'px',
                     height: 40 + 'px',
                     width: 80 + 'px',
-                });
-
-                overlayContainer.css({
-                    height: 0 + 'px',
-                    width: 0 + 'px',
                 });
 
                 file.isMaximized = false;
@@ -557,11 +547,6 @@
                     left: xCoord + 'px',
                     height: (windowElement.height() - 40) + 'px',
                     width: (windowElement.width() - 40) + 'px',
-                });
-
-                overlayContainer.css({
-                    height: 'auto',
-                    width: 'auto',
                 });
 
                 file.isMaximized = true;
@@ -1259,6 +1244,21 @@
 
                     file.selectionmask.strokeStyleRgba(255, 255, 255, 255);
                     file.selectionmask.clearRect();
+
+                    if ($scope.shiftKey && file.selectionmask.vortexes && file.selectionmask.vortexes.length > 0) {
+                        file.selectionmask.beginPath();
+
+                        file.selectionmask.moveTo(file.selectionmask.vortexes[0].h, file.selectionmask.vortexes[0].v);
+
+                        for (var j = file.selectionmask.vortexes.length - 1; j >= 0; j--) {
+                            var vortex = file.selectionmask.vortexes[j];
+
+                            file.selectionmask.lineTo(vortex.h, vortex.v);
+                        }
+
+                        file.selectionmask.stroke();
+                    }
+
                     file.selectionmask.beginPath();
                     file.selectionmask.rect(prevXCoord, prevYCoord, xCoord - prevXCoord, yCoord - prevYCoord);
                     file.selectionmask.stroke();
@@ -1277,9 +1277,23 @@
 
                     file.selectionmask.strokeStyleRgba(255, 255, 255, 255);
                     file.selectionmask.clearRect();
+
+                    if ($scope.shiftKey && file.selectionmask.vortexes && file.selectionmask.vortexes.length > 0) {
+                        file.selectionmask.beginPath();
+
+                        file.selectionmask.moveTo(file.selectionmask.vortexes[0].h, file.selectionmask.vortexes[0].v);
+
+                        for (var j = file.selectionmask.vortexes.length - 1; j >= 0; j--) {
+                            var vortex = file.selectionmask.vortexes[j];
+
+                            file.selectionmask.lineTo(vortex.h, vortex.v);
+                        }
+
+                        file.selectionmask.stroke();
+                    }
+
                     file.selectionmask.beginPath();
                     file.selectionmask.arc(prevXCoord, prevYCoord, radius, 0, PI2, false);
-                    file.selectionmask.closePath();
                     file.selectionmask.stroke();
 
                     file.selectionmask.isDrawing = true;
@@ -1423,13 +1437,22 @@
                     var height = Math.abs(yCoord - prevYCoord);
                     var width = Math.abs(xCoord - prevXCoord);
 
-                    // TODO: Reset for now!!!
-                    file.selectionmask.vortexes = [];
+                    if (!$scope.shiftKey) {
+                        file.selectionmask.vortexes = [];
+                    }
 
-                    file.selectionmask.vortexes.push({ v: y, h: x });
-                    file.selectionmask.vortexes.push({ v: y, h: x + width });
-                    file.selectionmask.vortexes.push({ v: y + height, h: x + width });
-                    file.selectionmask.vortexes.push({ v: y + height, h: x });
+                    var newPoints = [
+                        { v: y, h: x },
+                        { v: y, h: x + width },
+                        { v: y + height, h: x + width },
+                        { v: y + height, h: x },
+                    ];
+                    for (var j = 0; j < newPoints.length; j++) {
+                        var point = newPoints[j];
+                        if (file.selectionmask.vortexes.length < 4 || !utilService.pointInPolygon(file.selectionmask.vortexes, point)) {
+                            file.selectionmask.vortexes.push(point);
+                        }
+                    }
                 }
 
                 if (prevXCoord === xCoord && prevYCoord === yCoord) {
@@ -1453,23 +1476,33 @@
                     var radius = width > height ? width : height;
                     var radSq = Math.pow(radius, 2);
 
-                    // TODO: Reset for now!!!
-                    file.selectionmask.vortexes = [];
+                    if (!$scope.shiftKey) {
+                        file.selectionmask.vortexes = [];
+                    }
+
+                    var newPoints = [];
 
                     for (var x = -radius; x <= radius; x += 2) {
                         var y = $window.parseInt(Math.sqrt(radSq - Math.pow(x, 2)));
 
                         if (y === 0 && Math.abs(x) !== radius) continue;
 
-                        file.selectionmask.vortexes.push({ v: prevYCoord + y, h: prevXCoord + x });
+                        newPoints.push({ v: prevYCoord + y, h: prevXCoord + x });
                     }
 
-                    for (var x = radius; x >= -radius; x -= 2) {
+                    for (var x = radius - 2; x >= -radius; x -= 2) {
                         var y = $window.parseInt(Math.sqrt(radSq - Math.pow(x, 2)));
 
                         if (y === 0 && Math.abs(x) !== radius) continue;
 
-                        file.selectionmask.vortexes.push({ v: prevYCoord - y, h: prevXCoord + x });
+                        newPoints.push({ v: prevYCoord - y, h: prevXCoord + x });
+                    }
+
+                    for (var j = 0; j < newPoints.length; j++) {
+                        var point = newPoints[j];
+                        if (!utilService.pointInPolygon(file.selectionmask.vortexes, point)) {
+                            file.selectionmask.vortexes.push(point);
+                        }
                     }
                 }
 
@@ -1523,10 +1556,61 @@
         $scope.Redraw();
     });
 
+    $scope.Overlay_OnKeyUp = (function ($event) {
+        var file = $scope.selectedFile;
+
+        if ($event && $event.originalEvent && $event.originalEvent.shiftKey === false) {
+            $scope.shiftKey = false;
+        }
+        if ($event && $event.originalEvent && $event.originalEvent.ctrlKey === false) {
+            $scope.ctrlKey = false;
+        }
+        if ($event && $event.originalEvent && $event.originalEvent.altKey === false) {
+            $scope.altKey = false;
+        }
+    });
+
     $scope.Overlay_OnKeyDown = (function ($event) {
         var file = $scope.selectedFile;
 
+        if ($event && $event.originalEvent && $event.originalEvent.shiftKey === true) {
+            $scope.shiftKey = true;
+        }
+        if ($event && $event.originalEvent && $event.originalEvent.ctrlKey === true) {
+            $scope.ctrlKey = true;
+        }
+        if ($event && $event.originalEvent && $event.originalEvent.altKey === true) {
+            $scope.altKey = true;
+        }
+
         if ($event) {
+            switch ($event.originalEvent.keyCode) {
+                case 86:
+                    if ($event.originalEvent.ctrlKey) {
+                        $scope.MenuOption_OnClick($event, 'EDIT_PASTE');
+                    }
+
+                    return;
+                case 88:
+                    if ($event.originalEvent.ctrlKey) {
+                        $scope.MenuOption_OnClick($event, 'EDIT_CUT');
+                    }
+
+                    return;
+                case 89:
+                    if ($event.originalEvent.ctrlKey) {
+                        $scope.MenuOption_OnClick($event, 'EDIT_REDO');
+                    }
+
+                    return;
+                case 90:
+                    if ($event.originalEvent.ctrlKey) {
+                        $scope.MenuOption_OnClick($event, 'EDIT_UNDO');
+                    }
+
+                    return;
+            }
+
             switch ($scope.selectedTool.name) {
                 case 'Text':
                     switch ($event.originalEvent.keyCode) {

@@ -22,19 +22,19 @@
                 <a href="#">Edit ▾</a>
                 <ul>
                     <li>
-                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_UNDO')">Undo</a>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_UNDO')">Undo (Ctrl + Z)</a>
                     </li>
                     <li>
-                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_REDO')">Redo</a>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_REDO')">Redo (Ctrl + Y)</a>
                     </li>
                     <li>
-                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_COPY')">Copy</a>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_COPY')">Copy (Ctrl + C)</a>
                     </li>
                     <li>
-                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_CUT')">Cut&nbsp;&nbsp;&nbsp;</a>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_CUT')">Cut (Ctrl + X)</a>
                     </li>
                     <li>
-                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_PASTE')">Paste</a>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'EDIT_PASTE')">Paste (Ctrl + V)</a>
                     </li>
                 </ul>
             </li>
@@ -170,7 +170,7 @@
         </ul>
     </div>
     <hr />
-    <div class="modalbody" ng-keydown="Overlay_OnKeyDown($event)">
+    <div class="modalbody" ng-keydown="Overlay_OnKeyDown($event)" ng-keyup="Overlay_OnKeyUp($event)">
         <!--<div id="demo">
             <canvas class="demo"></canvas>
         </div>-->
@@ -233,22 +233,20 @@
                 </li>
             </ul>
         </div>
-        <div class="filecontainer" ng-repeat="file in fileList track by $index" ng-init="FileOpen_OnInit(file)" ng-style="{width: file.image.width, height: file.image.height}" ng-mouseenter="SelectFile_OnMouseEnter($event, file)">
-            <div draggable>
+        <div style="overflow: auto;" ng-attr-id="{{file.name.substring(0, file.name.indexOf('.'))}}" ng-repeat="file in fileList track by $index" ng-init="FileOpen_OnInit(file)" ng-mouseenter="SelectFile_OnMouseEnter($event, file)">
+            <div style="height: 24px;" draggable>
                 <span class="filename">{{file.name}}</span>
                 <span class="fileclose button" ng-click="FileButtons_OnClick($event, $index, file, 'CLOSE')" title="Close">X</span>
                 <span class="filemax button" ng-click="FileButtons_OnClick($event, $index, file, 'MAX')" ng-show="!file.isMaximized" title="Maximize">^</span>
                 <span class="filerestore button" ng-click="FileButtons_OnClick($event, $index, file, 'RESTORE')" ng-show="file.isMaximized || file.isMinimized" title="Restore">=</span>
                 <span class="filemin button" ng-click="FileButtons_OnClick($event, $index, file, 'MIN')" ng-show="!file.isMinimized" title="Minimize">V</span>
             </div>
-            <div ng-attr-id="{{file.name.substring(0, file.name.indexOf('.'))}}" style="overflow: auto; position: relative;" ng-style="{width: file.image.width, height: file.image.height}">
-                <canvas class="display" style="position: relative; top: 0; left: 0;"></canvas>
-                <canvas class="selectionmask" style="position: absolute; top: 0; left: 0;"></canvas>
-                <canvas class="cropmask" style="position: absolute; top: 0; left: 0;"></canvas>
-                <canvas class="text" style="position: absolute; top: 0; left: 0;"></canvas>
-                <canvas class="cursor" style="position: absolute; top: 0; left: 0;"></canvas>
-                <canvas class="overlay" style="position: absolute; top: 0; left: 0; z-index: 100;" ng-style="{cursor: 'url(\'/images/cursors/' + selectedTool.cursor + '\'), auto'}" ng-mouseleave="Overlay_OnMouseUp($event, $index, file)" ng-mousedown="Overlay_OnMouseDown($event, $index, file)" ng-mousemove="Overlay_OnMouseMove($event, $index, file)" ng-mouseup="Overlay_OnMouseUp($event, $index, file)"></canvas>
-            </div>
+            <canvas class="display" style="position: relative; top: 0; left: 0;"></canvas>
+            <canvas class="selectionmask" style="position: absolute; top: 24px; left: 0;"></canvas>
+            <canvas class="cropmask" style="position: absolute; top: 24px; left: 0;"></canvas>
+            <canvas class="text" style="position: absolute; top: 24px; left: 0;"></canvas>
+            <canvas class="cursor" style="position: absolute; top: 24px; left: 0;"></canvas>
+            <canvas class="overlay" style="position: absolute; top: 24px; left: 0;" ng-style="{cursor: 'url(\'/images/cursors/' + selectedTool.cursor + '\'), auto'}" ng-mouseleave="Overlay_OnMouseUp($event, $index, file)" ng-mousedown="Overlay_OnMouseDown($event, $index, file)" ng-mousemove="Overlay_OnMouseMove($event, $index, file)" ng-mouseup="Overlay_OnMouseUp($event, $index, file)"></canvas>
         </div>
     </div>
     <div class="modalfooter">

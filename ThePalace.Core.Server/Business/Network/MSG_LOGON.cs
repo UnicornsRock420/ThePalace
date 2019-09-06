@@ -90,7 +90,7 @@ namespace ThePalace.Server.Business
             sessionState.AuthMsgIDs = AuthMsgIDs;
             sessionState.AuthCmds = AuthCmds;
 
-            Logger.Log(MessageTypes.Info, $"Authorized = {sessionState.Authorized.ToString()}, RegCode = {Cipher.RegRectoSeed(inboundPacket.reg)}, PUID = {Cipher.RegRectoSeed(inboundPacket.reg, true)}");
+            Logger.Log(MessageTypes.Info, $"Authorized[{sessionState.AuthUserID}] = {sessionState.Authorized.ToString()}, RegCode = {Cipher.RegRectoSeed(inboundPacket.reg)}, PUID = {Cipher.RegRectoSeed(inboundPacket.reg, true)}");
 
             var ipAddress = sessionState.driver.GetIPAddress();
 
@@ -132,95 +132,23 @@ namespace ThePalace.Server.Business
 
         public void Send(ThePalaceEntities dbContext, object message)
         {
-            var maxRoomOccupancy = ConfigManager.GetValue<int>("MaxRoomOccupancy", 45);
             var sessionState = ((Message)message).sessionState;
+            var roomID = dbContext.FindRoomID(sessionState.reg.desiredRoom);
 
-            #region Fuzzy logic to find a room
-
-            var fullRoomIDs = new List<Int16>();
-            var entryRoomIDKeys = new Int16[0];
-            var roomCacheKeys = new Int16[0];
-            var roomID = (Int16)0;
-
-            Action findRoom = () =>
+            if (roomID == 0)
             {
-                var roomCount = SessionManager.GetRoomUserCount(roomID);
-
-                try
+                new MSG_SERVERDOWN
                 {
-                    if (
-                        (entryRoomIDKeys.Contains(roomID) && !roomCacheKeys.Contains(roomID)) ||
-                        (roomCacheKeys.Contains(roomID) && ServerState.roomsCache[roomID].MaxOccupancy == 0 && roomCount < maxRoomOccupancy) ||
-                        (roomCacheKeys.Contains(roomID) && (ServerState.roomsCache[roomID].MaxOccupancy > 0) && roomCount < ServerState.roomsCache[roomID].MaxOccupancy))
-                    {
-                        sessionState.RoomID = roomID;
+                    reason = ServerDownFlags.SD_ServerFull,
+                    whyMessage = "The Server is full!",
+                }.Send(dbContext, message);
 
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ex.DebugLog();
-                }
+                sessionState.driver.DropConnection();
 
-                fullRoomIDs.Add(roomID);
-            };
-
-            if (sessionState.reg.desiredRoom > 0)
-            {
-                entryRoomIDKeys = ServerState.entryRoomIDs.ToArray();
-                roomCacheKeys = ServerState.roomsCache.Keys.ToArray();
-
-                roomID = sessionState.reg.desiredRoom;
-
-                findRoom();
+                return;
             }
 
-            while (sessionState.RoomID == 0)
-            {
-                entryRoomIDKeys = ServerState.entryRoomIDs
-                    .Where(r => !fullRoomIDs.Contains(r))
-                    .ToArray();
-                roomCacheKeys = ServerState.roomsCache.Keys
-                    .Where(r => !fullRoomIDs.Contains(r))
-                    .ToArray();
-
-                if (entryRoomIDKeys.Length > 0)
-                {
-                    roomID = entryRoomIDKeys[RndGenerator.NextSecure((uint)entryRoomIDKeys.Length)];
-
-                    findRoom();
-                }
-                else if (roomCacheKeys.Length > 0)
-                {
-                    roomID = roomCacheKeys[RndGenerator.NextSecure((uint)roomCacheKeys.Length)];
-
-                    findRoom();
-                }
-                else
-                {
-                    sessionState.RoomID = dbContext.Rooms.AsNoTracking()
-                        .Where(r => !fullRoomIDs.Contains(r.RoomId))
-                        .Select(r => r.RoomId)
-                        .FirstOrDefault();
-
-                    if (sessionState.RoomID == 0)
-                    {
-                        new MSG_SERVERDOWN
-                        {
-                            reason = ServerDownFlags.SD_ServerFull,
-                            whyMessage = "The Server is full!",
-                        }.Send(dbContext, message);
-
-                        sessionState.driver.DropConnection();
-
-                        return;
-                    }
-                }
-            }
-
-            #endregion
-
+            sessionState.RoomID = roomID;
             sessionState.successfullyConnected = true;
 
             var sendBusinesses = new List<ISendBusiness>

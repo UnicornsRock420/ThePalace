@@ -11,5 +11,6 @@ namespace ThePalace.Core.Database
         public DateTime CreateDate { get; set; }
         public DateTime? LastModified { get; set; }
         public short MaxOccupancy { get; set; }
+        public short OrderID { get; set; }
     }
 }

@@ -194,10 +194,17 @@ namespace ThePalace.Core.Factories
 
             if (room == null)
             {
+                var maxOrderId = dbContext.Rooms
+                    .Select(r => r.OrderID)
+                    .Max();
+
+                maxOrderId++;
+
                 room = new Rooms
                 {
                     RoomId = roomID,
                     CreateDate = DateTime.UtcNow,
+                    OrderID = maxOrderId,
                 };
 
                 dbContext.Rooms.Add(room);

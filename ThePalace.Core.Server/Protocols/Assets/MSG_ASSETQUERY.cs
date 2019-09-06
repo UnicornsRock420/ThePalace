@@ -22,7 +22,7 @@ namespace ThePalace.Server.Protocols
         {
             using (var packet = new Packet())
             {
-                packet.WriteInt32((int)LegacyAssetTypes.RT_PROP);
+                packet.WriteInt32((int)assetType);
                 packet.AppendBytes(assetSpec.Serialize());
 
                 return packet.getData();

@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using ThePalace.Core.Database;
+using ThePalace.Core.Enums;
+using ThePalace.Server.Business;
 using ThePalace.Server.Core;
 using ThePalace.Server.Factories;
+using ThePalace.Server.Network;
 
 namespace ThePalace.Core.Utility
 {
@@ -39,6 +44,96 @@ namespace ThePalace.Core.Utility
             }
 
             return room;
+        }
+
+        public static Int16 FindRoomID(this ThePalaceEntities dbContext, Int16 roomID = (Int16)0, bool isAuthorized = false)
+        {
+            var maxRoomOccupancy = ConfigManager.GetValue<int>("MaxRoomOccupancy", 45);
+            var fullRoomIDs = new List<Int16>();
+            var entryRoomIDKeys = new Int16[0];
+            var roomCacheKeys = new Int16[0];
+
+            var roomIDs = dbContext.Rooms.AsNoTracking()
+                .OrderBy(r => r.OrderID)
+                .Select(r => r.RoomId)
+                .ToList();
+
+            Func<bool> findRoom = () =>
+            {
+                if (roomID != 0)
+                {
+                    var roomCount = isAuthorized ? 0 : SessionManager.GetRoomUserCount(roomID);
+
+                    try
+                    {
+                        if (
+                            isAuthorized ||
+                            (entryRoomIDKeys.Contains(roomID) && !roomCacheKeys.Contains(roomID)) ||
+                            (roomCacheKeys.Contains(roomID) && ServerState.roomsCache[roomID].MaxOccupancy == 0 && roomCount < maxRoomOccupancy) ||
+                            (roomCacheKeys.Contains(roomID) && (ServerState.roomsCache[roomID].MaxOccupancy > 0) && roomCount < ServerState.roomsCache[roomID].MaxOccupancy))
+                        {
+                            return true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.DebugLog();
+                    }
+
+                    fullRoomIDs.Add(roomID);
+                }
+
+                return false;
+            };
+
+            if (roomID > 0)
+            {
+                if (findRoom()) return roomID;
+            }
+
+            while (true)
+            {
+                entryRoomIDKeys = ServerState.entryRoomIDs
+                    .Where(r => !fullRoomIDs.Contains(r))
+                    .ToArray();
+                roomCacheKeys = ServerState.roomsCache.Keys
+                    .Where(r => !fullRoomIDs.Contains(r))
+                    .ToArray();
+
+                if (entryRoomIDKeys.Length > 0)
+                {
+                    roomID = entryRoomIDKeys[RndGenerator.NextSecure((uint)entryRoomIDKeys.Length)];
+
+                    if (findRoom()) return roomID;
+                }
+                else if (roomCacheKeys.Length > 0)
+                {
+                    roomID = roomCacheKeys[RndGenerator.NextSecure((uint)roomCacheKeys.Length)];
+
+                    if (findRoom()) return roomID;
+                }
+                else
+                {
+                    roomID = roomIDs
+                        .Where(ID => !fullRoomIDs.Contains(ID))
+                        .FirstOrDefault();
+
+                    if (roomID == 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        var room = dbContext.GetRoom(roomID);
+                        if (!room.NotFound)
+                        {
+                            if (findRoom()) return roomID;
+                        }
+                    }
+                }
+            }
+
+            return 0;
         }
 
         public static bool AttributeWrapper(this Type objectType, Type attributeType, string methodName, params object[] values)

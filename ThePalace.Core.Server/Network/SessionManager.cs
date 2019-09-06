@@ -208,17 +208,14 @@ namespace ThePalace.Server.Network
                             type = Type.GetType($"ThePalace.Server.Business.{message.header.eventType}");
                         }
 
+                        var parameters = new object[] {
+                            new Dictionary<string, object> {
+                                { "UserID", message.sessionState.UserID },
+                            } };
                         var value = true;
 
-                        value &= type.AttributeWrapper(typeof(AdminOnlyProtocolAttribute), "OnBeforeProtocolExecute", new object[] {
-                            new Dictionary<string, object> {
-                                { "UserID", message.sessionState.UserID },
-                            } });
-
-                        value &= type.AttributeWrapper(typeof(SuccessfullyConnectedProtocolAttribute), "OnBeforeProtocolExecute", new object[] {
-                            new Dictionary<string, object> {
-                                { "UserID", message.sessionState.UserID },
-                            } });
+                        value &= type.AttributeWrapper(typeof(SuccessfullyConnectedProtocolAttribute), "OnBeforeProtocolExecute", parameters);
+                        value &= type.AttributeWrapper(typeof(AdminOnlyProtocolAttribute), "OnBeforeProtocolExecute", parameters);
 
                         if (!value)
                         {

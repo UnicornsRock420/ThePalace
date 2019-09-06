@@ -172,18 +172,23 @@ namespace ThePalace.Server.Network
         {
             try
             {
-                foreach (var propSpec in propSpecs)
+                using (var assetStream = new AssetStream())
                 {
-                    var assetStream = new AssetStream();
-
-                    if (!assetStream.Open(propSpec) && !inboundQueue.ContainsKey(propSpec.id))
+                    foreach (var propSpec in propSpecs)
                     {
-                        var outboundPacket = new MSG_ASSETQUERY
+                        if (!inboundQueue.ContainsKey(propSpec.id))
                         {
-                            assetSpec = propSpec,
-                        };
+                            if (!assetStream.Open(propSpec))
+                            {
+                                var assetQuery = new MSG_ASSETQUERY
+                                {
+                                    assetType = LegacyAssetTypes.RT_PROP,
+                                    assetSpec = propSpec,
+                                };
 
-                        sessionState.Send(outboundPacket, EventTypes.MSG_ASSETQUERY, 0);
+                                sessionState.Send(assetQuery, EventTypes.MSG_ASSETQUERY, 0);
+                            }
+                        }
                     }
                 }
             }

@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using ThePalace.Core.Constants;
-using ThePalace.Core.Enums;
 using ThePalace.Core.Factories;
-using ThePalace.Core.Types;
 using ThePalace.Core.Interfaces;
+using ThePalace.Core.Types;
 
 namespace ThePalace.Server.Protocols
 {

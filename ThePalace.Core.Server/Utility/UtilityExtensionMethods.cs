@@ -49,9 +49,9 @@ namespace ThePalace.Core.Utility
         public static Int16 FindRoomID(this ThePalaceEntities dbContext, Int16 roomID = (Int16)0, bool isAuthorized = false)
         {
             var maxRoomOccupancy = ConfigManager.GetValue<int>("MaxRoomOccupancy", 45);
+            var entryRoomIDKeys = ServerState.entryRoomIDs.ToArray();
+            var roomCacheKeys = ServerState.roomsCache.Keys.ToArray();
             var fullRoomIDs = new List<Int16>();
-            var entryRoomIDKeys = new Int16[0];
-            var roomCacheKeys = new Int16[0];
 
             var roomIDs = dbContext.Rooms.AsNoTracking()
                 .OrderBy(r => r.OrderID)

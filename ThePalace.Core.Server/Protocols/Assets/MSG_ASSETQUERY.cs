@@ -3,6 +3,8 @@ using ThePalace.Core.Factories;
 using ThePalace.Core.Types;
 using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ThePalace.Server.Protocols
 {
@@ -31,12 +33,27 @@ namespace ThePalace.Server.Protocols
 
         public void DeserializeJSON(string json)
         {
+            var jsonResponse = (dynamic)null;
 
+            try
+            {
+                jsonResponse = (dynamic)JsonConvert.DeserializeObject<JObject>(json);
+
+                assetType = (LegacyAssetTypes)jsonResponse.assetType;
+                assetSpec = new AssetSpec(jsonResponse.assetSpec.id, jsonResponse.assetSpec.crc);
+            }
+            catch
+            {
+            }
         }
 
         public string SerializeJSON(object input = null)
         {
-            return string.Empty;
+            return JsonConvert.SerializeObject(new
+            {
+                assetType = assetType.ToString(),
+                assetSpec = assetSpec,
+            });
         }
     }
 }

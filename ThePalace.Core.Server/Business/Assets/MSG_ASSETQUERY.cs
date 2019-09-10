@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using ThePalace.Core.Database;
+using ThePalace.Core.Enums;
 using ThePalace.Core.Interfaces;
 using ThePalace.Core.Server.Attributes;
 using ThePalace.Core.Utility;
@@ -10,7 +11,7 @@ namespace ThePalace.Server.Business
 {
     [Description("qAst")]
     [SuccessfullyConnectedProtocol]
-    public struct MSG_ASSETQUERY : IReceiveBusiness
+    public struct MSG_ASSETQUERY : IReceiveBusiness, ISendBusiness
     {
         public void Receive(ThePalaceEntities dbContext, object message)
         {
@@ -25,6 +26,16 @@ namespace ThePalace.Server.Business
 
                 AssetLoader.OutboundQueueTransfer(sessionState, inboundPacket.assetSpec);
             }
+        }
+
+        public void Send(ThePalaceEntities dbContext, object message)
+        {
+            var sessionState = ((Message)message).sessionState;
+            var protocol = ((Message)message).protocol;
+
+            var outboundPacket = (Protocols.MSG_ASSETQUERY)protocol;
+
+            sessionState.Send(outboundPacket, EventTypes.MSG_ASSETQUERY, 0);
         }
     }
 }

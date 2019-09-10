@@ -107,6 +107,7 @@
         div.propeditordialog div.modalbody ul#historybar,
         div.propeditordialog div.modalbody ul#redobar {
             background-color: lightgray;
+            overflow: hidden;
             width: 200px;
             padding: 0;
             margin: 0;
@@ -115,9 +116,11 @@
             div.propeditordialog div.modalbody ul#historybar li.history,
             div.propeditordialog div.modalbody ul#redobar li.redo {
                 border: 1px solid transparent;
+                text-overflow: ellipsis;
                 background-color: gray;
                 border-radius: 3px;
-                width: 150px;
+                min-width: 150px;
+                max-width: 200px;
                 padding: 0;
                 margin: 0;
             }
@@ -145,7 +148,7 @@
                 }
 
         div.propeditordialog div.modalbody div.filecontainer {
-            position: absolute;
+            overflow: auto;
         }
 
         div.propeditordialog div.modalbody span.button {

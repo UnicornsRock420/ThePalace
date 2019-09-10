@@ -2,10 +2,8 @@
 <link type="text/css" rel="stylesheet" href="/ViewStyles/Common/propEditorDialog.css" />
 
 <div class="propeditordialog" ng-init="Dialog_OnInit()">
-    <div class="modalheader"><strong>Prop Editor</strong><span class="close" ng-click="$close()">&#10006;</span></div>
-    <hr />
-    <div class="nav-bar">
-        <ul class="nav-menu">
+    <div class="menu nav-bar" draggable>
+        <ul class="menuoptions nav-menu">
             <li>
                 <a href="#">File ▾</a>
                 <ul>
@@ -14,7 +12,13 @@
                         <a href="#" ng-click="MenuOption_OnClick($event, 'FILE_OPEN')">Open</a>
                     </li>
                     <li>
-                        <a id="save" href="#" target="_blank" ng-mouseover="MenuOption_OnClick($event, 'FILE_SAVE')">Save</a>
+                        <a href="#" ng-click="MenuOption_OnClick($event, 'FILE_SAVE')">Save</a>
+                    </li>
+                    <li>
+                        <a id="saveas" href="#" target="_blank" ng-mouseover="MenuOption_OnClick($event, 'FILE_SAVEAS')">Save As</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="Save_OnClick($event)">Close</a>
                     </li>
                 </ul>
             </li>
@@ -98,9 +102,9 @@
                     <li>
                         <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_CANVASSIZE')">Canvas Size</a>
                     </li>
-                    <!--<li>
+                    <li>
                         <a href="#" ng-click="MenuOption_OnClick($event, 'IMAGE_IMAGESIZE')">Image Size</a>
-                    </li>-->
+                    </li>
                     <li>
                         <a href="#">Rotate ▾</a>
                         <ul>
@@ -169,11 +173,7 @@
             </li>
         </ul>
     </div>
-    <hr />
     <div class="modalbody" ng-keydown="Overlay_OnKeyDown($event)" ng-keyup="Overlay_OnKeyUp($event)">
-        <!--<div id="demo">
-            <canvas class="demo"></canvas>
-        </div>-->
         <div id="toolbox">
             <div draggable>Toolbox</div>
             <div id="bgcolor" ng-style="{'background-color': 'rgba(' + bgcolor[1] + ',' + bgcolor[2] + ',' + bgcolor[0] + ', 255)'}" ng-click="BgColor_OnClick($event)"></div>
@@ -233,7 +233,7 @@
                 </li>
             </ul>
         </div>
-        <div style="overflow: auto;" ng-attr-id="{{file.name.substring(0, file.name.indexOf('.'))}}" ng-repeat="file in fileList track by $index" ng-init="FileOpen_OnInit(file)" ng-mouseenter="SelectFile_OnMouseEnter($event, file)">
+        <div class="filecontainer" ng-attr-id="{{file.ID}}" ng-repeat="file in fileList track by $index" ng-init="FileOpen_OnInit(file)" ng-mouseenter="SelectFile_OnMouseEnter($event, file)">
             <div style="height: 24px;" draggable>
                 <span class="filename">{{file.name}}</span>
                 <span class="fileclose button" ng-click="FileButtons_OnClick($event, $index, file, 'CLOSE')" title="Close">X</span>
@@ -248,9 +248,5 @@
             <canvas class="cursor" style="position: absolute; top: 24px; left: 0;"></canvas>
             <canvas class="overlay" style="position: absolute; top: 24px; left: 0;" ng-style="{cursor: 'url(\'/images/cursors/' + selectedTool.cursor + '\'), auto'}" ng-mouseleave="Overlay_OnMouseUp($event, $index, file)" ng-mousedown="Overlay_OnMouseDown($event, $index, file)" ng-mousemove="Overlay_OnMouseMove($event, $index, file)" ng-mouseup="Overlay_OnMouseUp($event, $index, file)"></canvas>
         </div>
-    </div>
-    <div class="modalfooter">
-        <button class="btn btn-primary" ng-click="Save_OnClick($event)">Save</button>
-        <button class="btn" ng-click="$close()">Cancel</button>
     </div>
 </div>

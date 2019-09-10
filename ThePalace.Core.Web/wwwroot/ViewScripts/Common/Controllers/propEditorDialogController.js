@@ -1,5 +1,4 @@
-﻿angular.module('ThePalace').controller('propEditorDialogController', ['$scope', '$window', '$timeout', 'model', 'dialogService', 'utilService', 'ImageObject', 'CanvasNode', function ($scope, $window, $timeout, model, dialogService, utilService, ImageObject, CanvasNode) {
-    $scope.model = model;
+﻿angular.module('ThePalace').controller('propEditorDialogController', ['$scope', '$window', '$timeout', 'parentScope', 'dialogService', 'utilService', 'ImageObject', 'CanvasNode', 'Prop', 'ServerAssetFlags', function ($scope, $window, $timeout, parentScope, dialogService, utilService, ImageObject, CanvasNode, Prop, ServerAssetFlags) {
     $scope.fileList = [];
     $scope.toolbar = [{
         name: 'Pencil',
@@ -117,8 +116,6 @@
     $scope.clipboard = null;
     $scope.fgcolor = [255, 255, 255];
     $scope.bgcolor = [0, 0, 0];
-
-    $scope.fxCanvas = fx.canvas();
 
     var windowElement = angular.element($window);
     var PI2 = Math.PI * 2;
@@ -281,11 +278,11 @@
                     name: file.editor.layers[j].name,
                     layerId: file.editor.layers[j].layerId,
                     visible: file.editor.layers[j].visible,
-                    image: new ImageObject({
+                    imageObject: new ImageObject({
                         sourceUrl: file.editor.layers[j].toDataURL(),
                     }),
                 };
-                layer.image.load();
+                layer.imageObject.load();
                 layers.push(layer);
 
                 if (layerId) break;
@@ -301,7 +298,8 @@
         var toolbox = angular.element('div#toolbox');
         var history = angular.element('div#history');
         var layers = angular.element('div#layers');
-        var controls = [toolbox, history, layers];
+        var dialog = angular.element('div.propeditordialog');
+        var controls = [toolbox, history, layers, dialog];
 
         var sHeight = windowElement.height();
         var sWidth = windowElement.width();
@@ -322,14 +320,40 @@
                 left: x + 'px',
             });
         }
+
+        angular.element('body > div.modal').css({
+            overflow: 'visible',
+            bottom: 'auto',
+            top: 'auto',
+            width: 0,
+        });
+        angular.element('div.modal-content').css({
+            border: 0,
+        });
+        angular.element('div.propeditordialog div.modalbody').on('contextmenu', function ($event) {
+            return false;
+        });
+
+        parentScope.model.Interface.propEditorScope = $scope;
+    });
+
+    $scope.PropOpen_OnInit = (function (props) {
+        if (props && props.length) {
+            for (var j = 0; j < props.length; j++) {
+                $scope.fileList.push({
+                    name: 'Prop ID #' + props[j].id + '_prop.png',
+                    imageObject: props[j].prop.imageObject,
+                    isDirty: false,
+                });
+            }
+        }
     });
 
     $scope.FileOpen_OnInit = (function (file) {
+        file.ID = file.name.substring(0, file.name.indexOf('.')).replace(/[^a-z0-9]+/gi, '');
+        $scope.selectedFile = file;
+
         $timeout(function () {
-            var fileName = file.name.substring(0, file.name.indexOf('.'));
-
-            $scope.selectedFile = file;
-
             file.editor = {
                 layers: [],
                 activeIndex: -1,
@@ -337,8 +361,10 @@
             };
 
             var layer = new CanvasNode('2d');
-            layer.height(file.image.height);
-            layer.width(file.image.width);
+            layer.context.imageSmoothingEnabled = true;
+            layer.height(file.imageObject.height);
+            layer.width(file.imageObject.width);
+            layer.imageObject = file.imageObject;
             layer.clearRect();
             layer.layerId = utilService.createUID();
             layer.name = 'Background Layer';
@@ -351,21 +377,22 @@
             file.historyEvents = [];
             file.historyEvents.push({
                 layers: [{
-                    image: file.image,
+                    imageObject: file.imageObject,
                     layerId: layer.layerId,
                     visible: true,
                 }],
-                height: file.image.height,
-                width: file.image.width,
+                height: file.imageObject.height,
+                width: file.imageObject.width,
                 label: 'Opened File',
             });
             file.redoEvents = [];
 
-            var display = angular.element('div.propeditordialog div#' + fileName + ' canvas.display');
+            var display = angular.element('div.propeditordialog div#' + file.ID + ' canvas.display');
             if (display.length > 0) {
                 file.display = new CanvasNode('2d', display);
-                file.display.height(file.image.height);
-                file.display.width(file.image.width);
+                file.display.context.imageSmoothingEnabled = true;
+                file.display.height(file.imageObject.height);
+                file.display.width(file.imageObject.width);
                 file.display.scale = 1;
 
                 var transparentTileImage = new ImageObject({
@@ -377,67 +404,71 @@
                 transparentTileImage.load();
             }
 
-            var selectionmask = angular.element('div.propeditordialog div#' + fileName + ' canvas.selectionmask');
+            var selectionmask = angular.element('div.propeditordialog div#' + file.ID + ' canvas.selectionmask');
             if (selectionmask.length > 0) {
                 file.selectionmask = new CanvasNode('2d', selectionmask);
-                file.selectionmask.height(file.image.height);
-                file.selectionmask.width(file.image.width);
+                file.selectionmask.context.imageSmoothingEnabled = true;
+                file.selectionmask.height(file.imageObject.height);
+                file.selectionmask.width(file.imageObject.width);
                 file.selectionmask.vortexes = [];
             }
 
-            var cropmask = angular.element('div.propeditordialog div#' + fileName + ' canvas.cropmask');
+            var cropmask = angular.element('div.propeditordialog div#' + file.ID + ' canvas.cropmask');
             if (cropmask.length > 0) {
                 file.cropmask = new CanvasNode('2d', cropmask);
-                file.cropmask.height(file.image.height);
-                file.cropmask.width(file.image.width);
+                file.cropmask.context.imageSmoothingEnabled = true;
+                file.cropmask.height(file.imageObject.height);
+                file.cropmask.width(file.imageObject.width);
             }
 
-            var text = angular.element('div.propeditordialog div#' + fileName + ' canvas.text');
+            var text = angular.element('div.propeditordialog div#' + file.ID + ' canvas.text');
             if (text.length > 0) {
                 file.text = new CanvasNode('2d', text);
-                file.text.height(file.image.height);
-                file.text.width(file.image.width);
+                file.text.context.imageSmoothingEnabled = true;
+                file.text.height(file.imageObject.height);
+                file.text.width(file.imageObject.width);
                 file.text.globalAlpha(0.5);
             }
 
-            var cursor = angular.element('div.propeditordialog div#' + fileName + ' canvas.cursor');
+            var cursor = angular.element('div.propeditordialog div#' + file.ID + ' canvas.cursor');
             if (cursor.length > 0) {
                 file.cursor = new CanvasNode('2d', cursor);
-                file.cursor.height(file.image.height);
-                file.cursor.width(file.image.width);
+                file.cursor.context.imageSmoothingEnabled = true;
+                file.cursor.height(file.imageObject.height);
+                file.cursor.width(file.imageObject.width);
                 file.cursor.globalAlpha(0.5);
             }
 
-            var overlay = angular.element('div.propeditordialog div#' + fileName + ' canvas.overlay');
+            var overlay = angular.element('div.propeditordialog div#' + file.ID + ' canvas.overlay');
             if (overlay.length > 0) {
-                overlay.on('contextmenu', function ($event) {
-                    return false;
-                });
                 file.overlay = new CanvasNode('2d', overlay);
-                file.overlay.height(file.image.height);
-                file.overlay.width(file.image.width);
+                file.overlay.context.imageSmoothingEnabled = true;
+                file.overlay.height(file.imageObject.height);
+                file.overlay.width(file.imageObject.width);
             }
 
-            var fileContainer = angular.element('div.propeditordialog div#' + fileName);
-            var yCoord = ((windowElement.height() / 2) - (fileContainer.height() / 2) - fileContainer.offset().top) + windowElement.scrollTop();
-            var xCoord = ((windowElement.width() / 2) - (fileContainer.width() / 2) - fileContainer.offset().left) + windowElement.scrollLeft();
+            var fileContainer = angular.element('div.propeditordialog div#' + file.ID);
+            var yCoord = $window.parseInt((windowElement.height() / 2) - (file.imageObject.height / 2)) + windowElement.scrollTop();
+            var xCoord = $window.parseInt((windowElement.width() / 2) - (file.imageObject.width / 2)) - fileContainer.offset().left + windowElement.scrollLeft();
             fileContainer.css({
                 top: yCoord + 'px',
                 left: xCoord + 'px',
-                height: file.image.height + 'px',
-                width: file.image.width + 'px',
+                height: file.imageObject.height + 'px',
+                width: file.imageObject.width + 'px',
             });
             fileContainer.resizable({
                 resize: function ($event, ui) {
                     var file = $scope.selectedFile;
 
                     if (file) {
-                        var fileName = file.name.substring(0, file.name.indexOf('.'));
-                        var fileContainer = angular.element('div.propeditordialog div#' + fileName);
+                        var fileContainer = angular.element('div.propeditordialog div#' + file.ID);
                         var height = 100;
                         var width = 100;
 
                         if (!file.isMinimized && (fileContainer.width() < width || fileContainer.height() < height)) {
+                            if (ui.size.height > 100) height = ui.size.height + 25;
+                            if (ui.size.width > 100) width = ui.size.width;
+
                             fileContainer.css({
                                 height: height + 'px',
                                 width: width + 'px',
@@ -456,6 +487,18 @@
             fileContainer.find('div.ui-resizable-e, div.ui-resizable-s').remove();
 
             $scope.Redraw(true);
+
+            if (file.imageObject.height > 200 || file.imageObject.width > 200) {
+                dialogService.yesNo('Would you like to resize this image?').then(function (response) {
+                    if (response) {
+                        $scope.MenuOption_OnClick(null, 'IMAGE_IMAGESIZE', false, {
+                            height: 200,
+                            width: 200,
+                        });
+                    }
+                }, function (errors) {
+                });
+            }
         }, 0);
     });
 
@@ -464,8 +507,7 @@
 
         if (!file) return;
 
-        var fileName = file.name.substring(0, file.name.indexOf('.'));
-        var fileContainer = angular.element('div.propeditordialog div#' + fileName);
+        var fileContainer = angular.element('div.propeditordialog div#' + file.ID);
 
         switch (mode) {
             case 'CLOSE':
@@ -540,13 +582,12 @@
                 }
 
                 var uiContainer = angular.element('div.propeditordialog div.modalbody');
-                var yCoord = ((rHeight / 2) - uiContainer.offset().top) + windowElement.scrollTop();
-                var xCoord = 40 - uiContainer.offset().left + windowElement.scrollLeft();
+                var xCoord = 20 - uiContainer.offset().left + windowElement.scrollLeft();
                 fileContainer.css({
-                    top: yCoord + 'px',
+                    top: '0px',
                     left: xCoord + 'px',
                     height: (windowElement.height() - 40) + 'px',
-                    width: (windowElement.width() - 40) + 'px',
+                    width: (windowElement.width() - 20) + 'px',
                 });
 
                 file.isMaximized = true;
@@ -599,10 +640,11 @@
             case 'Blur':
                 var iterations = $window.parseInt($scope.selectedTool.options.iterations);
                 var radius = $window.parseInt($scope.selectedTool.options.radius);
-                var height = file.overlay.height();
-                var width = file.overlay.width();
+                var height = file.imageObject.height;
+                var width = file.imageObject.width;
 
                 file.editor.tempCanvas = new CanvasNode('2d');
+                file.editor.tempCanvas.context.imageSmoothingEnabled = true;
                 file.editor.tempCanvas.height(height);
                 file.editor.tempCanvas.width(width);
 
@@ -680,17 +722,17 @@
                             if (historyEvent.layers[k].layerId === layer.layerId) {
                                 layer.visible = historyEvent.layers[k].visible;
                                 layer.clearRect();
-                                layer.drawImage(historyEvent.layers[k].image.image, 0, 0);
+                                layer.drawImage(historyEvent.layers[k].imageObject.image, 0, 0);
 
                                 break;
                             }
                         }
                     }
 
-                    var frontLayers = ['display', 'selectionmask', 'cropmask', 'text', 'cursor', 'overlay'];
-                    for (var j = 0; j < frontLayers.length; j++) {
-                        file[frontLayers[j]].height(historyEvent.height);
-                        file[frontLayers[j]].width(historyEvent.width);
+                    var frontLayers = { display: 0, selectionmask: 0, cropmask: 0, text: 0, cursor: 0, overlay: 0 };
+                    for (var j in frontLayers) {
+                        file[j].height(historyEvent.height * file.display.scale);
+                        file[j].width(historyEvent.width * file.display.scale);
                     }
                 }
             }
@@ -721,12 +763,13 @@
                     file.editor.activeLayer.context.clip();
                 }
 
-                var height = file.overlay.height();
-                var width = file.overlay.width();
+                var delta = file.display.scale >= 1 ? ((file.display.scale - 1) / 2) : (file.display.scale * 2);
+                var height = file.imageObject.height;
+                var width = file.imageObject.width;
 
                 file.display.clearRect();
                 file.display.context.save();
-                file.display.context.translate(width * 0.5, height * 0.5);
+                file.display.context.translate(width * (0.5 - delta), height * (0.5 - delta));
                 file.display.context.scale(file.display.scale, file.display.scale);
 
                 file.display.context.fillStyle = transparentPattern;
@@ -735,7 +778,7 @@
 
                 for (var j = 0; j < file.editor.layers.length; j++) {
                     if (file.editor.layers[j].visible) {
-                        file.display.context.drawImage(file.editor.layers[j].canvas, -width * 0.5, -height * 0.5);
+                        file.display.context.drawImage(file.editor.layers[j].canvas, -width * (0.5 - delta), -height * (0.5 - delta));
                     }
                 }
                 file.display.context.restore();
@@ -747,7 +790,7 @@
         $event.preventDefault();
         $event.stopPropagation();
 
-        var overlay = angular.element('div.propeditordialog div#' + file.name.substring(0, file.name.indexOf('.')) + ' canvas.overlay');
+        var overlay = angular.element('div.propeditordialog div#' + file.ID + ' canvas.overlay');
         var yCoord = $window.parseInt(($event.originalEvent.clientY - overlay.offset().top) + windowElement.scrollTop());
         var xCoord = $window.parseInt(($event.originalEvent.clientX - overlay.offset().left) + windowElement.scrollLeft());
 
@@ -876,8 +919,8 @@
                         imageData.data[pixelPos + 3] = 255;
                     }
 
-                    var height = file.overlay.height();
-                    var width = file.overlay.width();
+                    var height = file.imageObject.height;
+                    var width = file.imageObject.width;
                     var imageData = file.editor.activeLayer.getImageData(0, 0, width, height);
                     var tolerance = $window.parseFloat($scope.selectedTool.options.tolerance);
 
@@ -951,6 +994,7 @@
                     }
 
                     file.editor.tempCanvas = new CanvasNode('2d');
+                    file.editor.tempCanvas.context.imageSmoothingEnabled = true;
                     file.editor.tempCanvas.height(height);
                     file.editor.tempCanvas.width(width);
                     file.editor.tempCanvas.putImageData(0, 0, 0, 0, width, height, imageData);
@@ -1033,10 +1077,11 @@
                 break;
             case 'Move':
                 if ($scope.mouseButtonId === 1) {
-                    var height = file.overlay.height();
-                    var width = file.overlay.width();
+                    var height = file.imageObject.height;
+                    var width = file.imageObject.width;
 
                     file.editor.tempCanvas = new CanvasNode('2d');
+                    file.editor.tempCanvas.context.imageSmoothingEnabled = true;
                     file.editor.tempCanvas.height(height);
                     file.editor.tempCanvas.width(width);
                     file.editor.tempCanvas.clearRect();
@@ -1053,7 +1098,7 @@
         $event.preventDefault();
         $event.stopPropagation();
 
-        var overlay = angular.element('div.propeditordialog div#' + file.name.substring(0, file.name.indexOf('.')) + ' canvas.overlay');
+        var overlay = angular.element('div.propeditordialog div#' + file.ID + ' canvas.overlay');
         var yCoord = $window.parseInt(($event.originalEvent.clientY - overlay.offset().top) + windowElement.scrollTop());
         var xCoord = $window.parseInt(($event.originalEvent.clientX - overlay.offset().left) + windowElement.scrollLeft());
 
@@ -1229,8 +1274,8 @@
                 break;
             case 'Move':
                 if ($scope.mouseButtonId === 1) {
-                    var height = file.overlay.height();
-                    var width = file.overlay.width();
+                    var height = file.imageObject.height;
+                    var width = file.imageObject.width;
 
                     file.editor.activeLayer.clearRect();
                     file.editor.activeLayer.drawImage(file.editor.tempCanvas.canvas, xCoord - (width / 2), yCoord - (height / 2));
@@ -1405,7 +1450,7 @@
         $event.preventDefault();
         $event.stopPropagation();
 
-        var overlay = angular.element('div.propeditordialog div#' + file.name.substring(0, file.name.indexOf('.')) + ' canvas.overlay');
+        var overlay = angular.element('div.propeditordialog div#' + file.ID + ' canvas.overlay');
         var yCoord = $window.parseInt(($event.originalEvent.clientY - overlay.offset().top) + windowElement.scrollTop());
         var xCoord = $window.parseInt(($event.originalEvent.clientX - overlay.offset().left) + windowElement.scrollLeft());
 
@@ -1418,13 +1463,37 @@
             case 'Blur':
             case 'Move':
                 if ($scope.mouseButtonId === 1 || $scope.mouseButtonId === 2) {
-                    $scope.CreateHistoryEvent($scope.selectedTool.name + ' Tool', file, getHistoryLayers());
+                    file.editor.activeLayer.imageObject = new ImageObject({
+                        sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                        resolve: function (response) {
+                            var file = $scope.selectedFile;
+
+                            file.imageObject = file.editor.layers[0].imageObject;
+
+                            $scope.CreateHistoryEvent($scope.selectedTool.name + ' Tool', file, getHistoryLayers());
+
+                            $scope.Redraw(true);
+                        },
+                    });
+                    file.editor.activeLayer.imageObject.load();
                 }
 
                 break;
             case 'Gradient':
                 if ($scope.mouseButtonId === 1 && $scope.selectedTool.options.prevXCoord === null && $scope.selectedTool.options.prevYCoord === null) {
-                    $scope.CreateHistoryEvent($scope.selectedTool.name + ' Tool', file, getHistoryLayers());
+                    file.editor.activeLayer.imageObject = new ImageObject({
+                        sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                        resolve: function (response) {
+                            var file = $scope.selectedFile;
+
+                            file.imageObject = file.editor.layers[0].imageObject;
+
+                            $scope.CreateHistoryEvent($scope.selectedTool.name + ' Tool', file, getHistoryLayers());
+
+                            $scope.Redraw(true);
+                        },
+                    });
+                    file.editor.activeLayer.imageObject.load();
                 }
 
                 break;
@@ -1447,11 +1516,38 @@
                         { v: y + height, h: x + width },
                         { v: y + height, h: x },
                     ];
-                    for (var j = 0; j < newPoints.length; j++) {
-                        var point = newPoints[j];
-                        if (file.selectionmask.vortexes.length < 4 || !utilService.pointInPolygon(file.selectionmask.vortexes, point)) {
-                            file.selectionmask.vortexes.push(point);
+
+                    if (file.selectionmask.vortexes.length > 0) {
+                        var f = function () {
+                            for (var j = 0; j < newPoints.length; j++) {
+                                for (var k = 0; k < file.selectionmask.vortexes.length; k++) {
+                                    var point = {
+                                        v: (file.selectionmask.vortexes[k].v + newPoints[j].v) / 2,
+                                        h: (file.selectionmask.vortexes[k].h + newPoints[j].h) / 2,
+                                    };
+
+                                    if (!utilService.pointInPolygon(file.selectionmask.vortexes, point)) {
+                                        file.selectionmask.vortexes.splice(k + 1, 0, newPoints[j]);
+
+                                        newPoints.splice(j, 1);
+
+                                        return;
+                                    }
+                                }
+                            }
+                        };
+                        while (newPoints.length > 0) {
+                            for (var j = 0; j < newPoints.length; j++) {
+                                if (utilService.pointInPolygon(file.selectionmask.vortexes, newPoints[j])) {
+                                    newPoints.splice(j, 1);
+                                }
+                            }
+
+                            if (newPoints.length > 0) f();
                         }
+                    }
+                    else {
+                        file.selectionmask.vortexes = newPoints;
                     }
                 }
 
@@ -1498,11 +1594,37 @@
                         newPoints.push({ v: prevYCoord - y, h: prevXCoord + x });
                     }
 
-                    for (var j = 0; j < newPoints.length; j++) {
-                        var point = newPoints[j];
-                        if (!utilService.pointInPolygon(file.selectionmask.vortexes, point)) {
-                            file.selectionmask.vortexes.push(point);
+                    if (file.selectionmask.vortexes.length > 0) {
+                        var f = function () {
+                            for (var j = 0; j < newPoints.length; j++) {
+                                for (var k = 0; k < file.selectionmask.vortexes.length; k++) {
+                                    var point = {
+                                        v: (file.selectionmask.vortexes[k].v + newPoints[j].v) / 2,
+                                        h: (file.selectionmask.vortexes[k].h + newPoints[j].h) / 2,
+                                    };
+
+                                    if (!utilService.pointInPolygon(file.selectionmask.vortexes, point)) {
+                                        file.selectionmask.vortexes.splice(k + 1, 0, newPoints[j]);
+
+                                        newPoints.splice(j, 1);
+
+                                        return;
+                                    }
+                                }
+                            }
+                        };
+                        while (newPoints.length > 0) {
+                            for (var j = 0; j < newPoints.length; j++) {
+                                if (utilService.pointInPolygon(file.selectionmask.vortexes, newPoints[j])) {
+                                    newPoints.splice(j, 1);
+                                }
+                            }
+
+                            if (newPoints.length > 0) f();
                         }
+                    }
+                    else {
+                        file.selectionmask.vortexes = newPoints;
                     }
                 }
 
@@ -1516,6 +1638,8 @@
                 $scope.selectedTool.options.prevXCoord = null;
 
                 file.selectionmask.isDrawing = false;
+
+                $scope.Redraw(true);
 
                 break;
             case 'Crop':
@@ -1533,27 +1657,42 @@
 
                         file.editor.layers[j].clearRect();
                         file.editor.layers[j].putImageData(0, 0, 0, 0, newWidth, newHeight, imageData);
+
+                        var cfg = {
+                            sourceUrl: file.editor.layers[j].toDataURL('image/png'),
+                        };
+                        if (j < 1) {
+                            cfg.resolve = (function (response) {
+                                var file = $scope.selectedFile;
+
+                                file.imageObject = this;
+
+                                $scope.CreateHistoryEvent($scope.selectedTool.name + ' Tool', file, getHistoryLayers(), 'IMAGE_CROP');
+
+                                $scope.Redraw(true);
+                            });
+                        }
+
+                        file.editor.layers[j].imageObject = new ImageObject(cfg);
+                        file.editor.layers[j].imageObject.load();
                     }
 
-                    var frontLayers = ['display', 'selectionmask', 'cropmask', 'text', 'cursor', 'overlay'];
-                    for (var j = 0; j < frontLayers.length; j++) {
-                        file[frontLayers[j]].height(newHeight);
-                        file[frontLayers[j]].width(newWidth);
+                    var frontLayers = { display: 0, selectionmask: 0, cropmask: 0, text: 0, cursor: 0, overlay: 0 };
+                    for (var j in frontLayers) {
+                        file[j].height(newHeight);
+                        file[j].width(newWidth);
                     }
-
-                    $scope.CreateHistoryEvent($scope.selectedTool.name + ' Tool', file, getHistoryLayers(), 'IMAGE_CROP');
                 }
 
                 break;
             case 'Color Picker':
             case 'Zoom':
+                $scope.Redraw(true);
 
                 break;
         }
 
         $scope.mouseButtonId = 0;
-
-        $scope.Redraw();
     });
 
     $scope.Overlay_OnKeyUp = (function ($event) {
@@ -1585,6 +1724,12 @@
 
         if ($event) {
             switch ($event.originalEvent.keyCode) {
+                case 67:
+                    if ($event.originalEvent.ctrlKey) {
+                        $scope.MenuOption_OnClick($event, 'EDIT_COPY');
+                    }
+
+                    return;
                 case 86:
                     if ($event.originalEvent.ctrlKey) {
                         $scope.MenuOption_OnClick($event, 'EDIT_PASTE');
@@ -1629,8 +1774,9 @@
                             fgcolor.addColorStop(0, 'rgba(' + $scope.fgcolor[1] + ',' + $scope.fgcolor[2] + ',' + $scope.fgcolor[0] + ', 255)');
 
                             var layer = new CanvasNode('2d');
-                            layer.height(file.overlay.height());
-                            layer.width(file.overlay.width());
+                            layer.context.imageSmoothingEnabled = true;
+                            layer.height(file.imageObject.height);
+                            layer.width(file.imageObject.width);
                             layer.clearRect();
                             layer.layerId = utilService.createUID();
                             layer.name = 'Text Layer';
@@ -1736,9 +1882,11 @@
         }
     });
 
-    $scope.MenuOption_OnClick = (function ($event, option, skipRedraw) {
-        $event.preventDefault();
-        $event.stopPropagation();
+    $scope.MenuOption_OnClick = (function ($event, option, skipRedraw, override) {
+        if ($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+        }
 
         var file = $scope.selectedFile;
 
@@ -1749,7 +1897,7 @@
                 if (filesCtrl.length > 0) {
                     filesCtrl.click();
 
-                    var files = filesCtrl.get(0).files;
+                    var files = filesCtrl[0].files;
 
                     if (filesCtrl.val().length > 0 && files.length > 0) {
                         for (var j = 0; j < files.length; j++) {
@@ -1774,16 +1922,13 @@
                                     resolve: function (response) {
                                         $scope.fileList.push({
                                             name: file.name,
+                                            imageObject: this,
                                             isDirty: false,
-                                            image: this,
                                         });
 
                                         $scope.$apply();
-
-                                        return;
                                     },
                                     reject: function (errors) {
-                                        return;
                                     },
                                 });
                                 i.load();
@@ -1798,10 +1943,65 @@
                 break;
             case 'FILE_SAVE':
                 if (file) {
-                    var url = file.display.toDataURL('image/png').replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+                    var assetId = $window.parseInt((new Date()).getTime() / 1000);
+                    var tempCanvas = new CanvasNode('2d');
+                    tempCanvas.context.imageSmoothingEnabled = true;
+                    tempCanvas.height(file.imageObject.height);
+                    tempCanvas.width(file.imageObject.width);
+                    tempCanvas.clearRect();
+
+                    for (var j = 0; j < file.editor.layers.length; j++) {
+                        if (file.editor.layers[j].visible) {
+                            tempCanvas.drawImage(file.editor.layers[j].canvas, 0, 0);
+                        }
+                    }
+
+                    var propSpec = {
+                        id: assetId,
+                        crc: 0,
+                        prop: new Prop(parentScope, assetId, 0),
+                    };
+                    propSpec.prop.asset.flags |= ServerAssetFlags.HighResProp;
+                    propSpec.prop.verticalOffset = -$window.parseInt(file.imageObject.height / 2) + 22;
+                    propSpec.prop.horizontalOffset = -$window.parseInt(file.imageObject.width / 2) + 22;
+                    propSpec.prop.imageObject = new ImageObject({
+                        sourceUrl: tempCanvas.toDataURL('image/png'),
+                        resolve: function (response) {
+                            propSpec.prop.readFlags();
+
+                            propSpec.prop.height = this.height;
+                            propSpec.prop.width = this.width;
+                            propSpec.prop.ready = true;
+
+                            parentScope.model.Application.propBag[assetId] = propSpec;
+                        },
+                        reject: function (errors) {
+                        },
+                    });
+                    propSpec.prop.imageObject.load();
+
+                    file.isDirty = false;
+                }
+
+                break;
+            case 'FILE_SAVEAS':
+                if (file) {
+                    var tempCanvas = new CanvasNode('2d');
+                    tempCanvas.context.imageSmoothingEnabled = true;
+                    tempCanvas.height(file.imageObject.height);
+                    tempCanvas.width(file.imageObject.width);
+                    tempCanvas.clearRect();
+
+                    for (var j = 0; j < file.editor.layers.length; j++) {
+                        if (file.editor.layers[j].visible) {
+                            tempCanvas.drawImage(file.editor.layers[j].canvas, 0, 0);
+                        }
+                    }
+
+                    var url = tempCanvas.toDataURL('image/png').replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
                     url = url.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=' + file.name);
 
-                    var filesCtrl = angular.element('div.propeditordialog a#save');
+                    var filesCtrl = angular.element('div.propeditordialog a#saveas');
                     filesCtrl.attr('download', file.name);
                     filesCtrl.attr('href', url);
                 }
@@ -1834,12 +2034,13 @@
                             for (var j = 0; j < historyEvent.layers.length; j++) {
                                 if (historyEvent.layers[j].isDeleted) {
                                     var layer = new CanvasNode('2d');
+                                    layer.context.imageSmoothingEnabled = true;
                                     layer.name = historyEvent.layers[j].name;
                                     layer.layerId = historyEvent.layers[j].layerId;
                                     layer.visible = historyEvent.layers[j].visible;
 
                                     layer.clearRect();
-                                    layer.drawImage(historyEvent.layers[j].image.image, 0, 0);
+                                    layer.drawImage(historyEvent.layers[j].imageObject.image, 0, 0);
 
                                     file.editor.layers.splice(historyEvent.layers[j].position, 0, layer);
 
@@ -1865,6 +2066,8 @@
                             break;
                     }
 
+                    file.imageObject = file.editor.layers[0].imageObject;
+
                     if (!skipRedraw) {
                         $scope.Redraw(true);
                     }
@@ -1882,12 +2085,14 @@
                             for (var j = 0; j < historyEvent.layers.length; j++) {
                                 if (historyEvent.layers[j].isNew) {
                                     var layer = new CanvasNode('2d');
+                                    layer.context.imageSmoothingEnabled = true;
                                     layer.name = historyEvent.layers[j].name;
                                     layer.layerId = historyEvent.layers[j].layerId;
                                     layer.visible = historyEvent.layers[j].visible;
+                                    layer.imageObject = historyEvent.layers[j].imageObject;
 
                                     layer.clearRect();
-                                    layer.drawImage(historyEvent.layers[j].image.image, 0, 0);
+                                    layer.drawImage(historyEvent.layers[j].imageObject.image, 0, 0);
 
                                     file.editor.layers.splice(historyEvent.layers[j].position, 0, layer);
 
@@ -1929,6 +2134,8 @@
                             break;
                     }
 
+                    file.imageObject = file.editor.layers[0].imageObject;
+
                     if (!skipRedraw) {
                         $scope.Redraw(true);
                     }
@@ -1941,6 +2148,7 @@
                     var boundingBox = utilService.getBoundingBox(file.selectionmask.vortexes);
 
                     $scope.clipboard = new CanvasNode('2d');
+                    $scope.clipboard.context.imageSmoothingEnabled = true;
                     $scope.clipboard.height(boundingBox.height);
                     $scope.clipboard.width(boundingBox.width);
 
@@ -1964,9 +2172,19 @@
                     if (option === 'EDIT_CUT') {
                         clearSelection(file);
 
-                        $scope.CreateHistoryEvent('Cut Selection', file, getHistoryLayers());
+                        file.editor.activeLayer.imageObject = new ImageObject({
+                            sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                            resolve: function (response) {
+                                var file = $scope.selectedFile;
 
-                        $scope.Redraw();
+                                file.imageObject = file.editor.layers[0].imageObject;
+
+                                $scope.CreateHistoryEvent('Cut Selection', file, getHistoryLayers());
+
+                                $scope.Redraw();
+                            },
+                        });
+                        file.editor.activeLayer.imageObject.load();
                     }
                 }
 
@@ -1974,8 +2192,9 @@
             case 'EDIT_PASTE':
                 if ($scope.clipboard) {
                     var layer = new CanvasNode('2d');
-                    layer.height(file.overlay.height());
-                    layer.width(file.overlay.width());
+                    layer.context.imageSmoothingEnabled = true;
+                    layer.height(file.imageObject.height);
+                    layer.width(file.imageObject.width);
                     layer.clearRect();
                     layer.layerId = utilService.createUID();
                     layer.name = 'Pasted Layer';
@@ -1983,8 +2202,8 @@
 
                     var height = $scope.clipboard.height();
                     var width = $scope.clipboard.width();
-                    var yCoord = Math.abs((file.overlay.height() / 2) - (height / 2));
-                    var xCoord = Math.abs((file.overlay.width() / 2) - (width / 2));
+                    var yCoord = Math.abs((file.imageObject.height / 2) - (height / 2));
+                    var xCoord = Math.abs((file.imageObject.width / 2) - (width / 2));
 
                     layer.drawImage($scope.clipboard.canvas, xCoord, yCoord, width, height, 0, 0, width, height);
 
@@ -2002,17 +2221,28 @@
 
                     file.selectionmask.vortexes = null;
 
-                    $scope.CreateHistoryEvent('Pasted Layer: ' + layer.name, file, layers, 'LAYER_NEW');
+                    file.editor.activeLayer.imageObject = new ImageObject({
+                        sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                        resolve: function (response) {
+                            var file = $scope.selectedFile;
 
-                    $scope.Redraw();
+                            file.imageObject = file.editor.layers[0].imageObject;
+
+                            $scope.CreateHistoryEvent('Pasted Layer: ' + layer.name, file, layers, 'LAYER_NEW');
+
+                            $scope.Redraw();
+                        },
+                    });
+                    file.editor.activeLayer.imageObject.load();
                 }
 
                 break;
             case 'LAYER_NEW':
                 if (file) {
                     var layer = new CanvasNode('2d');
-                    layer.height(file.overlay.height());
-                    layer.width(file.overlay.width());
+                    layer.context.imageSmoothingEnabled = true;
+                    layer.height(file.imageObject.height);
+                    layer.width(file.imageObject.width);
                     layer.clearRect();
                     layer.layerId = utilService.createUID();
                     layer.name = 'New Layer';
@@ -2030,9 +2260,19 @@
                         }
                     }
 
-                    $scope.CreateHistoryEvent('Created Layer: ' + layer.name, file, layers, 'LAYER_NEW');
+                    file.editor.activeLayer.imageObject = new ImageObject({
+                        sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                        resolve: function (response) {
+                            var file = $scope.selectedFile;
 
-                    $scope.Redraw();
+                            file.imageObject = file.editor.layers[0].imageObject;
+
+                            $scope.CreateHistoryEvent('Created Layer: ' + layer.name, file, layers, 'LAYER_NEW');
+
+                            $scope.Redraw();
+                        },
+                    });
+                    file.editor.activeLayer.imageObject.load();
                 }
 
                 break;
@@ -2056,9 +2296,19 @@
 
                     file.editor.activeLayer = file.editor.layers[file.editor.activeIndex];
 
-                    $scope.CreateHistoryEvent('Deleted Layer: ' + layer.name, file, layers, 'LAYER_DELETE');
+                    file.editor.activeLayer.imageObject = new ImageObject({
+                        sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                        resolve: function (response) {
+                            var file = $scope.selectedFile;
 
-                    $scope.Redraw();
+                            file.imageObject = file.editor.layers[0].imageObject;
+
+                            $scope.CreateHistoryEvent('Deleted Layer: ' + layer.name, file, layers, 'LAYER_DELETE');
+
+                            $scope.Redraw();
+                        },
+                    });
+                    file.editor.activeLayer.imageObject.load();
                 }
 
                 break;
@@ -2069,8 +2319,9 @@
                     if (position > 0) {
                         var layer = file.editor.layers[position - 1];
                         var tempCanvas = new CanvasNode('2d');
-                        tempCanvas.height(file.overlay.height());
-                        tempCanvas.width(file.overlay.width());
+                        tempCanvas.context.imageSmoothingEnabled = true;
+                        tempCanvas.height(file.imageObject.height);
+                        tempCanvas.width(file.imageObject.width);
                         tempCanvas.clearRect();
 
                         tempCanvas.drawImage(layer.canvas, 0, 0);
@@ -2096,9 +2347,19 @@
                         file.editor.activeIndex = position - 1;
                         file.editor.activeLayer = file.editor.layers[file.editor.activeIndex];
 
-                        $scope.CreateHistoryEvent('Merge Down: ' + layer.name, file, layers, 'LAYER_DELETE');
+                        file.editor.activeLayer.imageObject = new ImageObject({
+                            sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                            resolve: function (response) {
+                                var file = $scope.selectedFile;
 
-                        $scope.Redraw(true);
+                                file.imageObject = file.editor.layers[0].ImageObject;
+
+                                $scope.CreateHistoryEvent('Merge Down: ' + layer.name, file, layers, 'LAYER_DELETE');
+
+                                $scope.Redraw(true);
+                            },
+                        });
+                        file.editor.activeLayer.imageObject.load();
                     }
                 }
 
@@ -2110,8 +2371,9 @@
                     if (position < file.editor.layers.length - 1) {
                         var layer = file.editor.layers[position + 1];
                         var tempCanvas = new CanvasNode('2d');
-                        tempCanvas.height(file.overlay.height());
-                        tempCanvas.width(file.overlay.width());
+                        tempCanvas.context.imageSmoothingEnabled = true;
+                        tempCanvas.height(file.imageObject.height);
+                        tempCanvas.width(file.imageObject.width);
                         tempCanvas.clearRect();
 
                         tempCanvas.drawImage(file.editor.layers[position].canvas, 0, 0);
@@ -2137,9 +2399,19 @@
                         //file.editor.activeIndex = position + 0;
                         file.editor.activeLayer = file.editor.layers[file.editor.activeIndex];
 
-                        $scope.CreateHistoryEvent('Merge Up: ' + layer.name, file, layers, 'LAYER_DELETE');
+                        file.editor.activeLayer.imageObject = new ImageObject({
+                            sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                            resolve: function (response) {
+                                var file = $scope.selectedFile;
 
-                        $scope.Redraw(true);
+                                file.imageObject = file.editor.layers[0].ImageObject;
+
+                                $scope.CreateHistoryEvent('Merge Up: ' + layer.name, file, layers, 'LAYER_DELETE');
+
+                                $scope.Redraw(true);
+                            },
+                        });
+                        file.editor.activeLayer.load();
                     }
                 }
 
@@ -2148,8 +2420,9 @@
                 if (file && file.editor.layers.length > 0) {
                     var layer = file.editor.layers[0];
                     var tempCanvas = new CanvasNode('2d');
-                    tempCanvas.height(file.overlay.height());
-                    tempCanvas.width(file.overlay.width());
+                    tempCanvas.context.imageSmoothingEnabled = true;
+                    tempCanvas.height(file.imageObject.height);
+                    tempCanvas.width(file.imageObject.width);
                     tempCanvas.clearRect();
 
                     for (var j = 0; j < file.editor.layers.length; j++) {
@@ -2174,9 +2447,17 @@
                     file.editor.activeIndex = 0;
                     file.editor.activeLayer = file.editor.layers[file.editor.activeIndex];
 
-                    $scope.CreateHistoryEvent('Flatten Layers', file, layers, 'LAYER_DELETE');
+                    file.editor.layers[0].imageObject = new ImageObject({
+                        sourceUrl: file.editor.layers[0].toDataURL('image/png'),
+                        resolve: function (response) {
+                            file.imageObject = this;
 
-                    $scope.Redraw(true);
+                            $scope.CreateHistoryEvent('Flatten Layers', file, layers, 'LAYER_DELETE');
+
+                            $scope.Redraw(true);
+                        },
+                    });
+                    file.editor.layers[0].imageObject.load();
                 }
 
                 break;
@@ -2206,11 +2487,12 @@
                 }
 
                 if (file && degrees !== 0) {
-                    var height = file.overlay.height();
-                    var width = file.overlay.width();
+                    var height = file.imageObject.height;
+                    var width = file.imageObject.width;
                     var size = (height > width ? height : width) * 1.5;
 
                     var tempCanvas = new CanvasNode('2d');
+                    tempCanvas.context.imageSmoothingEnabled = true;
                     tempCanvas.height(size);
                     tempCanvas.width(size);
 
@@ -2229,9 +2511,19 @@
                     file.overlay.height(size);
                     file.overlay.width(size);
 
-                    $scope.CreateHistoryEvent('Rotate ' + degrees + ': ' + file.editor.activeLayer.name, file, getHistoryLayers());
+                    file.editor.activeLayer.imageObject = new ImageObject({
+                        sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                        resolve: function (response) {
+                            var file = $scope.selectedFile;
 
-                    $scope.Redraw(true);
+                            file.imageObject = file.editor.layers[0].ImageObject;
+
+                            $scope.CreateHistoryEvent('Rotate ' + degrees + ': ' + file.editor.activeLayer.name, file, getHistoryLayers());
+
+                            $scope.Redraw(true);
+                        },
+                    });
+                    file.editor.activeLayer.load();
                 }
 
                 break;
@@ -2286,26 +2578,24 @@
                             break;
                         }
                     }
-
-                    $scope.CreateHistoryEvent(option + ': ' + layer.name, file, layers, 'LAYER_MOVE');
-
-                    $scope.Redraw(true);
                 }
 
                 break;
             case 'IMAGE_CANVASSIZE':
-            case 'IMAGE_IMAGESIZE':
                 if (file) {
                     dialogService.toolOptions({
                         option: option,
-                        height: file.overlay.height(),
-                        width: file.overlay.width(),
+                        height: file.imageObject.height,
+                        width: file.imageObject.width,
                     }).then(function (response) {
                         if (response) {
+                            var file = $scope.selectedFile;
                             var newHeight = $window.parseInt(response.height);
                             var newWidth = $window.parseInt(response.width);
-                            var lHeight = file.overlay.height();
-                            var lWidth = file.overlay.width();
+                            var lHeight = file.imageObject.height;
+                            var lWidth = file.imageObject.width;
+                            var y = Math.abs((newHeight / 2) - (lHeight / 2));
+                            var x = Math.abs((newWidth / 2) - (lWidth / 2));
 
                             for (var j = 0; j < file.editor.layers.length; j++) {
                                 var imageData = file.editor.layers[j].getImageData(0, 0, lWidth, lHeight);
@@ -2314,29 +2604,82 @@
                                 file.editor.layers[j].width(newWidth);
 
                                 file.editor.layers[j].clearRect();
-                                file.editor.layers[j].putImageData(0, 0, 0, 0, lWidth, lHeight, imageData);
+                                file.editor.layers[j].putImageData(x, y, 0, 0, lWidth, lHeight, imageData);
+
+                                var cfg = {
+                                    sourceUrl: file.editor.layers[j].toDataURL('image/png'),
+                                };
+                                if (j < 1) {
+                                    cfg.resolve = (function (response) {
+                                        var file = $scope.selectedFile;
+
+                                        file.imageObject = this;
+
+                                        $scope.CreateHistoryEvent('Resize Canvas', file, getHistoryLayers());
+
+                                        $scope.Redraw();
+                                    });
+                                }
+
+                                file.editor.layers[j].imageObject = new ImageObject(cfg);
+                                file.editor.layers[j].imageObject.load();
                             }
 
-                            var frontLayers = ['display', 'selectionmask', 'cropmask', 'text', 'cursor', 'overlay'];
-                            for (var j = 0; j < frontLayers.length; j++) {
-                                file[frontLayers[j]].height(newHeight);
-                                file[frontLayers[j]].width(newWidth);
+                            var frontLayers = { display: 0, selectionmask: 0, cropmask: 0, text: 0, cursor: 0, overlay: 0 };
+                            for (var j in frontLayers) {
+                                file[j].height(newHeight);
+                                file[j].width(newWidth);
                             }
-
-                            var label = null;
-
-                            if (option === 'IMAGE_IMAGESIZE') {
-                                label = 'Image';
-                            }
-                            else {
-                                label = 'Canvas';
-                            }
-
-                            $scope.CreateHistoryEvent('Resize ' + label, file, getHistoryLayers());
-
-                            $scope.Redraw();
                         }
                     }, function (errors) {
+                    });
+                }
+
+                break;
+            case 'IMAGE_IMAGESIZE':
+                if (file) {
+                    dialogService.toolOptions({
+                        option: option,
+                        override: override,
+                        height: file.imageObject.height,
+                        width: file.imageObject.width,
+                    }).then(function (response) {
+                        if (response) {
+                            var height = $window.parseInt(response.height);
+                            var width = $window.parseInt(response.width);
+                            var file = $scope.selectedFile;
+                            var hermite = new Hermite();
+
+                            for (var j = 0; j < file.editor.layers.length; j++) {
+                                hermite.resample_auto(file.editor.layers[j].canvas, width, height, true, function () {
+                                    var file = $scope.selectedFile;
+
+                                    for (var j = 0; j < file.editor.layers.length; j++) {
+                                        var cfg = {
+                                            sourceUrl: file.editor.layers[j].toDataURL('image/png'),
+                                        };
+                                        if (j < 1) {
+                                            cfg.resolve = (function (response) {
+                                                var file = $scope.selectedFile;
+
+                                                file.imageObject = this;
+
+                                                $scope.CreateHistoryEvent('Resize Image', file, getHistoryLayers());
+
+                                                $scope.Redraw();
+                                            });
+                                        }
+                                        file.editor.layers[j].imageObject = new ImageObject(cfg);
+                                        file.editor.layers[j].imageObject.load();
+                                    }
+                                    var frontLayers = { display: 0, selectionmask: 0, cropmask: 0, text: 0, cursor: 0, overlay: 0 };
+                                    for (var j in frontLayers) {
+                                        file[j].height(response.height * file.display.scale);
+                                        file[j].width(response.width * file.display.scale);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
 
@@ -2367,11 +2710,12 @@
                 }
 
                 if (file && degrees !== 0) {
-                    var height = file.overlay.height();
-                    var width = file.overlay.width();
+                    var height = file.imageObject.height;
+                    var width = file.imageObject.width;
                     var size = (height > width ? height : width) * 1.5;
 
                     var tempCanvas = new CanvasNode('2d');
+                    tempCanvas.context.imageSmoothingEnabled = true;
                     tempCanvas.height(size);
                     tempCanvas.width(size);
 
@@ -2387,14 +2731,27 @@
                         file.editor.layers[j].width(size);
                         file.editor.layers[j].clearRect();
                         file.editor.layers[j].drawImage(tempCanvas.canvas, 0, 0);
+
+                        var cfg = {
+                            sourceUrl: file.editor.layers[j].toDataURL('image/png'),
+                        };
+                        if (j < 1) {
+                            cfg.resolve = (function (response) {
+                                var file = $scope.selectedFile;
+
+                                file.imageObject = this;
+
+                                $scope.CreateHistoryEvent('Rotate ' + degrees + ': Image', file, getHistoryLayers());
+
+                                $scope.Redraw(true);
+                            });
+                        }
+                        file.editor.layers[j].imageObject = new ImageObject(cfg);
+                        file.editor.layers[j].imageObject.load();
                     }
 
                     file.overlay.height(size);
                     file.overlay.width(size);
-
-                    $scope.CreateHistoryEvent('Rotate ' + degrees + ': Image', file, getHistoryLayers());
-
-                    $scope.Redraw(true);
                 }
 
                 break;
@@ -2421,9 +2778,19 @@
                             file.editor.activeLayer.clearRect();
                             file.editor.activeLayer.drawImage(response.canvas, 0, 0);
 
-                            $scope.CreateHistoryEvent(option, file, getHistoryLayers());
+                            file.editor.activeLayer.imageObject = new ImageObject({
+                                sourceUrl: file.editor.activeLayer.toDataURL('image/png'),
+                                resolve: function (response) {
+                                    var file = $scope.selectedFile;
 
-                            $scope.Redraw(true);
+                                    file.imageObject = file.editor.layers[0].ImageObject;
+
+                                    $scope.CreateHistoryEvent(option, file, getHistoryLayers());
+
+                                    $scope.Redraw(true);
+                                },
+                            });
+                            file.editor.activeLayer.imageObject.load();
                         }
                     }, function (errors) {
                     });
@@ -2443,8 +2810,8 @@
             var historyEvent = {
                 layers: _layers,
                 historyId: utilService.createUID(),
-                height: _file.overlay.height(),
-                width: _file.overlay.width(),
+                height: _file.imageObject.height,
+                width: _file.imageObject.width,
                 label: _label,
                 type: _type,
             }
@@ -2470,8 +2837,8 @@
             file.editor.activeIndex = $index;
             file.editor.activeLayer = layer;
 
-            var height = file.overlay.height();
-            var width = file.overlay.width();
+            var height = file.imageObject.height;
+            var width = file.imageObject.width;
 
             file.editor.tempCanvas = file.editor.activeLayer.getImageData(0, 0, width, height);
 
@@ -2521,7 +2888,8 @@
         var toolbox = angular.element('div#toolbox');
         var history = angular.element('div#history');
         var layers = angular.element('div#layers');
-        var controls = [toolbox, history, layers];
+        var dialog = angular.element('div.propeditordialog');
+        var controls = [toolbox, history, layers, dialog];
 
         var sHeight = windowElement.height();
         var sWidth = windowElement.width();
@@ -2539,6 +2907,6 @@
             $window.localStorage.setObject(controls[j].attr('id') + '-position', { v: y, h: x });
         }
 
-        $scope.$close($scope.model);
+        $scope.$close();
     });
 }]);

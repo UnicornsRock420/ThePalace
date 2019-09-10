@@ -15,6 +15,15 @@
     this.gMaxPaintPenSize = 20;
     this.gStackMaxSize = 1024;
 
+    var popStack = (function (localVariables, localFlags) {
+        var register = gStack.pop();
+
+        var temp = getVariable(register, localVariables, localFlags);
+        if (temp !== undefined) register = temp;
+
+        return register;
+    });
+
     var getVariable = (function (variable, localVariables, localFlags) {
         if (variable && variable.type === 'variable') {
             if (!localFlags[variable.value] || !localFlags[variable.value].global || gVariables[variable.value] === undefined) {
@@ -68,10 +77,7 @@
         // End Aliases
         // Start Stubs
         'MACRO': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -87,22 +93,10 @@
         // End Stubs
         // Start Paint Commands
         'LINE': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-            var register4 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
-
-            var temp = getVariable(register4, localVariables, localFlags);
-            if (temp !== undefined) register4 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
+            var register4 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -131,14 +125,8 @@
             }
         },
         'LINETO': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -167,14 +155,8 @@
             }
         },
         'PENPOS': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -195,14 +177,8 @@
             }
         },
         'PENTO': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -233,18 +209,9 @@
             }
         },
         'PENCOLOR': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -290,10 +257,7 @@
             $scope.model.Screen.paintLayer = true;
         },
         'PENSIZE': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -315,10 +279,7 @@
         // End Paint Commands
         // Start Sound Commands
         'SOUND': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -347,10 +308,7 @@
             $scope.model.Application.soundPlayer.pause();
         },
         'MIDIPLAY': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -379,10 +337,7 @@
             });
         },
         'ABS': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -397,10 +352,7 @@
             }
         },
         'AVG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'array':
@@ -426,14 +378,8 @@
             }
         },
         'POW': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -452,10 +398,7 @@
             }
         },
         'SUM': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'array':
@@ -480,10 +423,7 @@
             }
         },
         'MIN': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'array':
@@ -506,10 +446,7 @@
             }
         },
         'MAX': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'array':
@@ -532,10 +469,7 @@
             }
         },
         'SQUAREROOT': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -550,10 +484,7 @@
             }
         },
         'SINE': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -568,10 +499,7 @@
             }
         },
         'COSINE': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -586,10 +514,7 @@
             }
         },
         'TANGENT': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -604,10 +529,7 @@
             }
         },
         'RANDOM': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'bool':
@@ -623,14 +545,8 @@
             }
         },
         'MOD': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             if (register1.type !== 'number' && register2.type !== 'number') {
                 throw 'Cannot ' + register1.value + ' ' + commandList[j].value + ' ' + register2.value + '...';
@@ -670,10 +586,7 @@
             gStack.push(gStack[gStack.length - 2]);
         },
         'PICK': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -713,10 +626,7 @@
         // End Stack Commands
         // Start Message Commands
         'ROOMMSG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -734,10 +644,7 @@
             }
         },
         'SUSRMSG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -755,10 +662,7 @@
             }
         },
         'GLOBALMSG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -776,10 +680,7 @@
             }
         },
         'LOCALMSG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -799,10 +700,7 @@
             }
         },
         'STATUSMSG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -816,14 +714,8 @@
             }
         },
         'PRIVATEMSG': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -846,10 +738,7 @@
             }
         },
         'LOGMSG': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -865,10 +754,7 @@
             }
         },
         'SAY': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -884,18 +770,9 @@
             }
         },
         'SAYAT': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             switch (register3.type) {
                 case 'string':
@@ -917,10 +794,7 @@
         // End Message Commands
         // Start Prop Commands
         'USERPROP': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -949,14 +823,8 @@
             }
         },
         'DROPPROP': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -1036,10 +904,7 @@
             }
         },
         'HASPROP': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
                 if ($scope.model.RoomInfo.UserList[j].userID === $scope.model.UserInfo.userId) {
@@ -1085,18 +950,9 @@
                 });
         },
         'ADDLOOSEPROP': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             if (register1.type !== 'number' && register2.type !== 'number') {
                 throw 'Wrong datatype...';
@@ -1146,10 +1002,7 @@
             }
         },
         'REMOVEPROP': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             for (var j = 0; j < $scope.model.RoomInfo.UserList.length; j++) {
                 if ($scope.model.RoomInfo.UserList[j].userID === $scope.model.UserInfo.userId) {
@@ -1196,10 +1049,7 @@
             $scope.setProps(propSpec);
         },
         'DONPROP': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             var propSpec = [];
 
@@ -1243,10 +1093,7 @@
             $scope.setProps(propSpec);
         },
         'SETPROPS': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'array':
@@ -1314,10 +1161,7 @@
         // End Prop Commands
         // Start String Commands
         'LOWERCASE': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -1354,14 +1198,8 @@
             }
         },
         'STRINDEX': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'string':
@@ -1380,10 +1218,7 @@
             }
         },
         'STRLEN': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -1398,14 +1233,8 @@
             }
         },
         'SUBSTR': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'string':
@@ -1424,18 +1253,9 @@
             }
         },
         'SUBSTRING': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             switch (register3.type) {
                 case 'string':
@@ -1454,14 +1274,8 @@
             }
         },
         'GREPSTR': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'string':
@@ -1484,10 +1298,7 @@
             }
         },
         'GREPSUB': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -1510,10 +1321,7 @@
             }
         },
         'STRTOATOM': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -1532,14 +1340,8 @@
         // End String Commands
         // Start Boolean Commands
         'AND': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'bool':
@@ -1559,14 +1361,8 @@
             }
         },
         'OR': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'bool':
@@ -1586,10 +1382,7 @@
             }
         },
         'NOT': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'bool':
@@ -1605,14 +1398,8 @@
             }
         },
         'IF': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             if ((register1.type !== 'bool' || register1.type !== 'number') && register2.type !== 'atomlist') {
                 throw 'Wrong datatype...';
@@ -1629,18 +1416,9 @@
             }
         },
         'IFELSE': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             if ((register1.type !== 'bool' || register1.type !== 'number') && register2.type !== 'atomlist' && register3.type !== 'atomlist') {
                 throw 'Wrong datatype...';
@@ -1674,14 +1452,8 @@
         // End Boolean Commands
         // Start Array Commands
         'GET': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'array':
@@ -1700,18 +1472,9 @@
             }
         },
         'PUT': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'array':
@@ -1730,10 +1493,7 @@
             }
         },
         'ARRAY': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -1748,10 +1508,7 @@
             }
         },
         'LENGTH': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'array':
@@ -1844,10 +1601,7 @@
             });
         },
         'ITOA': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'bool':
@@ -1865,10 +1619,7 @@
             }
         },
         'ATOI': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -1886,10 +1637,7 @@
         },
         'DEF': function (localVariables, localFlags, recursionDepth) {
             var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register2 = popStack(localVariables, localFlags);
 
             if (register1.type !== 'variable' && register2.type !== 'atomlist' && register2.type !== 'array') {
                 throw 'Wrong datatype...';
@@ -1913,10 +1661,7 @@
         // End Variable Commands
         // Start Spot Commands
         'INSPOT': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -1965,10 +1710,7 @@
             }
         },
         'LOCK': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -1987,10 +1729,7 @@
             }
         },
         'UNLOCK': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2009,10 +1748,7 @@
             }
         },
         'ISLOCKED': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2036,10 +1772,7 @@
             }
         },
         'GETSPOTSTATE': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2062,14 +1795,8 @@
             }
         },
         'SETSPOTSTATE': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -2099,14 +1826,8 @@
             }
         },
         'SETSPOTSTATELOCAL': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -2130,18 +1851,9 @@
             }
         },
         'SETLOC': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -2169,18 +1881,9 @@
             }
         },
         'SETPICLOC': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-            var register3 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
-
-            var temp = getVariable(register3, localVariables, localFlags);
-            if (temp !== undefined) register3 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
+            var register3 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -2208,10 +1911,7 @@
             }
         },
         'SELECT': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2231,14 +1931,8 @@
             }
         },
         'SETALARM': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'number':
@@ -2307,10 +2001,7 @@
             }
         },
         'DOORIDX': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2342,10 +2033,7 @@
             }
         },
         'SPOTDEST': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2388,10 +2076,7 @@
             });
         },
         'SPOTNAME': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2425,10 +2110,7 @@
             throw 'Exiting Script';
         },
         'EXEC': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'atomlist':
@@ -2442,14 +2124,8 @@
             }
         },
         'ALARMEXEC': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'atomlist':
@@ -2479,14 +2155,8 @@
             }
         },
         'WHILE': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'atomlist':
@@ -2526,14 +2196,8 @@
             }
         },
         'FOREACH': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register2.type) {
                 case 'atomlist':
@@ -2585,14 +2249,8 @@
             });
         },
         'MOVE': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'bool':
@@ -2611,14 +2269,8 @@
             }
         },
         'SETPOS': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             if (register1.type !== 'number' && register2.type !== 'number') {
                 throw 'Wrong datatype...';
@@ -2745,10 +2397,7 @@
             });
         },
         'SETFACE': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2762,10 +2411,7 @@
             }
         },
         'SETCOLOR': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2779,10 +2425,7 @@
             }
         },
         'WHONAME': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2818,10 +2461,7 @@
             });
         },
         'WHOPOS': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -2867,10 +2507,7 @@
             }
         },
         'ROOMUSER': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2892,10 +2529,7 @@
             }
         },
         'GOTOROOM': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2922,10 +2556,7 @@
             // Effectively does nothing, just for legacy support
         },
         'DIMROOM': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2939,10 +2570,7 @@
             }
         },
         'DELAY': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':
@@ -2977,10 +2605,7 @@
             });
         },
         'GOTOURL': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'string':
@@ -2994,14 +2619,8 @@
             }
         },
         'GOTOURLFRAME': function (localVariables, localFlags, recursionDepth) {
-            var register1 = gStack.pop();
-            var register2 = gStack.pop();
-
-            var temp = getVariable(register1, localVariables, localFlags);
-            if (temp !== undefined) register1 = temp;
-
-            var temp = getVariable(register2, localVariables, localFlags);
-            if (temp !== undefined) register2 = temp;
+            var register1 = popStack(localVariables, localFlags);
+            var register2 = popStack(localVariables, localFlags);
 
             switch (register1.type) {
                 case 'string':
@@ -3019,10 +2638,7 @@
             }
         },
         'KILLUSER': function (localVariables, localFlags, recursionDepth) {
-            var item = gStack.pop();
-
-            var temp = getVariable(item, localVariables, localFlags);
-            if (temp !== undefined) item = temp;
+            var item = popStack(localVariables, localFlags);
 
             switch (item.type) {
                 case 'number':

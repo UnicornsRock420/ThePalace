@@ -1,6 +1,5 @@
 ﻿angular.module('ThePalace').service('magicService', ['$window', 'utilService', function ($window, utilService) {
     var gMagicLong = 0x9602C9BF;
-    var gCrcMagic = 0xA95ADE76;
     var gSeed = 666666;
 
     this.gStringCypherTable = (function (seed) {
@@ -71,10 +70,22 @@
     ];
 
     this.ComputeLicenseCrc = (function (seed) {
-        var crc = gCrcMagic;
+        var crc = 0xA95ADE76;
 
         for (var idx = 3; idx >= 0; idx--) {
             crc = ((crc << 1) | ((crc & 0x80000000) ? 1 : 0)) ^ this.gCRCMask[utilService.ReadByte(seed, idx)];
+        }
+
+        return crc;
+    });
+
+    this.ComputeCrc = (function (data, offset) {
+        var crc = 0xD9216290;
+
+        offset = (offset || 0);
+
+        for (var j = 0; j < data.length; j++) {
+            crc = ((crc << 1) | ((crc & 0x80000000) ? 1 : 0)) ^ data[j + offset];
         }
 
         return crc;

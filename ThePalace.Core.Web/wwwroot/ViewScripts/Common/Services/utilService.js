@@ -537,6 +537,38 @@
         return inside;
     });
 
+    this.b64Decode = (function (str) {
+        var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        var bytes = $window.parseInt((str.length / 4) * 3);
+
+        var chr1, chr2, chr3;
+        var enc1, enc2, enc3, enc4;
+        var i = 0;
+        var j = 0;
+
+        var uarray = new Uint8Array(bytes);
+
+        str = str.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+        for (i = 0; i < bytes; i += 3) {
+            //get the 3 octects in 4 ascii chars
+            enc1 = keyStr.indexOf(str.charAt(j++));
+            enc2 = keyStr.indexOf(str.charAt(j++));
+            enc3 = keyStr.indexOf(str.charAt(j++));
+            enc4 = keyStr.indexOf(str.charAt(j++));
+
+            chr1 = (enc1 << 2) | (enc2 >> 4);
+            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            chr3 = ((enc3 & 3) << 6) | enc4;
+
+            uarray[i] = chr1;
+            if (enc3 != 64) uarray[i + 1] = chr2;
+            if (enc4 != 64) uarray[i + 2] = chr3;
+        }
+
+        return uarray;
+    });
+
     //this.Xor = (function () {
     //    var args = this.ArrayClone(arguments);
     //    var returnValue = args.shift();

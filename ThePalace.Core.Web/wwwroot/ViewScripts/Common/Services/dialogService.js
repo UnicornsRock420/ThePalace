@@ -266,28 +266,20 @@
         return deferred.promise;
     });
 
-    this.propEditor = (function (model) {
-        var deferred = $q.defer();
-        var instance = $uibModal.open({
+    this.propEditor = (function (parentScope) {
+        return $uibModal.open({
             size: 'lg',
             animation: false,
-            backdrop: 'static',
+            backdrop: false,
+            keyboard: false,
             controller: 'propEditorDialogController',
             templateUrl: '/ViewScripts/Common/Views/propEditorDialog.html',
             resolve: {
-                model: function () {
-                    return model;
+                parentScope: function () {
+                    return parentScope;
                 }
             }
         });
-
-        instance.result.then(function (result) {
-            deferred.resolve(result);
-        }, function (result) {
-            deferred.reject(result);
-        });
-
-        return deferred.promise;
     });
 
     this.colorPicker = (function (model) {

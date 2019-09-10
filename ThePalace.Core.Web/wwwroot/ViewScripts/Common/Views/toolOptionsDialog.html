@@ -5,8 +5,11 @@
     <hr />
     <div class="modalbody" ng-init="ToolOptions_OnInit()">
         <div ng-show="['IMAGE_CANVASSIZE', 'IMAGE_IMAGESIZE'].indexOf(model.option) &gt; -1">
-            <label>Height:</label>&nbsp;<input class="height" type="text" ng-model="model.height" />
-            <label>Width:</label>&nbsp;<input class="width" type="text" ng-model="model.width" />
+            <input class="ratio" type="checkbox" ng-model="model.ratio" /><label>Aspect Ratio</label>
+            <br />
+            <label>Width:</label>&nbsp;<input class="width" type="text" ng-model="model.width" ng-change="Dimensions_OnChange($event, 'WIDTH')" />
+            <br />
+            <label>Height:</label>&nbsp;<input class="height" type="text" ng-model="model.height" ng-change="Dimensions_OnChange($event, 'HEIGHT')" />
         </div>
     </div>
     <div class="modalfooter">

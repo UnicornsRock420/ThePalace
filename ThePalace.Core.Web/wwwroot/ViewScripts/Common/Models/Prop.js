@@ -6,7 +6,6 @@
             var dither16bit = (31 / 255);
             var $scope = null;
 
-            var gCrcMagic = 0xD9216290;
             var gFormatMask = (PropFormats.PF_20Bit | PropFormats.PF_S20Bit | PropFormats.PF_32Bit);
 
             var Prop = (function (scope, assetId, assetCrc, assetType, assetData) {
@@ -17,7 +16,6 @@
 
             Prop.prototype = {
                 endian: false,
-                imageUrl: null,
                 imageObject: null,
                 asset: null,
                 horizontalOffset: 0,
@@ -42,7 +40,7 @@
                         source = this;
                     }
 
-                    var prop = new Prop(source.asset.id, source.asset.crc);
+                    var prop = new Prop($scope, source.asset.id, source.asset.crc);
                     prop.endian = source.endian;
 
                     prop.animate = source.animate;
@@ -104,20 +102,23 @@
                             that.flags = $window.parseInt(response.props[0].flags, 10);
                             that.width = response.props[0].size.w;
                             that.height = response.props[0].size.h;
-                            that.horizontalOffset = response.props[0].offsets.x;
                             that.verticalOffset = response.props[0].offsets.y;
-                            that.imageUrl = response.img_url + (response.img_url.substring(response.img_url.length - 1, response.img_url.length) === '/' ? '' : '/') + that.asset.id;
+                            that.horizontalOffset = response.props[0].offsets.x;
+                            var imageUrl = response.img_url + (response.img_url.substring(response.img_url.length - 1, response.img_url.length) === '/' ? '' : '/') + that.asset.id;
                             that.imageObject = new ImageObject({
-                                sourceUrl: that.imageUrl,
+                                sourceUrl: imageUrl,
                                 resolve: function (response) {
                                     that.readFlags();
 
-                                    that.ready = true;
+                                    if (this.height === that.height && this.width === that.width) {
+                                        that.ready = true;
 
-                                    //that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
-
-                                    if (callback) {
-                                        callback(that);
+                                        if (callback) {
+                                            callback(that);
+                                        }
+                                    }
+                                    else {
+                                        that.badProp = true;
                                     }
                                 },
                                 reject: function (errors) {
@@ -179,8 +180,6 @@
                                             resolve: function () {
                                                 that.ready = true;
 
-                                                //that.$scope.Screen_OnDraw('spriteLayerUpdate', 'loosepropLayerUpdate');
-
                                                 if (callback) {
                                                     callback(that);
                                                 }
@@ -193,16 +192,6 @@
                             });
                         }
                     }
-                }),
-
-                computeCrc: (function (data) {
-                    var crc = gCrcMagic;
-
-                    for (var len = data.length - 1; len >= 0; len--) {
-                        crc = ((crc << 1) | ((crc & 0x80000000) ? 1 : 0)) ^ data[len];
-                    }
-
-                    return crc;
                 }),
 
                 decode8BitProp: (function () {

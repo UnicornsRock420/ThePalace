@@ -39,26 +39,46 @@ div#interface div#propbag {
 
 div#interface div#propbag {
     min-height: 800px;
-    min-width: 500px;
+    min-width: 400px;
 }
+
+    div#interface div#propbag ul.list {
+    }
 
     div#interface div#propbag li.item {
         background-repeat: no-repeat;
         border: 1px solid black;
         background-size: 100%;
+        border-radius: 4px;
         text-align: center;
+        list-style: none;
+        overflow: hidden;
         height: 44px;
         width: 44px;
         float: left;
         padding: 1px;
         margin: 1px;
-        height: 32px;
-        width: 32px;
     }
 
         div#interface div#propbag li.item.selected {
             border: 1px solid gold;
-            background-size: 70%;
+            background-size: 95%;
+            background-position: 2px 4px;
+        }
+
+        div#interface div#propbag li.item img.prop {
+            height: 44px;
+            width: 44px;
+            padding: 1px;
+            margin: 1px;
+        }
+
+    div#interface div#propbag ul.buttons {
+    }
+
+        div#interface div#propbag ul.buttons li {
+            list-style: none;
+            float: left;
         }
 
 div#interface div span.header {

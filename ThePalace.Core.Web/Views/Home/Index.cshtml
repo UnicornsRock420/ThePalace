@@ -34,6 +34,7 @@
     <script type="text/javascript" src="~/Scripts/expect.min.js"></script>
     <script type="text/javascript" src="~/Scripts/expect-element.min.js"></script>
     <script type="text/javascript" src="~/Scripts/glfx.js"></script>
+    <script type="text/javascript" src="~/Scripts/hermite.js"></script>
     <script type="text/javascript" src="~/Scripts/midi.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/app.js"></script>
     <script type="text/javascript" src="~/ViewScripts/Common/Constants/CommonFlags.js"></script>
@@ -87,7 +88,8 @@
         <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId" ng-click="Menu_OnClick($event, 'OFFER')">Offer</li>
         <li ng-show="model.Interface.contextMenu.type === 'user' && model.Interface.contextMenu.targetId !== model.UserInfo.userId && model.UserInfo.hasAdmin" ng-click="Menu_OnClick($event, 'KILLUSER')">Kill</li>
         <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'PROPDEL')">Delete</li>
-        <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'USERPROP')">Wear</li>
+        <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'USERPROP_COPY')">Copy</li>
+        <li ng-show="model.Interface.contextMenu.type === 'looseprop'" ng-click="Menu_OnClick($event, 'USERPROP_WEAR')">Wear</li>
         <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'ROOMNEW')">New Room</li>
         <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'ROOMINFO')">Room Info</li>
         <li ng-show="model.UserInfo.hasAdmin && model.Interface.contextMenu.type === 'admin'" ng-click="Menu_OnClick($event, 'SPOTNEW')">New Door</li>
@@ -150,6 +152,24 @@
         </ul>
         <button ng-click="model.Interface.LogList = []" ng-show="model.Interface.LogList.length">Clear Log</button>
         <button ng-click="model.Interface.showLogList = false">Close</button>
+    </div>
+
+    <div id="propbag"
+         ng-show="model.Interface.showPropbag">
+        <span class="header" draggable>Prop Bag:</span>
+        <ul class="buttons">
+            <li><button ng-click="PropBag_OnClick($event, 'EDIT')">Edit</button></li>
+            <li><button ng-click="PropBag_OnClick($event, 'WEAR')">Wear</button></li>
+            <li><button ng-click="PropBag_OnClick($event, 'NAKED')">Naked</button></li>
+            <li><button ng-click="model.Interface.showPropbag = false">Close</button></li>
+            <li><button ng-click="PropBag_OnClick($event, 'DELETE')">Delete</button></li>
+        </ul>
+        <br />
+        <ul class="list">
+            <li class="item prop" ng-repeat="prop in model.Application.propBag" ng-class="{selected: prop.isSelected}" ng-mousedown="PropBag_OnMouseDown($event, prop)" ng-mouseup="PropBag_OnMouseUp($event, prop)" ng-mousemove="PropBag_OnMouseMove($event, prop)" ng-style="{
+                'background-image': 'url(\'' + prop.prop.imageObject.image.src + '\')'
+                }"></li>
+        </ul>
     </div>
 
     <div id="screen"

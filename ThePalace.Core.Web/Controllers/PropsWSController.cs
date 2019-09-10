@@ -192,11 +192,11 @@ namespace ThePalace.Server.Web.Controllers
                         for (var j = 0; j < nbrProps; j++)
                         {
                             var id = (Int32)jsonResponse.props[j].id;
-                            var asset = dbContext.Assets.AsNoTracking()
+                            var asset = dbContext.Assets
                                 .Where(a => a.AssetId == id)
                                 //.Where(a => (a.Flags & (int)ServerAssetFlags.HighResProp) != 0)
                                 .FirstOrDefault();
-                            var metaData = dbContext.Metadata.AsNoTracking()
+                            var metaData = dbContext.Metadata
                                 .Where(a => a.AssetId == id)
                                 .FirstOrDefault();
                             var newMetaData = false;
@@ -209,14 +209,14 @@ namespace ThePalace.Server.Web.Controllers
                                 asset = new Assets
                                 {
                                     AssetId = id,
+                                    AssetCrc = (Int32)(UInt32)jsonResponse.props[j].crc,
+                                    Name = (string)jsonResponse.props[j].name,
+                                    Flags = (Int32)ServerAssetFlags.HighResProp,
+                                    Data = null,
                                 };
                             }
 
-                            asset.AssetCrc = (Int32)(UInt32)jsonResponse.props[j].crc;
-                            asset.Flags = (Int32)ServerAssetFlags.HighResProp;
-                            asset.Name = (string)jsonResponse.props[j].name;
                             asset.LastUsed = DateTime.UtcNow;
-                            asset.Data = null;
 
                             if (newAsset)
                             {
@@ -230,18 +230,14 @@ namespace ThePalace.Server.Web.Controllers
                                 metaData = new Metadata
                                 {
                                     AssetId = id,
+                                    Flags = ((string)jsonResponse.props[j].flags).TryParse<int>(0).Value,
+                                    Format = (string)jsonResponse.props[j].format,
+                                    Width = (Int16)jsonResponse.props[j].size.w,
+                                    Height = (Int16)jsonResponse.props[j].size.h,
+                                    OffsetX = (Int16)jsonResponse.props[j].offsets.x,
+                                    OffsetY = (Int16)jsonResponse.props[j].offsets.y,
                                 };
-                            }
 
-                            metaData.Flags = ((string)jsonResponse.props[j].flags).TryParse<int>(0).Value;
-                            metaData.Format = (string)jsonResponse.props[j].format;
-                            metaData.Width = (Int16)jsonResponse.props[j].size.w;
-                            metaData.Height = (Int16)jsonResponse.props[j].size.h;
-                            metaData.OffsetX = (Int16)jsonResponse.props[j].offsets.x;
-                            metaData.OffsetY = (Int16)jsonResponse.props[j].offsets.y;
-
-                            if (newMetaData)
-                            {
                                 dbContext.Metadata.Add(metaData);
                             }
 
@@ -324,16 +320,37 @@ namespace ThePalace.Server.Web.Controllers
                     {
                         if (asset != null)
                         {
-                            str = "Content-Disposition: form-data; name=\"prop\"\r\n\r\n";
-                            dispositionPos = form.IndexOf(str) + str.Length;
+                            var base64 = false;
+
+                            str = "Content-Disposition: form-data; name=\"prop-base64\"\r\n\r\n";
+                            dispositionPos = form.IndexOf(str, nextBoundary);
+
+                            if (dispositionPos > -1)
+                            {
+                                base64 = true;
+                            }
+                            else
+                            {
+                                str = "Content-Disposition: form-data; name=\"prop\"\r\n\r\n";
+                                dispositionPos = form.IndexOf(str, nextBoundary);
+                            }
+
+                            dispositionPos += str.Length;
                             nextBoundary = form.IndexOf(boundary, dispositionPos);
 
                             if (nextBoundary > -1)
                             {
-                                asset.Data = data
+                                var assetData = data
                                     .Skip(dispositionPos)
                                     .Take(nextBoundary - dispositionPos)
                                     .ToArray();
+
+                                if (base64)
+                                {
+                                    assetData = Convert.FromBase64String(assetData.GetString());
+                                }
+
+                                asset.Data = assetData;
                             }
                         }
                     }
